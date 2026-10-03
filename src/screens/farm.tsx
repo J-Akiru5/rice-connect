@@ -57,12 +57,13 @@ export function FarmListScreen({ state = 'default' }: { state?: FarmState }) {
 }
 
 /** /farm/[id] — one farm, one registered farmer (phone). */
-export function FarmProfileScreen({ id, state = 'default' }: { id: string; state?: FarmState }) {
+export function FarmProfileScreen({ id, state = 'default', added: forcedAdded }: { id: string; state?: FarmState; added?: boolean }) {
     const { t } = useI18n();
     const router = useRouter();
     const farm = farmById(id)!;
     const lot = lotOfFarm(farm.id);
-    const [added, setAdded] = useState(farm.status === 'cluster');
+    const [ownAdded, setAdded] = useState(farm.status === 'cluster');
+    const added = forcedAdded ?? ownAdded;
     const [view, setView] = useState<FarmState>(state);
     const next = FARMS[(FARMS.indexOf(farm) + 1) % FARMS.length];
     if (view === 'error') {

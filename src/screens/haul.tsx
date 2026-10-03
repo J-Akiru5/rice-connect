@@ -78,7 +78,7 @@ export function HaulCoordinatorScreen({ state = 'default', status: forced }: { s
                             <input id="haul-sacks" type="number" inputMode="numeric" min={1} value={sacks}
                                 onChange={(e) => setSacks(Math.max(1, Math.floor(Number(e.target.value) || 1)))}
                                 className="hard-thin min-h-[48px] px-3 text-[18px] font-extrabold tabular w-full" />
-                            <p className="text-[13px] font-semibold text-[var(--gray-900)]">{t('haul.sacks.help', { lot: HERO_LOT.id, kg: HERO_LOT.driedKg.toLocaleString('en-US'), n: HERO_LOT.sacks, per: KG_PER_SACK })}</p>
+                            <p className="text-[16px] leading-6 font-semibold text-[var(--gray-900)]">{t('haul.sacks.help', { lot: HERO_LOT.id, kg: HERO_LOT.driedKg.toLocaleString('en-US'), n: HERO_LOT.sacks, per: KG_PER_SACK })}</p>
                             <button type="button" onClick={send} className="hard-btn bg-[var(--warning)] text-black w-full"><Icon name="Send" size={24} /><span>{t('haul.request')}</span></button>
                         </div>
                     ) : (
@@ -115,7 +115,7 @@ export function HaulCoordinatorScreen({ state = 'default', status: forced }: { s
                                                     <Icon name={dv.icon} size={24} className="shrink-0 text-black" />
                                                     <span className="min-w-0 flex-1 text-black">
                                                         <span className="block text-[15px] font-extrabold">{d.name} · {d.plate}</span>
-                                                        <span className="block text-[13px] font-semibold text-[var(--gray-900)] tabular">{t('driver.away', { km: d.distanceKm.toFixed(1) })} · {t('haul.trips', { n: tripsFor(sacks, dv), price: peso(tripsFor(sacks, dv) * dv.price) })}</span>
+                                                        <span className="block text-[14px] font-semibold text-[var(--gray-900)] tabular">{t('driver.away', { km: d.distanceKm.toFixed(1) })} · {t('haul.trips', { n: tripsFor(sacks, dv), price: peso(tripsFor(sacks, dv) * dv.price) })}</span>
                                                     </span>
                                                     <span className="flex flex-col items-end gap-1">
                                                         <StatusChip status={d.available ? 'open' : 'pending'} label={d.available ? 'haul.free' : 'haul.busy'} kind={d.available ? 'success' : 'warning'} hard />

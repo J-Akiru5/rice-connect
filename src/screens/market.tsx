@@ -20,11 +20,12 @@ function passes(c: Commitment, on: string[]) {
 }
 
 /** /market — commitment board with search, filters (grade, volume, window) and auto-match to forecast (desktop). */
-export function MarketScreen({ committedInitially = false }: { committedInitially?: boolean }) {
+export function MarketScreen({ committed: forced }: { committed?: boolean }) {
     const { t } = useI18n();
     const [q, setQ] = useState('');
     const [on, setOn] = useState<string[]>([]);
-    const [committed, setCommitted] = useState(committedInitially);
+    const [own, setCommitted] = useState(false);
+    const committed = forced ?? own;
     const heroC = COMMITMENTS.find((c) => c.id === commitmentOfLot(HERO_LOT.id))!;
     const heroM = MATCHES.find((m) => m.commitment === heroC.id)!;
 
