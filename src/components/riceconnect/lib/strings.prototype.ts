@@ -143,4 +143,6 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     'dry.slots': ['Dryer Slots in {week}', 'Mga Slot sa Patuyuan sa {week}', 'Mga Slot sa Pamalahan sa {week}'],
     'dry.col.slot': ['Slot', 'Slot', 'Slot'],
     'dry.col.day': ['Dries On', 'Patutuyuin sa', 'Pamalahon sa'],
+    'sms.conversations': ['Conversations', 'Mga Usapan', 'Mga Istoryahanay'],
+    'sms.readonly': ['Preview of sent SMS. Farmers reply by SMS.', 'Preview ng naipadalang SMS. Sumasagot ang magsasaka sa SMS.', 'Preview sang napadala nga SMS. Nagasabat ang mangunguma paagi sa SMS.'],
 };

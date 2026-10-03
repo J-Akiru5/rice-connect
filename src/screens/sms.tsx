@@ -1,14 +1,14 @@
 'use client';
 import Link from 'next/link';
-import { AppShell, DemoChip, Icon, LANGS, PhoneFrame, PhoneShell, PhoneStage, SmsThread, T, TeamFooter, useI18n } from '@/components/riceconnect';
+import { AppShell, DemoChip, Icon, LANGS, PhoneFrame, PhoneShell, PhoneStage, SmsBubble, SmsThread, T, TeamFooter, useI18n } from '@/components/riceconnect';
 import { useFramed } from './shell';
-import { HERO_FARM, HERO_LOT } from "@/data/seed";
+import { HERO_FARM, HERO_LOT, SMS } from "@/data/seed";
 
 /** /sms — the three messages the farmer gets for Lot L-03, in the header language.
     Always on a phone: inside the website shell the PhoneFrame is the farmer's phone; in /demo or ?frame=phone the whole
     screen is the coordinator's phone shell (as in the canvas board). */
 export function SmsScreen() {
-    const { t } = useI18n();
+    const { t, lang } = useI18n();
     const framed = useFramed();
     const allLink = (
         <Link href="/sms?all=1" className="self-start inline-flex items-center gap-2 min-h-[44px] text-[14px] font-extrabold uppercase tracking-[0.08em] text-[var(--text-accent)]">
@@ -26,9 +26,55 @@ export function SmsScreen() {
             </PhoneShell>
         </PhoneStage>
     );
+    const last = SMS[SMS.length - 1];
     return (
         <AppShell title="sms.title" active="sms">
-            <div className="flex flex-col gap-4 items-center">
+            {/* Wide content: a desktop chat (derived, not in canvas). Conversation list left, the thread right. */}
+            <div className="cq-wide-only glass-panel rounded-[1.5rem] overflow-hidden grid grid-cols-[minmax(240px,300px)_minmax(0,1fr)] min-h-[620px]">
+                <nav aria-label={t('sms.conversations')} className="border-r border-[color:var(--glass-border-strong)] flex flex-col">
+                    <h2 className="eyebrow px-4 pt-4 pb-2">{t('sms.conversations')}</h2>
+                    <ul>
+                        <li>
+                            <a href="#sms-thread" aria-current="true" className="flex items-start gap-3 px-4 py-3 min-h-[64px] bg-[rgba(2,70,53,.08)] border-l-4 border-[color:var(--fill-strong)]">
+                                <span className="shrink-0 w-11 h-11 rounded-full flex items-center justify-center bg-[var(--fill-strong)] text-[var(--on-fill-strong)]"><Icon name="User" size={20} /></span>
+                                <span className="min-w-0 flex-1">
+                                    <span className="flex items-baseline justify-between gap-2 flex-wrap">
+                                        <span className="text-[15px] font-extrabold break-words">{HERO_FARM.name}</span>
+                                        <span className="text-[12px] font-semibold text-[var(--text-secondary)] tabular">{last.time}</span>
+                                    </span>
+                                    <span className="block text-[14px] leading-5 font-medium text-[var(--text-secondary)] break-words">{last.text[lang]}</span>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <p className="mt-auto m-0 p-4 text-[14px] leading-5 font-semibold text-[var(--text-secondary)]"><T k="sms.note" /></p>
+                </nav>
+                <section id="sms-thread" aria-labelledby="sms-thread-h" className="flex flex-col min-w-0" lang={lang}>
+                    <header className="flex items-center gap-3 flex-wrap px-5 py-4 border-b border-[color:var(--glass-border-strong)]">
+                        <div className="min-w-0 flex-1">
+                            <h2 id="sms-thread-h" className="text-[18px] leading-6 font-extrabold break-words">{HERO_FARM.name}</h2>
+                            <p className="m-0 text-[14px] font-semibold text-[var(--text-secondary)] tabular break-words">{HERO_FARM.mobile} · {HERO_FARM.barangay}</p>
+                        </div>
+                        <Link href={`/pay/${HERO_LOT.id}`} className="inline-flex items-center gap-2 min-h-[40px] px-4 rounded-[2rem] border-2 border-[color:var(--text-accent)] text-[var(--text-accent)] text-[13px] font-extrabold uppercase tracking-[0.08em]">
+                            <Icon name="Pay" size={20} /><span>{t('pay.open', { lot: HERO_LOT.id })}</span>
+                        </Link>
+                    </header>
+                    <ol className="flex-1 flex flex-col gap-5 px-5 py-6" aria-label={t('sms.title')}>
+                        {SMS.map((m) => (
+                            <li key={m.key} className="flex flex-col items-end gap-2">
+                                <span className="self-center glass-panel !shadow-none px-3 py-1 rounded-full text-[12px] font-extrabold uppercase tracking-[0.08em] text-[var(--text-muted)] tabular">{m.time}</span>
+                                <SmsBubble text={m.text[lang]} time={m.time} className="max-w-[min(520px,85%)]" />
+                            </li>
+                        ))}
+                    </ol>
+                    <footer className="flex items-center justify-between gap-3 flex-wrap px-5 py-3 border-t border-[color:var(--glass-border-strong)]">
+                        <span className="text-[14px] font-semibold text-[var(--text-secondary)] flex items-center gap-2"><Icon name="Info" size={20} />{t('sms.readonly')}</span>
+                        {allLink}
+                    </footer>
+                </section>
+            </div>
+            {/* Narrow content: the farmer's phone. */}
+            <div className="cq-narrow-only flex flex-col gap-4 items-center">
                 <p className="glass-panel !shadow-none m-0 px-4 py-3 rounded-2xl text-[16px] leading-6 font-semibold max-w-[640px] w-full"><T k="sms.note" /></p>
                 <PhoneFrame className="max-w-full shadow-[var(--shadow-popover)]">
                     <div className="rc-ground min-h-full p-4 flex flex-col gap-3">

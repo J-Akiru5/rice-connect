@@ -27,7 +27,7 @@ Run `npm run build && npm start`, open devtools → device toolbar → "Responsi
 | `/haul/driver` | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | Accept → Picked Up → Delivered; one column, max 720px. |
 | `/pay` | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | 13 lots: 1 page at 20, 2 pages at 10. Table ↔ cards; L-03 highlighted and linked. |
 | `/pay/L-03` | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | BigStats wrap, ₱ amounts not broken mid-number; slip box scrolls inside itself on phones; Print Slip prints only the slip (A6). |
-| `/sms` | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | Website shell with the farmer's phone (PhoneFrame) in the middle; below 390px the frame narrows to the column. |
+| `/sms` | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | Wide content: desktop chat (conversation list + thread, date chips, read-only footer). Narrow: the farmer's phone (PhoneFrame); below 390px the frame narrows to the column. Switch EN/TL/HIL: bubbles and the list preview follow. |
 | `/sms?all=1` | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | Three columns wide, one column narrow. |
 
 ## Phone frame (video only)
