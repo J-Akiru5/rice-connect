@@ -1,5 +1,6 @@
-import { redirect } from 'next/navigation';
+'use client';
+import { MarketingPage } from '@rc/screens/marketing';
 
 export default function Home() {
-  redirect('/farm');
+  return <MarketingPage />;
 }
