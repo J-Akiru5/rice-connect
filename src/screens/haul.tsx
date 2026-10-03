@@ -1,7 +1,8 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { DeliveryStatusStepper, DriverCard, EmptyState, HaulRequestCard, Icon, PhoneShell, RouteLine, StatusChip, VehicleOption, useI18n } from '@/components/riceconnect';
+import { DeliveryStatusStepper, DriverCard, EmptyState, HaulRequestCard, Icon, RouteLine, StatusChip, VehicleOption, useI18n } from '@/components/riceconnect';
+import { ModuleShell } from './shell';
 import { DRIVERS, DRYER, HAUL, HERO_LOT, KG_PER_SACK, SLOT, VEHICLES, vehicleOf } from '@/data/seed';
 import { autoAssign, tripsFor, type Driver } from '@/data/assign';
 import { peso } from '@/data/money';
@@ -46,32 +47,62 @@ export function HaulCoordinatorScreen({ state = 'default', status: forced }: { s
     const pick = (d: Driver) => { setDriver(d); setOverridden(true); setListOpen(false); };
 
     if (view === 'empty') return (
-        <PhoneShell title="haul.title" active="logistics">
-            <EmptyState variant="empty" title="state.haul.empty.title" body="state.haul.empty.body" action="state.haul.empty.action" onAction={() => setView('form')} />
-        </PhoneShell>
+        <ModuleShell title="haul.title" active="logistics">
+            <EmptyState className="max-w-[640px] mx-auto" variant="empty" title="state.haul.empty.title" body="state.haul.empty.body" action="state.haul.empty.action" onAction={() => setView('form')} />
+        </ModuleShell>
     );
     if (view === 'error') return (
-        <PhoneShell title="haul.title" active="logistics">
-            <EmptyState variant="error" title="state.haul.error.title" body="state.haul.error.body" action="error.retry" onAction={() => setView('form')} />
-        </PhoneShell>
+        <ModuleShell title="haul.title" active="logistics">
+            <EmptyState className="max-w-[640px] mx-auto" variant="error" title="state.haul.error.title" body="state.haul.error.body" action="error.retry" onAction={() => setView('form')} />
+        </ModuleShell>
     );
     if (view === 'success') return (
-        <PhoneShell title="haul.title" active="logistics">
-            <div className="flex flex-col gap-4">
+        <ModuleShell title="haul.title" active="logistics">
+            <div className="flex flex-col gap-4 max-w-[640px] mx-auto">
                 <EmptyState variant="success" title={t('state.haul.success.title', { haul: HAUL.id })}
                     body={t('state.haul.success.body', { sacks: HAUL.sacks, dryer: DRYER.name, slot: SLOT.id, day: SLOT.day })} />
                 <Link href="/dry" className="btn-2026 self-center"><Icon name="ArrowRight" size={24} /><span>{t('state.haul.success.action')}</span></Link>
             </div>
-        </PhoneShell>
+        </ModuleShell>
     );
 
     const v = driver ? vehicleOf(driver) : null;
+    /* Driver list: inside the card when "Change Driver" is open (narrow), always in the right column (wide). */
+    const driverList = (closable: boolean) => (
+        <div className="hard-thin p-3 flex flex-col gap-2" aria-label={t('haul.drivers')} role="group">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+                <h4 className="text-[13px] font-extrabold uppercase tracking-[0.08em] text-black">{t('haul.drivers')}</h4>
+                {closable && <button type="button" onClick={() => setListOpen(false)} className="hard-btn bg-white text-black !min-h-[44px] !px-3"><Icon name="X" size={24} /><span>{t('haul.close')}</span></button>}
+            </div>
+            <ul className="flex flex-col gap-2">
+                {[...DRIVERS].sort((a, b) => a.distanceKm - b.distanceKm || a.id.localeCompare(b.id)).map((d) => {
+                    const dv = vehicleOf(d);
+                    return (
+                        <li key={d.id} className="border-2 border-black p-2 flex items-center gap-2 flex-wrap">
+                            <Icon name={dv.icon} size={24} className="shrink-0 text-black" />
+                            <span className="min-w-0 flex-1 text-black">
+                                <span className="block text-[15px] font-extrabold break-words">{d.name} · {d.plate}</span>
+                                <span className="block text-[14px] font-semibold text-[var(--gray-900)] tabular">{t('driver.away', { km: d.distanceKm.toFixed(1) })} · {t('haul.trips', { n: tripsFor(sacks, dv), price: peso(tripsFor(sacks, dv) * dv.price) })}</span>
+                            </span>
+                            <span className="flex flex-col items-end gap-1">
+                                <StatusChip status={d.available ? 'open' : 'pending'} label={d.available ? 'haul.free' : 'haul.busy'} kind={d.available ? 'success' : 'warning'} hard />
+                                <button type="button" onClick={() => pick(d)} aria-pressed={driver?.id === d.id} className="hard-btn bg-white text-black !min-h-[44px] !px-3 !py-2">{t('haul.assign')}</button>
+                            </span>
+                        </li>
+                    );
+                })}
+            </ul>
+        </div>
+    );
     return (
-        <PhoneShell title={view === 'form' ? 'haul.new' : 'haul.title'} active="logistics">
-            <div className="flex flex-col gap-4">
+        <ModuleShell title={view === 'form' ? 'haul.new' : 'haul.title'} active="logistics">
+            {/* Narrow: one column (as the canvas board). Wide: request + assignment left; stepper, route and drivers right (derived, not in canvas). */}
+            <div className="cq-two">
                 <HaulRequestCard id={HAUL.id} lot={HAUL.lot} sacks={sacks} status={status}>
-                    <DeliveryStatusStepper status={status} type="cluster" />
-                    <RouteLine stops={STOPS} km={HAUL.km} active={routeActive(status)} />
+                    <div className="cq-narrow-only flex flex-col gap-3">
+                        <DeliveryStatusStepper status={status} type="cluster" />
+                        <RouteLine stops={STOPS} km={HAUL.km} active={routeActive(status)} />
+                    </div>
                     {view === 'form' ? (
                         <div className="hard-thin p-3 flex flex-col gap-2">
                             <label htmlFor="haul-sacks" className="text-[13px] font-extrabold uppercase tracking-[0.08em] text-black">{t('haul.sacks')}</label>
@@ -91,7 +122,7 @@ export function HaulCoordinatorScreen({ state = 'default', status: forced }: { s
                             </div>
                             {driver && v && (
                                 <DriverCard name={driver.name} vehicle={v.icon} plate={driver.plate} distanceKm={driver.distanceKm} auto={!overridden}
-                                    onOverride={() => setListOpen((o) => !o)} />
+                                    onOverride={() => { setListOpen((o) => !o); document.getElementById('haul-drivers')?.focus(); }} />
                             )}
                             {overridden && <StatusChip status="assigned" label="haul.overridden" kind="warning" hard />}
                             {driver && v && (
@@ -101,41 +132,21 @@ export function HaulCoordinatorScreen({ state = 'default', status: forced }: { s
                                     {status === 'assigned' && <p className="text-[14px] font-bold text-black flex items-center gap-1.5"><Icon name="Clock" size={20} />{t('haul.waiting', { driver: driver.name })}</p>}
                                 </div>
                             )}
-                            {listOpen && (
-                                <div className="hard-thin p-3 flex flex-col gap-2" aria-label={t('haul.drivers')} role="group">
-                                    <div className="flex items-center justify-between gap-2">
-                                        <h4 className="text-[13px] font-extrabold uppercase tracking-[0.08em] text-black">{t('haul.drivers')}</h4>
-                                        <button type="button" onClick={() => setListOpen(false)} className="hard-btn bg-white text-black !min-h-[44px] !px-3"><Icon name="X" size={24} /><span>{t('haul.close')}</span></button>
-                                    </div>
-                                    <ul className="flex flex-col gap-2">
-                                        {[...DRIVERS].sort((a, b) => a.distanceKm - b.distanceKm || a.id.localeCompare(b.id)).map((d) => {
-                                            const dv = vehicleOf(d);
-                                            return (
-                                                <li key={d.id} className="border-2 border-black p-2 flex items-center gap-2">
-                                                    <Icon name={dv.icon} size={24} className="shrink-0 text-black" />
-                                                    <span className="min-w-0 flex-1 text-black">
-                                                        <span className="block text-[15px] font-extrabold">{d.name} · {d.plate}</span>
-                                                        <span className="block text-[14px] font-semibold text-[var(--gray-900)] tabular">{t('driver.away', { km: d.distanceKm.toFixed(1) })} · {t('haul.trips', { n: tripsFor(sacks, dv), price: peso(tripsFor(sacks, dv) * dv.price) })}</span>
-                                                    </span>
-                                                    <span className="flex flex-col items-end gap-1">
-                                                        <StatusChip status={d.available ? 'open' : 'pending'} label={d.available ? 'haul.free' : 'haul.busy'} kind={d.available ? 'success' : 'warning'} hard />
-                                                        <button type="button" onClick={() => pick(d)} aria-pressed={driver?.id === d.id} className="hard-btn bg-white text-black !min-h-[44px] !px-3 !py-2">{t('haul.assign')}</button>
-                                                    </span>
-                                                </li>
-                                            );
-                                        })}
-                                    </ul>
-                                </div>
-                            )}
+                            {listOpen && <div className="cq-narrow-only">{driverList(true)}</div>}
                         </>
                     )}
                 </HaulRequestCard>
+                <section className="cq-wide-only hard p-4 flex flex-col gap-3 outline-none" id="haul-drivers" tabIndex={-1} aria-label={t('haul.route')}>
+                    <DeliveryStatusStepper status={status} type="cluster" />
+                    <RouteLine stops={STOPS} km={HAUL.km} active={routeActive(status)} />
+                    {view !== 'form' && driverList(false)}
+                </section>
             </div>
-        </PhoneShell>
+        </ModuleShell>
     );
 }
 
-/** /haul/driver — the driver's job card: Accept / Decline, then status updates (phone). */
+/** /haul/driver — the driver's job card: Accept / Decline, then status updates (one column, max 720px when wide). */
 export function HaulDriverScreen({ status: forced }: { status?: HaulStatus }) {
     const { t } = useI18n();
     const [own, setOwn] = useState<HaulStatus>('assigned');
@@ -146,8 +157,8 @@ export function HaulDriverScreen({ status: forced }: { status?: HaulStatus }) {
     const trips = tripsFor(HAUL.sacks, v);
     const step = (to: HaulStatus) => () => setOwn(to);
     return (
-        <PhoneShell role="driver" title="haul.driver.job" active="logistics">
-            <div className="flex flex-col gap-4">
+        <ModuleShell role="driver" title="haul.driver.job" active="logistics">
+            <div className="flex flex-col gap-4 max-w-[720px] mx-auto w-full">
                 <HaulRequestCard id={HAUL.id} lot={HAUL.lot} sacks={HAUL.sacks} status={st}>
                     <DeliveryStatusStepper status={st} type="cluster" />
                     <div className="hard-thin p-3 flex flex-col gap-1.5">
@@ -176,7 +187,7 @@ export function HaulDriverScreen({ status: forced }: { status?: HaulStatus }) {
                     <RouteLine stops={STOPS} km={HAUL.km} active={routeActive(st)} />
                 </HaulRequestCard>
             </div>
-        </PhoneShell>
+        </ModuleShell>
     );
 }
 export { ORDER as HAUL_ORDER };

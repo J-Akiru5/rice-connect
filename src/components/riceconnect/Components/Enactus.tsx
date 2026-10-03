@@ -269,7 +269,7 @@ export function RouteLine({ stops, km, active = 0, className = '' }: { stops: { 
                             <Icon name={s.icon} size={22} />
                         </span>
                         <span className="min-w-0">
-                            <span className="block text-[15px] font-extrabold text-black truncate">{s.label}</span>
+                            <span className="block text-[15px] font-extrabold text-black break-words">{s.label}</span>
                             <span className="block text-[13px] font-semibold text-[var(--gray-900)]">{s.place}</span>
                         </span>
                     </li>

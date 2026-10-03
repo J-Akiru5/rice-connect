@@ -2,56 +2,44 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { AppShell, BigStat, EmptyState, Icon, PrimaryButton, SettlementSlip, SmsThread, StatusChip, useI18n, ASSETS } from '@/components/riceconnect';
+import { AppShell, BigStat, EmptyState, Icon, Pagination, PrimaryButton, SettlementSlip, SmsThread, StatusChip, useI18n, ASSETS } from '@/components/riceconnect';
+import { paginate } from '@/lib/list';
+import { staticListState, type ListState } from './list-state';
 import { COMMITMENTS, DRYER, HAUL, HERO_FARM, HERO_LOT, MATCHES, SETTLEMENT, SLIP, SLOT, farmById, lotById } from '@/data/seed';
 import { settle } from '@/data/settlement';
 import { peso, rate } from '@/data/money';
-import { SectionPill, Note } from './ui';
+import { SectionPill, Note, ResponsiveTable, type Col } from './ui';
 
-/** /pay — lots matched to commitments; only the weighed lot (L-03) settles (desktop). */
-export function PayListScreen({ state = 'default' }: { state?: 'default' | 'empty' }) {
+/** /pay — lots matched to commitments; only the weighed lot (L-03) settles (desktop; stacked cards when narrow). Paginated. */
+export function PayListScreen({ state = 'default', list }: { state?: 'default' | 'empty'; list?: ListState }) {
     const { t } = useI18n();
     const router = useRouter();
+    const L = list ?? staticListState('/pay');
     const rows = MATCHES.flatMap((m) => m.lots.map((id) => ({ lot: lotById(id)!, commitment: m.commitment })))
         .sort((a, b) => Number(b.lot.actual) - Number(a.lot.actual) || a.lot.dayIndex - b.lot.dayIndex || a.lot.id.localeCompare(b.lot.id));
+    const pg = paginate(rows, L.page, L.size);
+    type Row = (typeof rows)[number];
+    const cols: Col<Row>[] = [
+        { key: 'lot', label: t('pay.col.lot'), cell: ({ lot }) => lot.actual
+            ? <Link href={`/pay/${lot.id}`} aria-label={t('pay.open', { lot: lot.id })} className="inline-flex items-center gap-1 min-h-[40px] text-[var(--text-accent)] underline underline-offset-4">{lot.id}<Icon name="ChevronRight" size={20} /></Link>
+            : lot.id },
+        { key: 'farm', label: t('pay.col.farm'), cell: ({ lot }) => lot.farm },
+        { key: 'commitment', label: t('pay.col.commitment'), cell: (r) => r.commitment },
+        { key: 'harvest', label: t('pay.col.harvest'), cell: ({ lot }) => { const f = farmById(lot.farm)!; return `${f.harvestWeek} · ${f.harvestLabel}`; } },
+        { key: 'kg', label: t('pay.col.kg'), align: 'right', nowrap: true, cell: ({ lot }) => `${lot.driedKg.toLocaleString('en-US')} kg` },
+        { key: 'net', label: t('pay.col.net'), align: 'right', nowrap: true, cell: ({ lot }) => peso(settle(lot.driedKg).net) },
+        { key: 'status', label: t('pay.col.status'), cell: ({ lot }) => lot.actual ? <StatusChip status="paid" label="pay.badge.paid" /> : <StatusChip status="pending" label="pay.estimate" /> },
+    ];
     return (
         <AppShell title="pay.title" eyebrow="pay.eyebrow" active="pay">
             {state === 'empty' ? (
                 <EmptyState variant="empty" title="state.pay.empty.title" body="state.pay.empty.body" action="state.pay.empty.action" onAction={() => router.push('/dry')} className="max-w-[640px]" />
             ) : (
-                <section aria-labelledby="pay-list" className="max-w-[1400px]">
-                    <SectionPill id="pay-list">{t('pay.list.title')}</SectionPill>
-                    <div className="glass-panel rounded-[1.5rem] p-5 overflow-x-auto">
-                        <table className="w-full tabular text-left min-w-[760px]">
-                            <thead>
-                                <tr className="text-[12px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-muted)]">
-                                    {['lot', 'farm', 'commitment', 'harvest'].map((k) => <th key={k} scope="col" className="py-2 pr-3">{t('pay.col.' + k)}</th>)}
-                                    <th scope="col" className="py-2 px-3 text-right">{t('pay.col.kg')}</th>
-                                    <th scope="col" className="py-2 px-3 text-right">{t('pay.col.net')}</th>
-                                    <th scope="col" className="py-2 pl-3">{t('pay.col.status')}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {rows.map(({ lot, commitment }) => {
-                                    const f = farmById(lot.farm)!;
-                                    return (
-                                        <tr key={lot.id} className={`border-t border-[color:var(--glass-border-strong)] text-[15px] font-bold ${lot.actual ? 'bg-[rgba(2,70,53,.08)]' : ''}`}>
-                                            <th scope="row" className="py-2.5 pr-3 font-extrabold">
-                                                {lot.actual ? <Link href={`/pay/${lot.id}`} aria-label={t('pay.open', { lot: lot.id })} className="inline-flex items-center gap-1 min-h-[40px] text-[var(--text-accent)] underline underline-offset-4">{lot.id}<Icon name="ChevronRight" size={20} /></Link> : lot.id}
-                                            </th>
-                                            <td className="py-2.5 pr-3">{f.id}</td>
-                                            <td className="py-2.5 pr-3">{commitment}</td>
-                                            <td className="py-2.5 pr-3">{f.harvestWeek} · {f.harvestLabel}</td>
-                                            <td className="py-2.5 px-3 text-right">{lot.driedKg.toLocaleString('en-US')} kg</td>
-                                            <td className="py-2.5 px-3 text-right">{peso(settle(lot.driedKg).net)}</td>
-                                            <td className="py-2.5 pl-3">{lot.actual ? <StatusChip status="paid" label="pay.badge.paid" /> : <StatusChip status="pending" label="pay.estimate" />}</td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
-                    <Note className="mt-3">{t('pay.list.note')}</Note>
+                <section aria-labelledby="pay-list" className="flex flex-col gap-3">
+                    <div><SectionPill id="pay-list">{t('pay.list.title')}</SectionPill></div>
+                    <ResponsiveTable caption={t('pay.list.title')} cols={cols} rows={pg.rows} rowKey={(r) => r.lot.id} highlight={(r) => r.lot.actual} />
+                    <Pagination total={pg.total} page={pg.page} pageSize={pg.size} hrefFor={L.pageHref} onSizeChange={(n) => L.set({ size: n })} />
+                    <Note>{t('pay.list.note')}</Note>
                 </section>
             )}
         </AppShell>

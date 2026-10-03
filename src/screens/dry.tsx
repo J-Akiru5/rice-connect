@@ -1,9 +1,10 @@
 'use client';
-import { useState } from 'react';
-import { AppShell, BigStat, SlotTimeline, useI18n } from '@/components/riceconnect';
-import { DRYER, HERO_LOT, KG_PER_SACK, SLOT, SLOTS, WEEKS } from '@/data/seed';
+import { AppShell, BigStat, Pagination, SlotTimeline, useI18n } from '@/components/riceconnect';
+import { paginate } from '@/lib/list';
+import { staticListState, type ListState } from './list-state';
+import { DRYER, HERO_LOT, KG_PER_SACK, SLOT, SLOTS, WEEKS, lotById, farmById, type Slot } from '@/data/seed';
 import { dayLabel } from '@/data/calendar';
-import { SectionPill, Note } from './ui';
+import { SectionPill, Note, ResponsiveTable, type Col } from './ui';
 
 /** Seven day columns for a harvest week; L-03's slot is the hero. */
 export function weekDays(week: number) {
@@ -17,10 +18,23 @@ export function weekDays(week: number) {
 }
 
 /** /dry — dryer capacity per day and the slots assigned to harvest dates (desktop). */
-export function DryScreen() {
+export function DryScreen({ list, week: weekParam }: { list?: ListState; week?: number }) {
     const { t } = useI18n();
+    const L = list ?? staticListState('/dry');
     const heroWeek = Math.floor(SLOT.dayIndex / 7);
-    const [week, setWeek] = useState(heroWeek);
+    const week = weekParam !== undefined && weekParam >= 0 && weekParam < WEEKS.length ? weekParam : heroWeek;
+    const setWeek = (i: number) => L.set({ week: i + 1, page: null });
+    const weekSlots = SLOTS.filter((s) => Math.floor(s.dayIndex / 7) === week);
+    const pg = paginate(weekSlots, L.page, L.size);
+    const cols: Col<Slot>[] = [
+        { key: 'slot', label: t('dry.col.slot'), cell: (s) => s.id },
+        { key: 'lot', label: t('farm.lot'), cell: (s) => s.lot },
+        { key: 'farm', label: t('farm.id'), cell: (s) => lotById(s.lot)!.farm },
+        { key: 'harvest', label: t('farm.harvest'), cell: (s) => farmById(lotById(s.lot)!.farm)!.harvestLabel },
+        { key: 'day', label: t('dry.col.day'), cell: (s) => s.day },
+        { key: 'kg', label: t('pay.col.kg'), align: 'right', nowrap: true, cell: (s) => `${s.kg.toLocaleString('en-US')} kg` },
+        { key: 'sacks', label: t('haul.sacks'), align: 'right', nowrap: true, cell: (s) => `${s.sacks} ${t('unit.sacks')}` },
+    ];
     const days = weekDays(week);
     const booked = days.reduce((s, d) => s + d.slots.reduce((a, x) => a + x.sacks, 0), 0);
     const cap = DRYER.capacitySacks * 7;
@@ -44,6 +58,11 @@ export function DryScreen() {
                     </div>
                     <SlotTimeline days={days} capacity={DRYER.capacitySacks} />
                     <Note className="mt-3">{t('dry.rule', { t: DRYER.capacityKg / 1000 })}</Note>
+                </section>
+                <section aria-labelledby="dry-list" className="flex flex-col gap-3">
+                    <div><SectionPill id="dry-list">{t('dry.slots', { week: WEEKS[week] })}</SectionPill></div>
+                    <ResponsiveTable caption={t('dry.slots', { week: WEEKS[week] })} cols={cols} rows={pg.rows} rowKey={(s) => s.id} highlight={(s) => s.lot === HERO_LOT.id} />
+                    <Pagination total={pg.total} page={pg.page} pageSize={pg.size} hrefFor={L.pageHref} onSizeChange={(n) => L.set({ size: n })} />
                 </section>
             </div>
         </AppShell>
