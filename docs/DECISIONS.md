@@ -64,3 +64,16 @@ Sources: design system https://claude.ai/artifact/97dKcK7FbnPNaW3ezBoTVt (versio
 | S14 | /sms | Design: phone board with the note + SmsThread; a separate desktop board with all three languages. | `/sms` = phone board (header language drives the thread). `/sms?all=1` = the all-languages board, plus DemoChip and footer. Messages are generated from the data (D1, D7); `PHP` in SMS (D5). |
 | S15 | /demo | Not in the design (End-Card board only). | Beats render the same screen components as the routes. Farm: Add to Cluster fires at 3 s. Market: Commit Lot fires at 22 s. Haul: coordinator view (Assigned) 40–46 s, then the driver's phone: Accepted 46, Picked Up 48, Delivered 50. End card uses the reversed logo and a translated title. `?rec=1` hides only the demo control bar; the app's own chip, switcher and footer stay (they are required on every route). `?beat=N` added so the End-Card board has an address. |
 | S16 | New components | — | Logged: ThemeToggle, PhoneStage, TeamFooter (Components/), SectionPill and Note (screens/ui.tsx, markup the boards repeat). Nothing else new. |
+
+## Responsive website + pagination (branch feature/responsive-pagination)
+
+Every new desktop/tablet layout below is **derived, not in canvas**: composed only from existing design-system components, tokens and the glass/hard styles.
+
+| # | Topic | Decision |
+|---|---|---|
+| R1 | PhoneFrame rules | The frame appears only on `/sms` (always: it is the farmer's phone), inside `/demo`, and on the phone modules (Farm, Haul) when the URL has `?frame=phone` or `?rec=1` (`FrameProvider` + `ModuleShell` in `src/screens/shell.tsx`). Desktop modules (Plan, Market, Dry, Pay) ignore `?frame` and `?rec`. No user-agent sniffing. |
+| R2 | Breakpoints | Tailwind screens set to `md` 768, `lg` 1200 (plus `xl` 1440, `2xl` 1920). <768 mobile, 768–1199 tablet, ≥1200 desktop. |
+| R3 | Shell (derived, not in canvas) | AppShell is now responsive. Mobile: top bar (logo mark, LanguageSwitcher, ThemeToggle), title row with DemoChip, fixed bottom tab bar (Farm, Logistics, Orders, SMS, More); More opens a native-dialog sheet (the design's Modal) with Plan, Market, Dry. Tablet: 104px icon rail, icon above a 12px word. Desktop: the design's 264px sidebar with all seven modules; top bar with DemoChip, LanguageSwitcher, theme toggle. Content max-width 1280px, centered. Footer on every route. |
+| R4 | Content layout | Module content sits in a CSS container (`.rc-cq`) and switches layouts with container queries (`cq-wide-only` / `cq-narrow-only` at 720px, `cq-split` at 1000px, `cq-two` at 840px). This is why the same screen is "mobile" inside the 390px frame on a 1920 screen. |
+| R5 | /sms (derived, not in canvas) | Website view: the AppShell with the farmer's phone (PhoneFrame) centered in the content, holding the SMS inbox; the frame shrinks to the column below 390px. `?frame=phone` and the demo keep the canvas board (coordinator phone shell). `/sms?all=1` unchanged. |
+| R6 | No ellipsis | `truncate` removed from RouteLine stop labels and the farm list; key data wraps (`break-words`). |

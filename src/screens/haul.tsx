@@ -1,7 +1,8 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { DeliveryStatusStepper, DriverCard, EmptyState, HaulRequestCard, Icon, PhoneShell, RouteLine, StatusChip, VehicleOption, useI18n } from '@/components/riceconnect';
+import { DeliveryStatusStepper, DriverCard, EmptyState, HaulRequestCard, Icon, RouteLine, StatusChip, VehicleOption, useI18n } from '@/components/riceconnect';
+import { ModuleShell } from './shell';
 import { DRIVERS, DRYER, HAUL, HERO_LOT, KG_PER_SACK, SLOT, VEHICLES, vehicleOf } from '@/data/seed';
 import { autoAssign, tripsFor, type Driver } from '@/data/assign';
 import { peso } from '@/data/money';
@@ -46,28 +47,28 @@ export function HaulCoordinatorScreen({ state = 'default', status: forced }: { s
     const pick = (d: Driver) => { setDriver(d); setOverridden(true); setListOpen(false); };
 
     if (view === 'empty') return (
-        <PhoneShell title="haul.title" active="logistics">
+        <ModuleShell title="haul.title" active="logistics">
             <EmptyState variant="empty" title="state.haul.empty.title" body="state.haul.empty.body" action="state.haul.empty.action" onAction={() => setView('form')} />
-        </PhoneShell>
+        </ModuleShell>
     );
     if (view === 'error') return (
-        <PhoneShell title="haul.title" active="logistics">
+        <ModuleShell title="haul.title" active="logistics">
             <EmptyState variant="error" title="state.haul.error.title" body="state.haul.error.body" action="error.retry" onAction={() => setView('form')} />
-        </PhoneShell>
+        </ModuleShell>
     );
     if (view === 'success') return (
-        <PhoneShell title="haul.title" active="logistics">
+        <ModuleShell title="haul.title" active="logistics">
             <div className="flex flex-col gap-4">
                 <EmptyState variant="success" title={t('state.haul.success.title', { haul: HAUL.id })}
                     body={t('state.haul.success.body', { sacks: HAUL.sacks, dryer: DRYER.name, slot: SLOT.id, day: SLOT.day })} />
                 <Link href="/dry" className="btn-2026 self-center"><Icon name="ArrowRight" size={24} /><span>{t('state.haul.success.action')}</span></Link>
             </div>
-        </PhoneShell>
+        </ModuleShell>
     );
 
     const v = driver ? vehicleOf(driver) : null;
     return (
-        <PhoneShell title={view === 'form' ? 'haul.new' : 'haul.title'} active="logistics">
+        <ModuleShell title={view === 'form' ? 'haul.new' : 'haul.title'} active="logistics">
             <div className="flex flex-col gap-4">
                 <HaulRequestCard id={HAUL.id} lot={HAUL.lot} sacks={sacks} status={status}>
                     <DeliveryStatusStepper status={status} type="cluster" />
@@ -131,7 +132,7 @@ export function HaulCoordinatorScreen({ state = 'default', status: forced }: { s
                     )}
                 </HaulRequestCard>
             </div>
-        </PhoneShell>
+        </ModuleShell>
     );
 }
 
@@ -146,7 +147,7 @@ export function HaulDriverScreen({ status: forced }: { status?: HaulStatus }) {
     const trips = tripsFor(HAUL.sacks, v);
     const step = (to: HaulStatus) => () => setOwn(to);
     return (
-        <PhoneShell role="driver" title="haul.driver.job" active="logistics">
+        <ModuleShell role="driver" title="haul.driver.job" active="logistics">
             <div className="flex flex-col gap-4">
                 <HaulRequestCard id={HAUL.id} lot={HAUL.lot} sacks={HAUL.sacks} status={st}>
                     <DeliveryStatusStepper status={st} type="cluster" />
@@ -176,7 +177,7 @@ export function HaulDriverScreen({ status: forced }: { status?: HaulStatus }) {
                     <RouteLine stops={STOPS} km={HAUL.km} active={routeActive(st)} />
                 </HaulRequestCard>
             </div>
-        </PhoneShell>
+        </ModuleShell>
     );
 }
 export { ORDER as HAUL_ORDER };

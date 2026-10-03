@@ -2,7 +2,8 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
-import { EmptyState, FarmProfileCard, Icon, PhoneShell, SearchField, StatusChip, useI18n } from '@/components/riceconnect';
+import { EmptyState, FarmProfileCard, Icon, SearchField, StatusChip, useI18n } from '@/components/riceconnect';
+import { ModuleShell } from './shell';
 import { FARMS, TOTALS, KG_PER_SACK, lotOfFarm, farmById, type Farm } from '@/data/seed';
 
 export type FarmState = 'default' | 'empty' | 'error' | 'success';
@@ -33,7 +34,7 @@ export function FarmListScreen({ state = 'default' }: { state?: FarmState }) {
         return s ? FARMS.filter((f) => [f.id, f.barangay, f.variety, f.name].some((x) => x.toLowerCase().includes(s))) : FARMS;
     }, [q]);
     return (
-        <PhoneShell title="farm.title" active="farms">
+        <ModuleShell title="farm.title" active="farms">
             {state === 'empty' ? (
                 <EmptyState variant="empty" title="state.farm.empty.title" body="state.farm.empty.body" />
             ) : (
@@ -52,7 +53,7 @@ export function FarmListScreen({ state = 'default' }: { state?: FarmState }) {
                     )}
                 </div>
             )}
-        </PhoneShell>
+        </ModuleShell>
     );
 }
 
@@ -68,20 +69,20 @@ export function FarmProfileScreen({ id, state = 'default', added: forcedAdded }:
     const next = FARMS[(FARMS.indexOf(farm) + 1) % FARMS.length];
     if (view === 'error') {
         return (
-            <PhoneShell title="farm.title" active="farms">
+            <ModuleShell title="farm.title" active="farms">
                 <EmptyState variant="error" title="state.farm.error.title" body="state.farm.error.body" action="error.retry" onAction={() => setView('default')} />
-            </PhoneShell>
+            </ModuleShell>
         );
     }
     if (view === 'success') {
         return (
-            <PhoneShell title="farm.title" active="farms">
+            <ModuleShell title="farm.title" active="farms">
                 <EmptyState variant="success" title="state.farm.success.title" body={t('state.farm.success.body', { farm: farm.id })} action="state.farm.success.action" onAction={() => router.push(`/farm/${next.id}`)} />
-            </PhoneShell>
+            </ModuleShell>
         );
     }
     return (
-        <PhoneShell title="farm.title" active="farms">
+        <ModuleShell title="farm.title" active="farms">
             <div className="flex flex-col gap-4">
                 <Link href="/farm" className="self-start inline-flex items-center gap-1 min-h-[44px] text-[14px] font-extrabold uppercase tracking-[0.08em] text-[var(--text-accent)]">
                     <Icon name="ChevronLeft" size={24} />{t('farm.back')}
@@ -99,6 +100,6 @@ export function FarmProfileScreen({ id, state = 'default', added: forcedAdded }:
                     </Link>
                 </section>
             </div>
-        </PhoneShell>
+        </ModuleShell>
     );
 }

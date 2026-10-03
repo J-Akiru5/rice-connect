@@ -1,21 +1,44 @@
 'use client';
 import Link from 'next/link';
-import { DemoChip, Icon, LANGS, PhoneShell, SmsThread, T, TeamFooter, useI18n } from '@/components/riceconnect';
-import { HERO_LOT } from "@/data/seed";
+import { AppShell, DemoChip, Icon, LANGS, PhoneFrame, PhoneShell, PhoneStage, SmsThread, T, TeamFooter, useI18n } from '@/components/riceconnect';
+import { useFramed } from './shell';
+import { HERO_FARM, HERO_LOT } from "@/data/seed";
 
-/** /sms — the three messages the farmer gets for Lot L-03, in the header language (phone). */
+/** /sms — the three messages the farmer gets for Lot L-03, in the header language.
+    Always on a phone: inside the website shell the PhoneFrame is the farmer's phone; in /demo or ?frame=phone the whole
+    screen is the coordinator's phone shell (as in the canvas board). */
 export function SmsScreen() {
     const { t } = useI18n();
+    const framed = useFramed();
+    const allLink = (
+        <Link href="/sms?all=1" className="self-start inline-flex items-center gap-2 min-h-[44px] text-[14px] font-extrabold uppercase tracking-[0.08em] text-[var(--text-accent)]">
+            <Icon name="Language" size={24} /><span>{t('sms.all.link')}</span>
+        </Link>
+    );
+    if (framed) return (
+        <PhoneStage>
+            <PhoneShell title="sms.title" active="sms">
+                <div className="flex flex-col gap-4">
+                    <p className="glass-panel !shadow-none m-0 px-4 py-3 rounded-2xl text-[16px] leading-6 font-semibold"><T k="sms.note" /></p>
+                    <div className="glass-panel rounded-[1.5rem] p-4"><SmsThread /></div>
+                    {allLink}
+                </div>
+            </PhoneShell>
+        </PhoneStage>
+    );
     return (
-        <PhoneShell title="sms.title" active="sms">
-            <div className="flex flex-col gap-4">
-                <p className="glass-panel !shadow-none m-0 px-4 py-3 rounded-2xl text-[16px] leading-6 font-semibold"><T k="sms.note" /></p>
-                <div className="glass-panel rounded-[1.5rem] p-4"><SmsThread /></div>
-                <Link href="/sms?all=1" className="self-start inline-flex items-center gap-2 min-h-[44px] text-[14px] font-extrabold uppercase tracking-[0.08em] text-[var(--text-accent)]">
-                    <Icon name="Language" size={24} /><span>{t('sms.all.link')}</span>
-                </Link>
+        <AppShell title="sms.title" active="sms">
+            <div className="flex flex-col gap-4 items-center">
+                <p className="glass-panel !shadow-none m-0 px-4 py-3 rounded-2xl text-[16px] leading-6 font-semibold max-w-[640px] w-full"><T k="sms.note" /></p>
+                <PhoneFrame className="max-w-full shadow-[var(--shadow-popover)]">
+                    <div className="rc-ground min-h-full p-4 flex flex-col gap-3">
+                        <div className="eyebrow">{t('sms.inbox', { farm: HERO_FARM.id })}</div>
+                        <SmsThread />
+                    </div>
+                </PhoneFrame>
+                {allLink}
             </div>
-        </PhoneShell>
+        </AppShell>
     );
 }
 

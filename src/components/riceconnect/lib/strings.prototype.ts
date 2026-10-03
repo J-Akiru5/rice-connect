@@ -124,4 +124,18 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     'demo.keys': ['Arrows step · Space pauses · R restarts', 'Arrow: hakbang · Space: hinto · R: ulit', 'Arrow: lakat · Space: untat · R: liwat'],
     'demo.controls': ['Demo Controls', 'Kontrol ng Demo', 'Kontrol sang Demo'],
     'end.title': ['One cluster. One hundred farms. 80% paid within 24 hours.', 'Isang cluster. Sandaang bukid. 80% bayad sa loob ng 24 oras.', 'Isa ka cluster. Isa ka gatos nga uma. 80% bayad sa sulod sang 24 oras.'],
+    // responsive shell + pagination (TL/HIL drafts: needs native review)
+    'nav.more': ['More', 'Iba Pa', 'Iban Pa'],
+    'sms.inbox': ["Farmer {farm}'s Phone · Messages", 'Telepono ng Magsasaka {farm} · Mga Mensahe', 'Telepono sang Mangunguma {farm} · Mga Mensahe'],
+    'list.showing': ['Showing {from}-{to} of {total}', 'Ipinapakita ang {from}-{to} sa {total}', 'Ginapakita ang {from}-{to} sa {total}'],
+    'list.prev': ['Previous', 'Nakaraan', 'Nauna'],
+    'list.next': ['Next', 'Susunod', 'Masunod'],
+    'list.pageOf': ['Page {n} of {total}', 'Pahina {n} sa {total}', 'Pahina {n} sa {total}'],
+    'list.page': ['Page {n}', 'Pahina {n}', 'Pahina {n}'],
+    'list.rowsPerPage': ['Rows per page', 'Hilera bawat pahina', 'Linya kada pahina'],
+    'list.pagination': ['Pagination', 'Paglipat ng Pahina', 'Paglipat sang Pahina'],
+    'list.filters': ['Filters', 'Mga Filter', 'Mga Filter'],
+    'filter.allStatuses': ['All statuses', 'Lahat ng katayuan', 'Tanan nga kahimtangan'],
+    'filter.allBarangays': ['All barangays', 'Lahat ng barangay', 'Tanan nga barangay'],
+    'farm.noMatch': ['No farms match', 'Walang bukid na tugma', 'Wala sang uma nga nagtupong'],
 };

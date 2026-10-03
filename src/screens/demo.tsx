@@ -1,6 +1,7 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ASSETS, EndCard, Icon, PhoneStage, useI18n } from '@/components/riceconnect';
+import { ASSETS, EndCard, Icon, useI18n } from '@/components/riceconnect';
+import { FrameProvider } from './shell';
 import { FarmProfileScreen } from './farm';
 import { PlanScreen } from './plan';
 import { MarketScreen } from './market';
@@ -18,16 +19,16 @@ export function Stage({ t }: { t: number }) {
     const { t: tr } = useI18n();
     const beat = BEATS[beatIndexAt(t)].key;
     switch (beat) {
-        case 'farm': return <PhoneStage><FarmProfileScreen id={HERO_FARM.id} added={t >= 3} /></PhoneStage>;
+        case 'farm': return <FrameProvider framed><FarmProfileScreen id={HERO_FARM.id} added={t >= 3} /></FrameProvider>;
         case 'plan': return <PlanScreen />;
         case 'market': return <MarketScreen committed={t >= 22} />;
         case 'dry': return <DryScreen />;
         case 'haul': {
             const h = haulAt(t);
-            return <PhoneStage>{h.who === 'coordinator' ? <HaulCoordinatorScreen status={h.status} /> : <HaulDriverScreen status={h.status} />}</PhoneStage>;
+            return <FrameProvider framed>{h.who === 'coordinator' ? <HaulCoordinatorScreen status={h.status} /> : <HaulDriverScreen status={h.status} />}</FrameProvider>;
         }
         case 'pay': return <PayLotScreen />;
-        case 'sms': return <PhoneStage><SmsScreen /></PhoneStage>;
+        case 'sms': return <FrameProvider framed><SmsScreen /></FrameProvider>;
         default: return <EndCard logoSrc={ASSETS.logoReversed} title={tr('end.title')} className="min-h-screen w-full" />;
     }
 }
