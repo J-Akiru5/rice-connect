@@ -43,4 +43,5 @@ Source: canvas "RiceConnect · Enactus 2026 Canvas" (`project/canvas.json`, vers
 - `/` — redirects to `/farm`.
 - `/farm` — the farm list (100 farms). The canvas only draws one profile and the empty state; the list reuses FarmProfileCard rows' fields and StatusChip.
 - `/pay` — the lot list for settlement. The canvas only draws the lot record (Pay) and its states.
+- `/buyer`, `/buyer/orders` — the buyer portal (supply map, orders, trace to the farm); derived, not in canvas.
 - `/demo` — the guided 78 s sequence. It shows the other boards in order and ends on End-Card.

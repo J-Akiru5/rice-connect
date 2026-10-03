@@ -12,7 +12,7 @@ export { default as NavLink } from './Components/NavLink';
 export { default as Modal } from './Components/Modal';
 export { default as DeliveryStatusStepper } from './Components/DeliveryStatusStepper';
 export { default as Icon, ICON_PATHS } from './Components/Icon';
-export { default as AppShell, PhoneShell, TeamFooter } from './Components/AppShell';
+export { default as AppShell, PhoneShell, TeamFooter, RoleSwitcher } from './Components/AppShell';
 export { default as ThemeToggle } from './Components/ThemeToggle';
 export { default as PhoneStage } from './Components/PhoneStage';
 export { default as Pagination } from './Components/Pagination';

@@ -28,6 +28,8 @@ Run `npm run build && npm start`, open devtools → device toolbar → "Responsi
 | `/pay` | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | 13 lots: 1 page at 20, 2 pages at 10. Table ↔ cards; L-03 highlighted and linked. |
 | `/pay/L-03` | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | BigStats wrap, ₱ amounts not broken mid-number; slip box scrolls inside itself on phones; Print Slip prints only the slip (A6). |
 | `/sms` | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | Wide content: desktop chat (conversation list + thread, date chips, read-only footer). Narrow: the farmer's phone (PhoneFrame); below 390px the frame narrows to the column. Switch EN/TL/HIL: bubbles and the list preview follow. |
+| `/buyer?type=restaurant` and `?type=miller` | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | Type picker wraps; map and table side by side when wide, stacked when narrow; week switch updates the map. |
+| `/buyer/orders` (each type) | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | Place an order / post a commitment, errors for 0 sacks and too much, order list survives reload, trace links open the right pages. |
 | `/sms?all=1` | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | Three columns wide, one column narrow. |
 
 ## Phone frame (video only)
