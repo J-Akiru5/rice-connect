@@ -1,5 +1,6 @@
-/* Step 1 stub. Replaced in step 2 by re-exports from src/data (same shapes as the design's lib/demo.ts). */
-export const PRICE = { quoted: 2250, drying: 150, margin: 100, net: 2000, advancePct: 0.8, buyerFee: 68 };
-export const SMS: { key: string; time: string; text: Record<'en' | 'tl' | 'hil', string> }[] = [];
-export const peso = (centavos: number) => '₱' + (centavos / 100).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-export const rate = (centavos: number) => (centavos / 100).toFixed(2);
+/* The design's lib/demo.ts, re-pointed at the prototype's seeded data (src/data). Same export names and shapes;
+   money is integer centavos (PRICE, SLIP, VEHICLES.price), formatted with peso() / rate(). */
+export { BARANGAYS, VARIETIES, WEEKS, FARMS, HERO_FARM, HERO_LOT as LOT, VEHICLES, HAUL, SLOT, SLIP, COMMITMENTS, PLAN, SMS } from '@/data/seed';
+export type { Farm, FarmStatus } from '@/data/seed';
+export { RATES as PRICE } from '@/data/seed';
+export { peso, rate } from '@/data/money';

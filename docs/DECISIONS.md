@@ -27,3 +27,19 @@ Sources: design system https://claude.ai/artifact/97dKcK7FbnPNaW3ezBoTVt (versio
 | V9 | Icons | No Moon/Sun/Play/Pause/ChevronLeft. | Added from Lucide (ISC), same grammar as the design's Lucide set. |
 | V10 | Strings with numbers | STRINGS hard-code "PHP 48,000.00", "Rosa", "60 sacks", "PHP 2,040.00", "3,000 kg". | Replaced with `{placeholders}` filled from computed data (`t(key, vars)`), in all three languages. |
 | V11 | Component-internal English | HarvestCalendar, SlotTimeline, DriverCard, CommitmentCard, VehicleOption print English units. | Routed through STRINGS (`unit.sacks`, `cal.*`, `driver.away`, `market.filledof`). HarvestCalendar gained a `caption` prop. |
+
+## Data and numbers (the brief wins)
+
+| # | Topic | Design says | Brief says | Decision |
+|---|---|---|---|---|
+| D1 | Hero lot | L-03: 60 sacks, 3,000 kg dried, net PHP 60,000.00, advance 48,000.00, balance 12,000.00, fee 2,040.00. | L-03 = 5,000 kg: quoted 112,500; drying 7,500; margin 5,000; net 100,000; advance 80,000; balance 20,000; buyer fee 3,375. | Brief. L-03 = 5,000 kg dried = 100 sacks. All amounts computed by `settle()` and tested. |
+| D2 | People | Farmer "Rosa Villanueva", other personal names, mobile "+63 917 *** **42", driver "Dodong Reyes". | Codes ("Farmer F-014"), masked "09•• ••• 4821". No real people. | Brief. Farmers `Farmer F-0xx`, drivers `Driver DR-0x`, mobiles `09•• ••• nnnn`. |
+| D3 | Barangays | Barangay Uno / Dos / Tres. | "Barangay A/B/C (placeholder)", split 33/34/33. | Brief. |
+| D4 | Buyers and commitments | Four commitments C-01…C-04 for Buyers B-01/B-02/B-05/B-07. | C1 30 t Grade 1 14% MC W3–W4 ₱22.50 "Buyer A (simulated)"; C2 25 t W2–W3 "Buyer B (simulated)". | Brief: two commitments, IDs written C-01/C-02 in the design's ID format. C-02's grade, MC and price are assumed (overrides.json). |
+| D5 | Currency text | "PHP 22.50". | ₱ with 2 decimals. | ₱ on every screen and on the slip. SMS keeps `PHP` because ₱ is not in GSM-7 (one ₱ would turn each message into a 70-character Unicode SMS, breaking the design's one-SMS rule). |
+| D6 | Dryer capacity | 400 sacks/day (~20 t). | 24 t/day (assumed). | Brief: 24,000 kg = 480 sacks per day. |
+| D7 | Hero dates | Pickup Tue 13 Oct (W2), slot D-2 10:00–16:00, slip Wed 14 Oct. | L-03 must flow into C-01, whose window is W3–W4. | F-014 pinned to W3 (assumed, see NUMBERS.md). Dates computed: harvest Thu 22 Oct, slot D-58 same day, advance/slip Fri 23 Oct. Clock times dropped (no source); slots show kg. |
+| D8 | Yield | Plan shows 480.0 t wet at 4.0 t/ha. | 4,000 kg/ha wet, 3% loss, ×0.884 → 3,429 kg/ha dried (~411 t). | Plan calendar shows dried tonnes (what is sold and matched); the wet total (480.0 t) is shown as a note. 3,429 = floor(4,000 × 0.97 × 0.884 = 3,429.92). |
+| D9 | Haul H-07 | Truck T-02, 60 of 100 sacks, 11.8 km, PHP 3,500.00 per trip. | Auto-assign nearest available driver with enough capacity, tie-break lowest price. | Computed: 100 sacks → DR-05 Truck T-02 (nearest available truck, 6.2 km). Route km seeded. Haul sacks use the dried lot weight (simplification). |
+| D10 | Lot numbering | L-00 IDs, hero L-03. | IDs link F-014 → L-03. | One forecast lot per farm, numbered by harvest date; L-03 is reserved for F-014's lot. Only L-03 is "weighed" (5,000 kg); the rest are forecasts. |
+| D11 | Money units | `PRICE` in pesos (22.5). | Integer centavos. | `PRICE`/`SLIP`/vehicle prices in centavos; `peso()` and `rate()` format them. The design's `peso()` now takes centavos. |
