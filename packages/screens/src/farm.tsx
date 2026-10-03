@@ -6,6 +6,8 @@ import { EmptyState, FarmProfileCard, Icon, Pagination, SearchField, StatusChip,
 import { filterFarms, paginate, sortBy } from '@rc/domain/list';
 import { staticListState, type ListState } from './list-state';
 import { ModuleShell } from './shell';
+import { useDemoState, updateDemoState } from '@rc/store/react';
+import { addFarm } from '@rc/store';
 import { BARANGAYS, FARMS, TOTALS, KG_PER_SACK, lotOfFarm, farmById, type Farm, type FarmStatus } from '@rc/domain/seed';
 
 export type FarmState = 'default' | 'empty' | 'error' | 'success';
@@ -63,7 +65,7 @@ export function FarmListScreen({ state = 'default', list, selectedId = '' }: { s
     const filtered = useMemo(() => sortBy(filterFarms(FARMS, { q: L.q, status: L.status, barangay: L.barangay }), (f) => f.id), [L.q, L.status, L.barangay]);
     const pg = paginate(filtered, L.page, L.size);
     const selected = pg.rows.find((f) => f.id === selectedId) ?? pg.rows[0];
-    const [added, setAdded] = useState<Record<string, boolean>>({});
+    const farmsAdded = useDemoState().farmsAdded;
 
     return (
         <ModuleShell title="farm.title" active="farms">
@@ -131,8 +133,8 @@ export function FarmListScreen({ state = 'default', list, selectedId = '' }: { s
                                 </div>
                                 {selected && (
                                     <aside aria-label={t('farm.title')} className="flex flex-col gap-3 min-w-0">
-                                        <FarmDetail farm={selected} added={!!added[selected.id] || selected.status === 'cluster'}
-                                            onAdd={selected.status === 'cluster' ? undefined : () => setAdded((a) => ({ ...a, [selected.id]: true }))} />
+                                        <FarmDetail farm={selected} added={farmsAdded.includes(selected.id) || selected.status === 'cluster'}
+                                            onAdd={selected.status === 'cluster' ? undefined : () => updateDemoState(addFarm(selected.id))} />
                                         <ZLink href={`/farm/${selected.id}`} className="self-start inline-flex items-center gap-2 min-h-[40px] text-[13px] font-extrabold uppercase tracking-[0.08em] text-[var(--text-accent)]">
                                             {t('farm.fullPage', { id: selected.id })}<Icon name="ArrowRight" size={20} />
                                         </ZLink>
@@ -153,7 +155,7 @@ export function FarmProfileScreen({ id, state = 'default', added: forcedAdded }:
     const { t } = useI18n();
     const nav = useZoneNav();
     const farm = farmById(id)!;
-    const [ownAdded, setAdded] = useState(farm.status === 'cluster');
+    const ownAdded = useDemoState().farmsAdded.includes(farm.id) || farm.status === 'cluster';
     const added = forcedAdded ?? ownAdded;
     const [view, setView] = useState<FarmState>(state);
     const next = FARMS[(FARMS.indexOf(farm) + 1) % FARMS.length];
@@ -177,7 +179,7 @@ export function FarmProfileScreen({ id, state = 'default', added: forcedAdded }:
                 <ZLink href="/farm" className="self-start inline-flex items-center gap-1 min-h-[44px] text-[14px] font-extrabold uppercase tracking-[0.08em] text-[var(--text-accent)]">
                     <Icon name="ChevronLeft" size={24} />{t('farm.back')}
                 </ZLink>
-                <FarmDetail farm={farm} added={added} onAdd={farm.status === 'cluster' ? undefined : () => setAdded(true)} wide />
+                <FarmDetail farm={farm} added={added} onAdd={farm.status === 'cluster' ? undefined : () => updateDemoState(addFarm(farm.id))} wide />
             </div>
         </ModuleShell>
     );

@@ -5,6 +5,8 @@ import { staticListState, type ListState } from './list-state';
 import { DRYER, HERO_LOT, KG_PER_SACK, SLOT, SLOTS, WEEKS, lotById, farmById, type Slot } from '@rc/domain/seed';
 import { dayLabel } from '@rc/domain/calendar';
 import { SectionPill, Note, ResponsiveTable, type Col } from './ui';
+import { useDemoState } from '@rc/store/react';
+import { StatusChip } from '@rc/ui';
 
 /** Seven day columns for a harvest week; L-03's slot is the hero. */
 export function weekDays(week: number) {
@@ -21,6 +23,7 @@ export function weekDays(week: number) {
 export function DryScreen({ list, week: weekParam }: { list?: ListState; week?: number }) {
     const { t } = useI18n();
     const L = list ?? staticListState('/dry');
+    const slotState = useDemoState().slots[SLOT.id] ?? 'scheduled';
     const heroWeek = Math.floor(SLOT.dayIndex / 7);
     const week = weekParam !== undefined && weekParam >= 0 && weekParam < WEEKS.length ? weekParam : heroWeek;
     const setWeek = (i: number) => L.set({ week: i + 1, page: null });
@@ -46,6 +49,7 @@ export function DryScreen({ list, week: weekParam }: { list?: ListState; week?: 
                     <BigStat label="dry.stat.booked" value={booked.toLocaleString('en-US')} unit={t('unit.sacks')} icon="Plan" note={t('dry.note.booked', { pct: Math.round((booked / cap) * 100), cap: cap.toLocaleString('en-US') })} />
                     <BigStat label={t('dry.hero.label', { lot: HERO_LOT.id })} value={SLOT.id} icon="Sack" note={t('dry.hero.note', { day: SLOT.day, kg: SLOT.kg.toLocaleString('en-US'), sacks: Math.ceil(SLOT.kg / KG_PER_SACK) })} />
                 </div>
+                <div aria-live="polite"><StatusChip status={slotState === 'confirmed' ? 'paid' : slotState === 'move-requested' ? 'pending' : 'open'} label={t('slot.' + slotState, { id: SLOT.id })} /></div>
                 <section aria-labelledby="dry-sec">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                         <SectionPill id="dry-sec">{t('dry.weeks')} {WEEKS[week]} · {DRYER.name}</SectionPill>

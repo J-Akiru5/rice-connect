@@ -92,3 +92,9 @@ Slip ID S-0303 is the design's ID (the brief names no slip ID).
 |---|---|---|
 | Barangays San Matias, Licu-an, Ilajas in Dingle, Iloilo | `params.ts` `BARANGAYS` | team decision (real places; all farm data in them simulated) |
 | Map points San Matias 11.0002, 122.6599 · Licu-an 11.0097, 122.6519 · Ilajas 11.0007, 122.6870 | `places.ts` | PhilAtlas barangay pages (barangay reference points, not farms) |
+
+## Monorepo additions
+
+| Value | Where | Why |
+|---|---|---|
+| Coordinator Home's "today" = Mon 19 Oct 2026 (day 14, start of W3) | `demoTodayDayIndex` | **assumed**: "this week" needs a date; W3 is the week lot L-03 is harvested. |

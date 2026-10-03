@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { ZLink, useZoneNav } from '@rc/ui';
 import { DeliveryStatusStepper, DriverCard, EmptyState, HaulRequestCard, Icon, RouteLine, StatusChip, VehicleOption, useI18n } from '@rc/ui';
 import { ModuleShell } from './shell';
+import { useDemoState, updateDemoState } from '@rc/store/react';
+import { haulStatus, setHaul } from '@rc/store';
 import { DRIVERS, DRYER, HAUL, HERO_LOT, KG_PER_SACK, SLOT, VEHICLES, vehicleOf } from '@rc/domain/seed';
 import { autoAssign, tripsFor, type Driver } from '@rc/domain/assign';
 import { peso } from '@rc/domain/money';
@@ -37,7 +39,8 @@ export function HaulCoordinatorScreen({ state = 'default', status: forced }: { s
     const [driver, setDriver] = useState<Driver | null>(HAUL.driver);
     const [overridden, setOverridden] = useState(false);
     const [listOpen, setListOpen] = useState(false);
-    const status: HaulStatus = forced ?? (view === 'form' ? 'requested' : 'assigned');
+    const shared = haulStatus(useDemoState(), HAUL.id);
+    const status: HaulStatus = forced ?? (view === 'form' ? 'requested' : shared);
 
     const send = () => {
         const d = autoAssign(sacks, DRIVERS, VEHICLES);
@@ -149,13 +152,13 @@ export function HaulCoordinatorScreen({ state = 'default', status: forced }: { s
 /** /haul/driver — the driver's job card: Accept / Decline, then status updates (one column, max 720px when wide). */
 export function HaulDriverScreen({ status: forced }: { status?: HaulStatus }) {
     const { t } = useI18n();
-    const [own, setOwn] = useState<HaulStatus>('assigned');
+    const own = haulStatus(useDemoState(), HAUL.id);
     const [declined, setDeclined] = useState(false);
     const st = forced ?? own;
     const d = HAUL.driver!;
     const v = vehicleOf(d);
     const trips = tripsFor(HAUL.sacks, v);
-    const step = (to: HaulStatus) => () => setOwn(to);
+    const step = (to: HaulStatus) => () => updateDemoState(setHaul(HAUL.id, to));
     return (
         <ModuleShell role="driver" title="haul.driver.job" active="logistics">
             <div className="flex flex-col gap-4 max-w-[720px] mx-auto w-full">

@@ -18,7 +18,7 @@ export type Role = 'coordinator' | 'buyer' | 'driver';
 type Item = { key: string; icon: string; href: string; sub?: string };
 const NAV: Record<Role, Item[]> = {
     coordinator: [
-        { key: 'farms', icon: 'Farm', href: '/farm' }, { key: 'plan', icon: 'Plan', href: '/plan' }, { key: 'market', icon: 'Market', href: '/market' },
+        { key: 'home', icon: 'Console', href: '/home' }, { key: 'farms', icon: 'Farm', href: '/farm' }, { key: 'plan', icon: 'Plan', href: '/plan' }, { key: 'market', icon: 'Market', href: '/market' },
         { key: 'dry', icon: 'Dry', href: '/dry' }, { key: 'logistics', icon: 'Logistics', href: '/haul', sub: 'haul' },
         { key: 'orders', icon: 'Orders', href: '/pay', sub: 'pay' }, { key: 'sms', icon: 'Sms', href: '/sms' },
     ],
@@ -26,11 +26,11 @@ const NAV: Record<Role, Item[]> = {
     driver: [{ key: 'logistics', icon: 'Logistics', href: '/haul/driver', sub: 'haul' }, { key: 'sms', icon: 'Sms', href: '/sms' }],
 };
 /* Mobile bottom tabs; everything else in the role's nav goes into the "More" sheet. */
-const TABS: Record<Role, string[]> = { coordinator: ['farms', 'logistics', 'orders', 'sms'], buyer: ['supply', 'myorders'], driver: ['logistics', 'sms'] };
+const TABS: Record<Role, string[]> = { coordinator: ['home', 'farms', 'logistics', 'orders'], buyer: ['supply', 'myorders'], driver: ['logistics', 'sms'] };
 const ROLE_LABEL: Record<Role, string> = { coordinator: 'role.coordinator', buyer: 'role.buyer', driver: 'role.driver' };
 const isActive = (n: Item, active: string) => active === n.key || active === n.sub;
 
-const HOME: Record<Role, string> = { coordinator: '/farm', buyer: '/buyer', driver: '/haul/driver' };
+const HOME: Record<Role, string> = { coordinator: '/home', buyer: '/buyer', driver: '/haul/driver' };
 /** "View as" (prototype addition): switches the demo between user groups. Navigation only, not access control. */
 export function RoleSwitcher({ role }: { role: Role }) {
     const { t } = useI18n();

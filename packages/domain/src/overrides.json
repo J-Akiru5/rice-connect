@@ -96,5 +96,7 @@
     "retailer": "rice",
     "market": "rice",
     "restaurant": "rice"
-  }
+  },
+  "demoTodayDayIndex": 14,
+  "_demoToday": "ASSUMED: the coordinator Home's 'this week' is W3 (Mon 19 Oct 2026, day 14), the week lot L-03 is harvested."
 }

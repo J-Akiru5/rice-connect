@@ -1,13 +1,52 @@
 'use client';
 import { ZLink, useZoneNav } from '@rc/ui';
-import { AppShell, DemoChip, Icon, LANGS, PhoneFrame, PhoneShell, PhoneStage, SmsBubble, SmsThread, T, TeamFooter, useI18n } from '@rc/ui';
+import { AppShell, DemoChip, Icon, LANGS, PhoneFrame, PhoneShell, PhoneStage, PrimaryButton, SecondaryButton, SmsBubble, SmsThread, StatusChip, T, TeamFooter, useI18n } from '@rc/ui';
 import { useFramed } from './shell';
-import { HERO_FARM, HERO_LOT, SMS } from "@rc/domain/seed";
+import { useState } from 'react';
+import { useDemoState, updateDemoState } from '@rc/store/react';
+import { farmerReply } from '@rc/store';
+import { HAUL, HERO_FARM, HERO_LOT, SLOT, SMS } from "@rc/domain/seed";
 
 /** /sms — the three messages the farmer gets for Lot L-03, in the header language.
     Always on a phone: inside the website shell the PhoneFrame is the farmer's phone; in /demo or ?frame=phone the whole
     screen is the coordinator's phone shell (as in the canvas board). */
-export function SmsScreen() {
+/** Farmer replies typed in the farmer app, as chat bubbles. `mine` = seen from the farmer's own phone (right side). */
+function Replies({ mine }: { mine: boolean }) {
+    const { t } = useI18n();
+    const replies = useDemoState().smsReplies.filter((r) => r.farm === HERO_FARM.id);
+    return (
+        <>
+            {replies.map((r) => (
+                <li key={r.id} className={`flex flex-col gap-1 ${mine ? 'items-end' : 'items-start'}`}>
+                    <div className={`max-w-[min(420px,85%)] rounded-[1.25rem] px-4 py-3 text-[16px] leading-6 font-medium ${mine ? 'bg-[var(--fill-strong)] text-[var(--on-fill-strong)] rounded-br-md' : 'glass-panel rounded-bl-md'}`}>{r.text}</div>
+                    <StatusChip status={r.action === 'ok' ? 'paid' : r.action === 'move' ? 'pending' : 'failed'} label={t(r.action === 'ok' ? 'sms.reply.ok' : r.action === 'move' ? 'sms.reply.move' : 'sms.reply.unknown', { slot: SLOT.id })} />
+                </li>
+            ))}
+        </>
+    );
+}
+
+/** The farmer answers the slot SMS (farmer app only): quick replies or free text, parsed by parseSmsReply. */
+function ReplyBox() {
+    const { t } = useI18n();
+    const [text, setText] = useState('');
+    const send = (v: string) => { if (!v.trim()) return; updateDemoState(farmerReply(v, { farm: HERO_FARM.id, slot: SLOT.id, haul: HAUL.id })); setText(''); };
+    return (
+        <form onSubmit={(e) => { e.preventDefault(); send(text); }} className="flex flex-col gap-2" aria-label={t('sms.reply.label')}>
+            <div className="flex flex-wrap gap-2">
+                <SecondaryButton icon="Check" onClick={() => send('1 OK')}>{t('sms.reply.quickOk')}</SecondaryButton>
+                <SecondaryButton icon="Clock" onClick={() => send('2 Move')}>{t('sms.reply.quickMove')}</SecondaryButton>
+            </div>
+            <div className="flex gap-2 items-stretch flex-wrap">
+                <label className="flex-1 min-w-[180px]"><span className="sr-only">{t('sms.reply.label')}</span>
+                    <input value={text} onChange={(e) => setText(e.target.value)} placeholder={t('sms.reply.placeholder')} className="input-2026 !text-base" /></label>
+                <PrimaryButton icon="Send" type="submit">{t('sms.reply.send')}</PrimaryButton>
+            </div>
+        </form>
+    );
+}
+
+export function SmsScreen({ reply = false }: { reply?: boolean }) {
     const { t, lang } = useI18n();
     const framed = useFramed();
     const allLink = (
@@ -66,10 +105,13 @@ export function SmsScreen() {
                                 <SmsBubble text={m.text[lang]} time={m.time} className="max-w-[min(520px,85%)]" />
                             </li>
                         ))}
+                        <Replies mine={false} />
                     </ol>
+                    {reply && <div className="px-5 pb-4"><ReplyBox /></div>}
                     <footer className="flex items-center justify-between gap-3 flex-wrap px-5 py-3 border-t border-[color:var(--glass-border-strong)]">
                         <span className="text-[14px] font-semibold text-[var(--text-secondary)] flex items-center gap-2"><Icon name="Info" size={20} />{t('sms.readonly')}</span>
                         {allLink}
+                        <ZLink href="/slip" className="inline-flex items-center gap-2 min-h-[44px] text-[14px] font-extrabold uppercase tracking-[0.08em] text-[var(--text-accent)]"><Icon name="Slip" size={24} /><span>{t('slip.view')}</span></ZLink>
                     </footer>
                 </section>
             </div>
@@ -80,6 +122,8 @@ export function SmsScreen() {
                     <div className="rc-ground min-h-full p-4 flex flex-col gap-3">
                         <div className="eyebrow">{t('sms.inbox', { farm: HERO_FARM.id })}</div>
                         <SmsThread />
+                        <ul className="flex flex-col gap-3"><Replies mine /></ul>
+                        {reply && <ReplyBox />}
                     </div>
                 </PhoneFrame>
                 {allLink}

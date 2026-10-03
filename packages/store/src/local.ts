@@ -15,7 +15,7 @@ function parse(raw: string | null): DemoState | null {
     if (!raw) return null;
     try {
         const v = JSON.parse(raw);
-        if (v && v.version === 1 && Array.isArray(v.riceOrders) && Array.isArray(v.commitments)) return { ...emptyState(), ...v };
+        if (v && v.version === 1 && Array.isArray(v.riceOrders) && Array.isArray(v.commitments)) return { ...emptyState(), ...v }; // older saves lack the newer fields
     } catch { /* corrupt: ignore */ }
     return null;
 }

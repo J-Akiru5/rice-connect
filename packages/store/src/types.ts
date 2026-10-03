@@ -4,12 +4,24 @@ import type { RiceOrder } from '@rc/domain/buyers';
 export interface LocalCommitment { id: string; tonnes: number; price: number; window: string[]; kg: number; lots: string[] }
 
 /** Everything the demo can change at runtime. The seed (packages/domain) never changes; this is the delta on top of it. */
+export type HaulStatus = 'requested' | 'assigned' | 'accepted' | 'pickedup' | 'delivered';
+export type SlotStatus = 'scheduled' | 'confirmed' | 'move-requested';
+/** A message in the farmer's SMS thread typed in the farmer app (the three system SMS come from the seed). */
+export interface SmsReply { id: string; farm: string; text: string; action: 'ok' | 'move' | null; seq: number }
+
 export interface DemoState {
     version: 1;
     riceOrders: RiceOrder[];
     commitments: LocalCommitment[];
+    /** Haul status by haul id; absent = the seed's state ("assigned", waiting for the driver). */
+    hauls: Record<string, HaulStatus>;
+    /** Dryer slot status by slot id; absent = "scheduled". */
+    slots: Record<string, SlotStatus>;
+    smsReplies: SmsReply[];
+    /** Farms added to the cluster in the coordinator app. */
+    farmsAdded: string[];
 }
-export const emptyState = (): DemoState => ({ version: 1, riceOrders: [], commitments: [] });
+export const emptyState = (): DemoState => ({ version: 1, riceOrders: [], commitments: [], hauls: {}, slots: {}, smsReplies: [], farmsAdded: [] });
 
 /** The swap point. LocalAdapter implements this for the prototype (this browser only, synced across tabs).
     A server adapter (e.g. Supabase) would implement the same four methods; nothing in the apps changes. */
