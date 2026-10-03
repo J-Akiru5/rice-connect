@@ -138,4 +138,5 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     'filter.allStatuses': ['All statuses', 'Lahat ng katayuan', 'Tanan nga kahimtangan'],
     'filter.allBarangays': ['All barangays', 'Lahat ng barangay', 'Tanan nga barangay'],
     'farm.noMatch': ['No farms match', 'Walang bukid na tugma', 'Wala sang uma nga nagtupong'],
+    'farm.fullPage': ['Open {id} as a Full Page', 'Buksan ang {id} sa Buong Pahina', 'Buksan ang {id} sa Bilog nga Pahina'],
 };

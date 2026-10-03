@@ -30,3 +30,10 @@ export function useListState() {
     const set = useCallback((patch: Record<string, string | number | null>) => router.replace(href(patch), { scroll: false }), [router, href]);
     return { ...p, size, href, set, pageHref: (n: number) => href({ page: n }) };
 }
+
+export type ListState = ReturnType<typeof useListState>;
+/** The same shape without hooks: page 1, desktop size, no filters. Used for the server-rendered Suspense fallback. */
+export function staticListState(pathname: string, size = SIZE_DESKTOP): ListState {
+    const href = (patch: Record<string, string | number | null>) => pathname + listQuery('', patch);
+    return { page: 1, size, q: '', status: '', barangay: '', href, set: () => {}, pageHref: (n: number) => href({ page: n }) };
+}
