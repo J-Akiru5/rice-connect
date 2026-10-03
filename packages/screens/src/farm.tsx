@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { ZLink, useZoneNav } from '@rc/ui';
 import { useEffect, useMemo, useState } from 'react';
 import { EmptyState, FarmProfileCard, Icon, Pagination, SearchField, StatusChip, useI18n } from '@rc/ui';
 import { filterFarms, paginate, sortBy } from '@rc/domain/list';
@@ -18,7 +18,7 @@ function FarmCard({ farm }: { farm: Farm }) {
     const { t } = useI18n();
     return (
         <li>
-            <Link href={`/farm/${farm.id}`} aria-label={t('farm.open', { id: farm.id })}
+            <ZLink href={`/farm/${farm.id}`} aria-label={t('farm.open', { id: farm.id })}
                 className="flex items-center gap-3 min-h-[64px] px-4 py-3 border-b border-[color:var(--glass-border-strong)] last:border-0 hover:bg-[rgba(5,150,105,.06)]">
                 <span className="min-w-0 flex-1">
                     <span className="block text-[16px] leading-6 font-extrabold tabular">{farm.id} · {farm.areaHa.toFixed(1)} ha</span>
@@ -26,7 +26,7 @@ function FarmCard({ farm }: { farm: Farm }) {
                 </span>
                 <StatusChip status={farm.status} />
                 <Icon name="ChevronRight" size={24} className="shrink-0 text-[var(--text-muted)]" />
-            </Link>
+            </ZLink>
         </li>
     );
 }
@@ -45,9 +45,9 @@ export function FarmDetail({ farm, added, onAdd, wide = false }: { farm: Farm; a
                     <div><dt className={cap}>{t('farm.lot')}</dt><dd className="text-[16px] font-bold">{lot.id}</dd></div>
                     <div className="col-span-2"><dt className={cap}>{t('farm.forecast')}</dt><dd className="text-[16px] font-bold">{farm.driedKg.toLocaleString('en-US')} kg · {Math.ceil(farm.driedKg / KG_PER_SACK)} {t('unit.sacks')}</dd></div>
                 </dl>
-                <Link href="/plan" className="mt-4 inline-flex items-center gap-2 min-h-[44px] px-4 rounded-[2rem] border-2 border-[color:var(--text-accent)] text-[var(--text-accent)] text-[13px] font-extrabold uppercase tracking-[0.08em]">
+                <ZLink href="/plan" className="mt-4 inline-flex items-center gap-2 min-h-[44px] px-4 rounded-[2rem] border-2 border-[color:var(--text-accent)] text-[var(--text-accent)] text-[13px] font-extrabold uppercase tracking-[0.08em]">
                     <Icon name="Plan" size={24} /><span>{t('farm.viewPlan')}</span>
-                </Link>
+                </ZLink>
             </section>
         </div>
     );
@@ -133,9 +133,9 @@ export function FarmListScreen({ state = 'default', list, selectedId = '' }: { s
                                     <aside aria-label={t('farm.title')} className="flex flex-col gap-3 min-w-0">
                                         <FarmDetail farm={selected} added={!!added[selected.id] || selected.status === 'cluster'}
                                             onAdd={selected.status === 'cluster' ? undefined : () => setAdded((a) => ({ ...a, [selected.id]: true }))} />
-                                        <Link href={`/farm/${selected.id}`} className="self-start inline-flex items-center gap-2 min-h-[40px] text-[13px] font-extrabold uppercase tracking-[0.08em] text-[var(--text-accent)]">
+                                        <ZLink href={`/farm/${selected.id}`} className="self-start inline-flex items-center gap-2 min-h-[40px] text-[13px] font-extrabold uppercase tracking-[0.08em] text-[var(--text-accent)]">
                                             {t('farm.fullPage', { id: selected.id })}<Icon name="ArrowRight" size={20} />
-                                        </Link>
+                                        </ZLink>
                                     </aside>
                                 )}
                             </div>
@@ -151,7 +151,7 @@ export function FarmListScreen({ state = 'default', list, selectedId = '' }: { s
 /** /farm/[id] — one farm, one registered farmer (full page at every width). */
 export function FarmProfileScreen({ id, state = 'default', added: forcedAdded }: { id: string; state?: FarmState; added?: boolean }) {
     const { t } = useI18n();
-    const router = useRouter();
+    const nav = useZoneNav();
     const farm = farmById(id)!;
     const [ownAdded, setAdded] = useState(farm.status === 'cluster');
     const added = forcedAdded ?? ownAdded;
@@ -167,16 +167,16 @@ export function FarmProfileScreen({ id, state = 'default', added: forcedAdded }:
     if (view === 'success') {
         return (
             <ModuleShell title="farm.title" active="farms">
-                <EmptyState variant="success" title="state.farm.success.title" body={t('state.farm.success.body', { farm: farm.id })} action="state.farm.success.action" onAction={() => router.push(`/farm/${next.id}`)} />
+                <EmptyState variant="success" title="state.farm.success.title" body={t('state.farm.success.body', { farm: farm.id })} action="state.farm.success.action" onAction={() => nav(`/farm/${next.id}`)} />
             </ModuleShell>
         );
     }
     return (
         <ModuleShell title="farm.title" active="farms">
             <div className="flex flex-col gap-4 max-w-[960px]">
-                <Link href="/farm" className="self-start inline-flex items-center gap-1 min-h-[44px] text-[14px] font-extrabold uppercase tracking-[0.08em] text-[var(--text-accent)]">
+                <ZLink href="/farm" className="self-start inline-flex items-center gap-1 min-h-[44px] text-[14px] font-extrabold uppercase tracking-[0.08em] text-[var(--text-accent)]">
                     <Icon name="ChevronLeft" size={24} />{t('farm.back')}
-                </Link>
+                </ZLink>
                 <FarmDetail farm={farm} added={added} onAdd={farm.status === 'cluster' ? undefined : () => setAdded(true)} wide />
             </div>
         </ModuleShell>

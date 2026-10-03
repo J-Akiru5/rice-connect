@@ -1,10 +1,10 @@
 'use client';
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { FarmListScreen } from '@/screens/farm';
-import { useViewState } from '@/screens/params';
-import { useListState } from '@/screens/list-state';
-import { FrameProvider, useFrameParam } from '@/screens/shell';
+import { FarmListScreen } from '@rc/screens/farm';
+import { useViewState } from '@rc/screens/params';
+import { useListState } from '@rc/screens/list-state';
+import { FrameProvider, useFrameParam } from '@rc/screens/shell';
 
 function Inner() {
   const state = useViewState(['empty'] as const);

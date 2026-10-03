@@ -1,7 +1,7 @@
 'use client';
 import { Suspense } from 'react';
-import { BuyerOrdersScreen } from '@/screens/buyer-orders';
-import { useBuyerType } from '@/screens/buyer-type';
+import { BuyerOrdersScreen } from '@rc/screens/buyer-orders';
+import { useBuyerType } from '@rc/screens/buyer-type';
 
 function Inner() {
   const [type, setType] = useBuyerType();

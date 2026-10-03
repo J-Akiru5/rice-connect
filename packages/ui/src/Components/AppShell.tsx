@@ -1,12 +1,11 @@
 'use client';
 import { PropsWithChildren, ReactNode, useState } from 'react';
-import Link from 'next/link';
+import { ZLink as Link, useZoneNav } from '../lib/zone';
 import NavLink from './NavLink';
 import ApplicationLogo from './ApplicationLogo';
 import Icon from './Icon';
 import ThemeToggle from './ThemeToggle';
 import Modal from './Modal';
-import { useRouter } from 'next/navigation';
 import { DemoChip, LanguageSwitcher } from './Enactus';
 import { useI18n, tx } from '@rc/i18n';
 
@@ -35,11 +34,11 @@ const HOME: Record<Role, string> = { coordinator: '/farm', buyer: '/buyer', driv
 /** "View as" (prototype addition): switches the demo between user groups. Navigation only, not access control. */
 export function RoleSwitcher({ role }: { role: Role }) {
     const { t } = useI18n();
-    const router = useRouter();
+    const nav = useZoneNav();
     return (
         <label className="inline-flex items-center gap-2 text-[13px] font-extrabold uppercase tracking-[0.06em]">
             <Icon name="Users" size={20} /><span className="sr-only md:not-sr-only">{t('role.view')}</span>
-            <select value={role} onChange={(e) => router.push(HOME[e.target.value as Role])}
+            <select value={role} onChange={(e) => nav(HOME[e.target.value as Role])}
                 className="min-h-[44px] md:min-h-[40px] px-3 rounded-full bg-[var(--glass-fill-strong)] text-[var(--ink)] border-2 border-[color:var(--text-muted)] text-[14px] font-extrabold normal-case tracking-normal">
                 {(['coordinator', 'buyer', 'driver'] as Role[]).map((r) => <option key={r} value={r}>{t('role.name.' + r)}</option>)}
             </select>

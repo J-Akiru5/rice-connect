@@ -2,6 +2,6 @@
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
-  transpilePackages: ['@rc/ui', '@rc/domain', '@rc/i18n', '@rc/store'],
+  transpilePackages: ['@rc/ui', '@rc/domain', '@rc/i18n', '@rc/store', '@rc/screens'],
 };
 export default nextConfig;

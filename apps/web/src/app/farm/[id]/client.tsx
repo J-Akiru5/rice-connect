@@ -1,8 +1,8 @@
 'use client';
 import { Suspense } from 'react';
-import { FarmProfileScreen } from '@/screens/farm';
-import { useViewState } from '@/screens/params';
-import { FrameProvider, useFrameParam } from '@/screens/shell';
+import { FarmProfileScreen } from '@rc/screens/farm';
+import { useViewState } from '@rc/screens/params';
+import { FrameProvider, useFrameParam } from '@rc/screens/shell';
 
 function Inner({ id }: { id: string }) {
   const state = useViewState(['error', 'success'] as const);

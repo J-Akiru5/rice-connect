@@ -1,7 +1,7 @@
 'use client';
 import { Suspense } from 'react';
-import { PayLotScreen } from '@/screens/pay';
-import { useViewState } from '@/screens/params';
+import { PayLotScreen } from '@rc/screens/pay';
+import { useViewState } from '@rc/screens/params';
 
 function Inner() {
   const state = useViewState(['error', 'success'] as const);

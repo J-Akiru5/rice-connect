@@ -1,7 +1,6 @@
 'use client';
 import { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { ZLink, useZoneNav } from '@rc/ui';
 import { AppShell, BigStat, EmptyState, Icon, Pagination, PrimaryButton, SettlementSlip, SmsThread, StatusChip, useI18n, ASSETS } from '@rc/ui';
 import { paginate } from '@rc/domain/list';
 import { staticListState, type ListState } from './list-state';
@@ -13,7 +12,7 @@ import { SectionPill, Note, ResponsiveTable, type Col } from './ui';
 /** /pay — lots matched to commitments; only the weighed lot (L-03) settles (desktop; stacked cards when narrow). Paginated. */
 export function PayListScreen({ state = 'default', list }: { state?: 'default' | 'empty'; list?: ListState }) {
     const { t } = useI18n();
-    const router = useRouter();
+    const nav = useZoneNav();
     const L = list ?? staticListState('/pay');
     const rows = MATCHES.flatMap((m) => m.lots.map((id) => ({ lot: lotById(id)!, commitment: m.commitment })))
         .sort((a, b) => Number(b.lot.actual) - Number(a.lot.actual) || a.lot.dayIndex - b.lot.dayIndex || a.lot.id.localeCompare(b.lot.id));
@@ -21,7 +20,7 @@ export function PayListScreen({ state = 'default', list }: { state?: 'default' |
     type Row = (typeof rows)[number];
     const cols: Col<Row>[] = [
         { key: 'lot', label: t('pay.col.lot'), cell: ({ lot }) => lot.actual
-            ? <Link href={`/pay/${lot.id}`} aria-label={t('pay.open', { lot: lot.id })} className="inline-flex items-center gap-1 min-h-[40px] text-[var(--text-accent)] underline underline-offset-4">{lot.id}<Icon name="ChevronRight" size={20} /></Link>
+            ? <ZLink href={`/pay/${lot.id}`} aria-label={t('pay.open', { lot: lot.id })} className="inline-flex items-center gap-1 min-h-[40px] text-[var(--text-accent)] underline underline-offset-4">{lot.id}<Icon name="ChevronRight" size={20} /></ZLink>
             : lot.id },
         { key: 'farm', label: t('pay.col.farm'), cell: ({ lot }) => lot.farm },
         { key: 'commitment', label: t('pay.col.commitment'), cell: (r) => r.commitment },
@@ -33,7 +32,7 @@ export function PayListScreen({ state = 'default', list }: { state?: 'default' |
     return (
         <AppShell title="pay.title" eyebrow="pay.eyebrow" active="pay">
             {state === 'empty' ? (
-                <EmptyState variant="empty" title="state.pay.empty.title" body="state.pay.empty.body" action="state.pay.empty.action" onAction={() => router.push('/dry')} className="max-w-[640px]" />
+                <EmptyState variant="empty" title="state.pay.empty.title" body="state.pay.empty.body" action="state.pay.empty.action" onAction={() => nav('/dry')} className="max-w-[640px]" />
             ) : (
                 <section aria-labelledby="pay-list" className="flex flex-col gap-3">
                     <div><SectionPill id="pay-list">{t('pay.list.title')}</SectionPill></div>
@@ -69,7 +68,7 @@ export function PayLotScreen({ state = 'default' }: { state?: 'default' | 'error
         <div className="flex flex-wrap gap-6 items-start max-w-[1600px]">
             <div className="flex-[999_1_520px] min-w-0 flex flex-col gap-4 print:hidden">
                 <div className="flex flex-wrap items-center gap-3">
-                    <Link href="/pay" className="inline-flex items-center gap-1 min-h-[40px] text-[13px] font-extrabold uppercase tracking-[0.08em] text-[var(--text-accent)]"><Icon name="ChevronLeft" size={20} />{t('pay.back')}</Link>
+                    <ZLink href="/pay" className="inline-flex items-center gap-1 min-h-[40px] text-[13px] font-extrabold uppercase tracking-[0.08em] text-[var(--text-accent)]"><Icon name="ChevronLeft" size={20} />{t('pay.back')}</ZLink>
                 </div>
                 <SectionPill>{t('pay.section.lot', { lot: HERO_LOT.id, farm: HERO_FARM.id })}</SectionPill>
                 <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))]">
@@ -86,7 +85,7 @@ export function PayLotScreen({ state = 'default' }: { state?: 'default' | 'error
                     <p className="m-0 text-[15px] leading-[22px] font-semibold">{t('pay.explain', { quoted: peso(s.rates.quoted), drying: rate(s.rates.drying), margin: rate(s.rates.margin), net: peso(s.rates.net), rate: peso(s.rates.buyerFee), fee: peso(s.buyerFee) })}</p>
                     <div className="flex flex-wrap gap-3">
                         <PrimaryButton icon="Print" onClick={() => window.print()}>{t('slip.print')}</PrimaryButton>
-                        <Link href="/sms" className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-3 rounded-[2rem] font-extrabold uppercase text-[13px] leading-4 tracking-[0.08em] bg-[var(--glass-fill-strong)] text-[var(--ink)] border-2 border-[color:var(--text-muted)]"><Icon name="Sms" size={20} /><span>{t('pay.viewSms')}</span></Link>
+                        <ZLink href="/sms" className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-3 rounded-[2rem] font-extrabold uppercase text-[13px] leading-4 tracking-[0.08em] bg-[var(--glass-fill-strong)] text-[var(--ink)] border-2 border-[color:var(--text-muted)]"><Icon name="Sms" size={20} /><span>{t('pay.viewSms')}</span></ZLink>
                     </div>
                 </div>
                 <section aria-labelledby="pay-rec" className="glass-panel rounded-[1.5rem] p-5">

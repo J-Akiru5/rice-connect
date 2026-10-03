@@ -1,8 +1,8 @@
 'use client';
 import { Suspense } from 'react';
-import { PayListScreen } from '@/screens/pay';
-import { useViewState } from '@/screens/params';
-import { useListState } from '@/screens/list-state';
+import { PayListScreen } from '@rc/screens/pay';
+import { useViewState } from '@rc/screens/params';
+import { useListState } from '@rc/screens/list-state';
 
 function Inner() {
   const state = useViewState(['empty'] as const);

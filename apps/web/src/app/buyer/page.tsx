@@ -1,8 +1,8 @@
 'use client';
 import { Suspense } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { BuyerSupplyScreen } from '@/screens/buyer';
-import { useBuyerType } from '@/screens/buyer-type';
+import { BuyerSupplyScreen } from '@rc/screens/buyer';
+import { useBuyerType } from '@rc/screens/buyer-type';
 import { SLOT } from '@rc/domain/seed';
 
 const HERO_WEEK = Math.floor(SLOT.dayIndex / 7);

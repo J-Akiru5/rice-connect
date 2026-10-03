@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import type { LocalCommitment } from '@rc/store';
 import { useDemoState, updateDemoState } from '@rc/store/react';
-import Link from 'next/link';
+import { ZLink, useZoneNav } from '@rc/ui';
 import { AppShell, CommitmentCard, EmptyState, Icon, InputError, PrimaryButton, SecondaryButton, StatusChip, useI18n } from '@rc/ui';
 import { COMMITMENTS, DRYER, HAUL, HERO_FARM, HERO_LOT, MATCHES, SLIP, SLOT, WEEKS, farmById, lotById } from '@rc/domain/seed';
 import { MILLING, HERO_RICE_LOT, RICE_AVAILABLE_KG, UNCOMMITTED_LOTS, buysPalay, makeRiceOrder, type BuyerType, type RiceOrder } from '@rc/domain/buyers';
@@ -38,7 +38,7 @@ export function TraceChain({ head, rice }: { head: string; rice: boolean }) {
                         {i < steps.length - 1 && <span aria-hidden className="absolute left-[21px] top-11 bottom-0 w-0.5 bg-[var(--text-muted)]" />}
                         <span className="relative z-10 shrink-0 w-11 h-11 rounded-full flex items-center justify-center bg-[var(--fill-strong)] text-[var(--on-fill-strong)]"><Icon name={s.icon} size={20} /></span>
                         <span className="pt-2.5 text-[15px] leading-6 font-bold tabular break-words">
-                            {s.href ? <Link href={s.href} className="text-[var(--text-accent)] underline underline-offset-4">{s.text}</Link> : s.text}
+                            {s.href ? <ZLink href={s.href} className="text-[var(--text-accent)] underline underline-offset-4">{s.text}</ZLink> : s.text}
                         </span>
                     </li>
                 ))}

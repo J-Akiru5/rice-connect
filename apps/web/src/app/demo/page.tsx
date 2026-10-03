@@ -1,7 +1,7 @@
 'use client';
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { DemoPlayer, Stage, BEATS } from '@/screens/demo';
+import { DemoPlayer, Stage, BEATS } from '@rc/screens/demo';
 
 function Inner() {
   const p = useSearchParams();

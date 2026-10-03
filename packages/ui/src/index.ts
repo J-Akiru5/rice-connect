@@ -21,3 +21,5 @@ export { DemoChip, StatusChip, BigStat, FarmProfileCard, CommitmentCard, SearchF
 export { I18nProvider, useI18n, translate, fill, STRINGS, LANGS, T, tx } from '@rc/i18n';
 export type { Lang } from '@rc/i18n';
 export { setAssets, ASSETS } from './lib/assets';
+export { ZoneProvider, ZLink, useZone, useZoneNav, resolveZone, gatewayPath, zoneHref, ZONES } from './lib/zone';
+export type { Zone } from './lib/zone';

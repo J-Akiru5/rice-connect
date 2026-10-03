@@ -1,5 +1,5 @@
 'use client';
-import Link from 'next/link';
+import { ZLink, useZoneNav } from '@rc/ui';
 import { AppShell, DemoChip, Icon, LANGS, PhoneFrame, PhoneShell, PhoneStage, SmsBubble, SmsThread, T, TeamFooter, useI18n } from '@rc/ui';
 import { useFramed } from './shell';
 import { HERO_FARM, HERO_LOT, SMS } from "@rc/domain/seed";
@@ -11,9 +11,9 @@ export function SmsScreen() {
     const { t, lang } = useI18n();
     const framed = useFramed();
     const allLink = (
-        <Link href="/sms?all=1" className="self-start inline-flex items-center gap-2 min-h-[44px] text-[14px] font-extrabold uppercase tracking-[0.08em] text-[var(--text-accent)]">
+        <ZLink href="/sms?all=1" className="self-start inline-flex items-center gap-2 min-h-[44px] text-[14px] font-extrabold uppercase tracking-[0.08em] text-[var(--text-accent)]">
             <Icon name="Language" size={24} /><span>{t('sms.all.link')}</span>
-        </Link>
+        </ZLink>
     );
     if (framed) return (
         <PhoneStage>
@@ -55,9 +55,9 @@ export function SmsScreen() {
                             <h2 id="sms-thread-h" className="text-[18px] leading-6 font-extrabold break-words">{HERO_FARM.name}</h2>
                             <p className="m-0 text-[14px] font-semibold text-[var(--text-secondary)] tabular break-words">{HERO_FARM.mobile} · {HERO_FARM.barangay}</p>
                         </div>
-                        <Link href={`/pay/${HERO_LOT.id}`} className="inline-flex items-center gap-2 min-h-[40px] px-4 rounded-[2rem] border-2 border-[color:var(--text-accent)] text-[var(--text-accent)] text-[13px] font-extrabold uppercase tracking-[0.08em]">
+                        <ZLink href={`/pay/${HERO_LOT.id}`} className="inline-flex items-center gap-2 min-h-[40px] px-4 rounded-[2rem] border-2 border-[color:var(--text-accent)] text-[var(--text-accent)] text-[13px] font-extrabold uppercase tracking-[0.08em]">
                             <Icon name="Pay" size={20} /><span>{t('pay.open', { lot: HERO_LOT.id })}</span>
-                        </Link>
+                        </ZLink>
                     </header>
                     <ol className="flex-1 flex flex-col gap-5 px-5 py-6" aria-label={t('sms.title')}>
                         {SMS.map((m) => (
@@ -98,7 +98,7 @@ export function SmsAllScreen() {
                     <h1 className="m-0 text-[32px] leading-9 font-extrabold tracking-[-0.03em] uppercase">{t('sms.all.title', { lot: HERO_LOT.id })}</h1>
                     <div className="flex items-center gap-3 flex-wrap">
                         <DemoChip />
-                        <Link href="/sms" className="inline-flex items-center gap-1 min-h-[40px] text-[13px] font-extrabold uppercase tracking-[0.08em] text-[var(--text-accent)]"><Icon name="ChevronLeft" size={20} />{t('nav.sms')}</Link>
+                        <ZLink href="/sms" className="inline-flex items-center gap-1 min-h-[40px] text-[13px] font-extrabold uppercase tracking-[0.08em] text-[var(--text-accent)]"><Icon name="ChevronLeft" size={20} />{t('nav.sms')}</ZLink>
                     </div>
                 </div>
                 <div className="grid gap-8 [grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))]">

@@ -1,5 +1,5 @@
 'use client';
-import Link from 'next/link';
+import { ZLink, useZoneNav } from '@rc/ui';
 import { AppShell, BigStat, HarvestCalendar, Pagination, useI18n } from '@rc/ui';
 import { paginate, sortBy } from '@rc/domain/list';
 import { staticListState, type ListState } from './list-state';
@@ -18,7 +18,7 @@ export function PlanScreen({ list }: { list?: ListState }) {
     const pg = paginate(byDate, L.page, L.size);
     const max = Math.max(...PLAN.flatMap((r) => r.weeks));
     const cols: Col<Farm>[] = [
-        { key: 'farm', label: t('farm.id'), cell: (f) => <Link href={`/farm/${f.id}`} className="inline-flex items-center min-h-[40px] text-[var(--text-accent)] underline underline-offset-4">{f.id}</Link> },
+        { key: 'farm', label: t('farm.id'), cell: (f) => <ZLink href={`/farm/${f.id}`} className="inline-flex items-center min-h-[40px] text-[var(--text-accent)] underline underline-offset-4">{f.id}</ZLink> },
         { key: 'barangay', label: t('farm.barangay'), cell: (f) => f.barangay },
         { key: 'harvest', label: t('farm.harvest'), cell: (f) => `${f.harvestWeek} · ${f.harvestLabel}` },
         { key: 'area', label: t('farm.area'), align: 'right', nowrap: true, cell: (f) => `${f.areaHa.toFixed(1)} ha` },

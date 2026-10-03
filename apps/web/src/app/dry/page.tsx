@@ -1,8 +1,8 @@
 'use client';
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { DryScreen } from '@/screens/dry';
-import { useListState } from '@/screens/list-state';
+import { DryScreen } from '@rc/screens/dry';
+import { useListState } from '@rc/screens/list-state';
 
 function Inner() {
   const w = Number.parseInt(useSearchParams().get('week') ?? '', 10);

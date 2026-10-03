@@ -1,8 +1,8 @@
 'use client';
 import { Suspense } from 'react';
-import { HaulCoordinatorScreen } from '@/screens/haul';
-import { useViewState } from '@/screens/params';
-import { FrameProvider, useFrameParam } from '@/screens/shell';
+import { HaulCoordinatorScreen } from '@rc/screens/haul';
+import { useViewState } from '@rc/screens/params';
+import { FrameProvider, useFrameParam } from '@rc/screens/shell';
 
 function Inner() {
   const state = useViewState(['empty', 'error', 'success'] as const);

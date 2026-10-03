@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import Link from 'next/link';
+import { ZLink, useZoneNav } from '@rc/ui';
 import { DeliveryStatusStepper, DriverCard, EmptyState, HaulRequestCard, Icon, RouteLine, StatusChip, VehicleOption, useI18n } from '@rc/ui';
 import { ModuleShell } from './shell';
 import { DRIVERS, DRYER, HAUL, HERO_LOT, KG_PER_SACK, SLOT, VEHICLES, vehicleOf } from '@rc/domain/seed';
@@ -61,7 +61,7 @@ export function HaulCoordinatorScreen({ state = 'default', status: forced }: { s
             <div className="flex flex-col gap-4 max-w-[640px] mx-auto">
                 <EmptyState variant="success" title={t('state.haul.success.title', { haul: HAUL.id })}
                     body={t('state.haul.success.body', { sacks: HAUL.sacks, dryer: DRYER.name, slot: SLOT.id, day: SLOT.day })} />
-                <Link href="/dry" className="btn-2026 self-center"><Icon name="ArrowRight" size={24} /><span>{t('state.haul.success.action')}</span></Link>
+                <ZLink href="/dry" className="btn-2026 self-center"><Icon name="ArrowRight" size={24} /><span>{t('state.haul.success.action')}</span></ZLink>
             </div>
         </ModuleShell>
     );

@@ -1,7 +1,7 @@
 'use client';
 import { Suspense } from 'react';
-import { HaulDriverScreen } from '@/screens/haul';
-import { FrameProvider, useFrameParam } from '@/screens/shell';
+import { HaulDriverScreen } from '@rc/screens/haul';
+import { FrameProvider, useFrameParam } from '@rc/screens/shell';
 
 function Inner() {
   return <FrameProvider framed={useFrameParam()}><HaulDriverScreen /></FrameProvider>;

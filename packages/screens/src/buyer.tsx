@@ -1,5 +1,5 @@
 'use client';
-import Link from 'next/link';
+import { ZLink, useZoneNav } from '@rc/ui';
 import { AppShell, BigStat, Icon, useI18n } from '@rc/ui';
 import { WEEKS } from '@rc/domain/seed';
 import { MILLING, SUPPLY, SUPPLY_WEEK_TOTAL, UNCOMMITTED_LOTS, RICE_AVAILABLE_KG, buysPalay, type BuyerType } from '@rc/domain/buyers';
@@ -53,7 +53,7 @@ export function BuyerSupplyScreen({ type, onType, week, onWeek }: { type: BuyerT
                                 ...WEEKS.map((w, i) => ({ key: w, label: w, align: 'right' as const, nowrap: true, cell: (r: (typeof rows)[number]) => <span className={i === week ? 'underline decoration-[3px] underline-offset-4' : ''}>{t1(r.v[i])} t</span> })),
                             ]} />
                             <Note>{t(palay ? 'buyer.buys.palay' : 'buyer.buys.rice')}.</Note>
-                            <Link href={`/buyer/orders?type=${type}`} className="btn-2026 self-start"><Icon name={palay ? 'Plus' : 'Sack'} size={20} /><span>{t(palay ? 'supply.cta.palay' : 'supply.cta.rice')}</span></Link>
+                            <ZLink href={`/buyer/orders?type=${type}`} className="btn-2026 self-start"><Icon name={palay ? 'Plus' : 'Sack'} size={20} /><span>{t(palay ? 'supply.cta.palay' : 'supply.cta.rice')}</span></ZLink>
                         </div>
                     </div>
                 </section>

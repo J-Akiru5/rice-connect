@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { ZLink as Link } from '../lib/zone';
 import type { AnchorHTMLAttributes } from 'react';
 import Icon from './Icon';
 /* Karl's sidebar item: same shape and motion; text now 13px / 0.08em in ink (was emerald-900 at 60%), active fill brand-green.
