@@ -13,3 +13,12 @@ body { font-size: 16px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
+
+/* A6 print view of the settlement slip: only the slip prints, black on white, at A6 (105 x 148 mm). */
+@media print {
+  @page { size: A6 portrait; margin: 0; }
+  html, body { background: white !important; }
+  body * { visibility: hidden !important; }
+  .print-slip, .print-slip * { visibility: visible !important; color: black !important; }
+  .print-slip { position: fixed; left: 0; top: 0; width: 105mm !important; min-height: 148mm !important; box-shadow: none !important; background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
