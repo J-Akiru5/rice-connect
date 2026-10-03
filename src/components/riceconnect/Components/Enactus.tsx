@@ -38,7 +38,8 @@ export const STATUS_KIND: Record<string, Kind> = {
 export function StatusChip({ status, label, kind, hard = false, className = '' }: { status: string; label?: string; kind?: Kind; hard?: boolean; className?: string }) {
     const { t } = useI18n();
     const k = kind ?? STATUS_KIND[status] ?? 'neutral';
-    const s = KIND[k];
+    /* Prototype port: a hard (Haul) neutral chip is white, not glass, so no glass sits inside a hard card. */
+    const s = hard && k === 'neutral' ? { cls: 'bg-white text-black', icon: KIND.neutral.icon } : KIND[k];
     const shape = hard ? 'rounded-none border-2 border-black' : 'rounded-full';
     return (
         <span className={`inline-flex items-center gap-1.5 min-h-[28px] px-2.5 py-1 text-[12px] leading-4 font-extrabold uppercase tracking-[0.06em] whitespace-nowrap ${s.cls} ${shape} ${className}`}>

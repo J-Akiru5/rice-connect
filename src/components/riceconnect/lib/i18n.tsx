@@ -119,7 +119,7 @@ export const STRINGS: Dict = {
     "state.haul.error.body": ["All trucks are busy. Pick a later time or split the lot.", "Abala ang lahat ng trak. Pumili ng ibang oras o hatiin ang lot.", "Okupado ang tanan nga trak. Magpili sang iban nga oras ukon partihon ang lot."],
     "state.haul.error.action": ["Change Time", "Palitan ang Oras", "Ilisan ang Oras"],
     "state.haul.success.title": ["Haul {haul} Delivered", "Naihatid ang Hakot {haul}", "Naihatod ang Hakot {haul}"],
-    "state.haul.success.body": ["{sacks} sacks received at {dryer}. Slot {slot} starts at {time}.", "Natanggap ang {sacks} sako sa {dryer}. Magsisimula ang Slot {slot} nang {time}.", "Nabaton ang {sacks} ka sako sa {dryer}. Magsugod ang Slot {slot} sa {time}."],
+    "state.haul.success.body": ["{sacks} sacks received at {dryer}. Dryer slot {slot}, {day}.", "Natanggap ang {sacks} sako sa {dryer}. Slot sa patuyuan {slot}, {day}.", "Nabaton ang {sacks} ka sako sa {dryer}. Slot sa pamalahan {slot}, {day}."],
     "state.haul.success.action": ["View Dryer Slot", "Tingnan ang Slot", "Tan-awa ang Slot"],
     "state.pay.empty.title": ["No Lots to Settle", "Walang Lot na Babayaran", "Wala sang Lot nga Bayaran"],
     "state.pay.empty.body": ["Lots appear here after drying and buyer receipt.", "Lalabas dito ang mga lot matapos patuyuin at matanggap ng mamimili.", "Makita diri ang mga lot pagkatapos ibilad kag mabaton sang bumalakal."],
