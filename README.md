@@ -44,17 +44,18 @@ rg "#[0-9a-fA-F]{3,8}" src --glob '!**/tokens*' --glob '!**/app.css'
 
 | Route | Screen | Size |
 |---|---|---|
-| `/farm`, `/farm/[id]` | Farm list (100 farms) and profile (8 fields, Add to Cluster) | phone |
+| `/farm`, `/farm/[id]` | Farm list (100 farms; table + detail panel when wide, cards when narrow; filters, pagination) and profile | all |
 | `/plan` | Harvest calendar W1–W4, dried tonnes per barangay per week | desktop |
 | `/market` | Commitment board: search, filters (grade, volume, window), auto-match | desktop |
 | `/dry` | Dryer capacity per day and slots by harvest week | desktop |
-| `/haul`, `/haul/driver` | Haul request with auto-assigned driver and override; the driver's job card | phone |
+| `/haul`, `/haul/driver` | Haul request with auto-assigned driver and override (two columns when wide); the driver's job card | all |
 | `/pay`, `/pay/L-03` | Lots to settle; lot record, settlement, A6 slip (Print Slip prints only the slip) | desktop |
-| `/sms` (`?all=1`) | The three SMS to the farmer in the header language (all three languages) | phone (desktop) |
+| `/sms` (`?all=1`) | The three SMS on the farmer's phone (all three languages) | all |
 | `/demo` | The guided 78 s sequence | both |
 
 State boards from the design: add `?state=empty|error|success` (see `docs/BOARDS.md`).
-Phone screens sit in a centered phone frame from 640px wide; below that they fill the screen.
+
+**Responsive:** one layout for every width (<768 mobile, 768–1199 tablet, ≥1200 desktop); the same URLs work everywhere. The phone frame appears only on `/sms` (the farmer's phone), inside `/demo`, and on Farm/Haul with `?frame=phone` or `?rec=1`. Lists over 12 rows are paginated with the state in the URL (`?page=&size=&q=&status=&barangay=`, `/dry?week=`). Hand checks: `docs/RESPONSIVE-CHECKLIST.md`.
 
 ## The demo (`/demo`)
 

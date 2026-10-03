@@ -22,7 +22,8 @@ This repo is a **prototype** for a ~78 s demo video and slide screenshots. It is
 - Light theme default, dark toggle (localStorage in try/catch).
 - Line icons + a word on every action; icons 24px phone / 20px desktop. Text ≥12px (caps labels only), body ≥14px (16px phone). Targets ≥44px phone / 40px desktop. 3px focus ring. Status = icon + word + color. Respect prefers-reduced-motion.
 - Terrace illustration only in EmptyState and EndCard.
-- Phone modules at 390px (inside a centered PhoneFrame on desktop). Desktop modules at 1440 and 1920, stacked below 768.
+- One responsive layout: <768 mobile, 768–1199 tablet, ≥1200 desktop; CSS media queries for the shell, container queries (`.rc-cq`) for module content; no user-agent sniffing. PhoneFrame only on `/sms`, inside `/demo`, and on Farm/Haul with `?frame=phone` or `?rec=1`.
+- Lists over 12 rows use `<Pagination>` with URL state (`src/lib/list.ts`, `src/screens/list-state.tsx`). Never truncate key data with an ellipsis.
 
 ## I18n
 
