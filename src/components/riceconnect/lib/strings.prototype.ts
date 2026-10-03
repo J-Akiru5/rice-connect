@@ -139,4 +139,8 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     'filter.allBarangays': ['All barangays', 'Lahat ng barangay', 'Tanan nga barangay'],
     'farm.noMatch': ['No farms match', 'Walang bukid na tugma', 'Wala sang uma nga nagtupong'],
     'farm.fullPage': ['Open {id} as a Full Page', 'Buksan ang {id} sa Buong Pahina', 'Buksan ang {id} sa Bilog nga Pahina'],
+    'plan.farms': ['Farms by Harvest Date', 'Mga Bukid ayon sa Petsa ng Ani', 'Mga Uma suno sa Petsa sang Alani'],
+    'dry.slots': ['Dryer Slots in {week}', 'Mga Slot sa Patuyuan sa {week}', 'Mga Slot sa Pamalahan sa {week}'],
+    'dry.col.slot': ['Slot', 'Slot', 'Slot'],
+    'dry.col.day': ['Dries On', 'Patutuyuin sa', 'Pamalahon sa'],
 };

@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { AppShell, CommitmentCard, EmptyState, FilterChips, Icon, PrimaryButton, SearchField, StatusChip, useI18n } from '@/components/riceconnect';
 import { COMMITMENTS, HERO_LOT, MATCHES, WEEKS, commitmentOfLot, forecastInWindow, type Commitment } from '@/data/seed';
 import { peso } from '@/data/money';
-import { SectionPill, Note } from './ui';
+import { SectionPill, Note, ResponsiveTable } from './ui';
 
 const t1 = (kg: number) => (Math.round(kg / 100) / 10).toFixed(1);
 type Group = 'grade' | 'volume' | 'window';
@@ -62,33 +62,15 @@ export function MarketScreen({ committed: forced }: { committed?: boolean }) {
                             ))}
                         </div>
                     )}
-                    <section aria-labelledby="mk-fc" className="glass-panel rounded-[1.5rem] p-5 overflow-x-auto">
-                        <h3 id="mk-fc" className="eyebrow">{t('market.forecast.title')}</h3>
-                        <table className="mt-2 w-full tabular text-left">
-                            <thead>
-                                <tr className="text-[12px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-muted)]">
-                                    <th scope="col" className="py-2 pr-3">{t('market.col.commitment')}</th>
-                                    <th scope="col" className="py-2 px-3 text-right">{t('market.col.requested')}</th>
-                                    <th scope="col" className="py-2 px-3 text-right">{t('market.col.forecast')}</th>
-                                    <th scope="col" className="py-2 px-3 text-right">{t('market.col.matched')}</th>
-                                    <th scope="col" className="py-2 pl-3 text-right">{t('market.col.lots')}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {MATCHES.map((m) => {
-                                    const c = COMMITMENTS.find((x) => x.id === m.commitment)!;
-                                    return (
-                                        <tr key={m.commitment} className="border-t border-[color:var(--glass-border-strong)] text-[15px] font-bold">
-                                            <th scope="row" className="py-2 pr-3 font-extrabold">{c.id} · {c.week}</th>
-                                            <td className="py-2 px-3 text-right">{t1(m.requestedKg)} t</td>
-                                            <td className="py-2 px-3 text-right">{t1(forecastInWindow(c.window))} t</td>
-                                            <td className="py-2 px-3 text-right">{t1(m.kg)} t</td>
-                                            <td className="py-2 pl-3 text-right">{m.lots.length}</td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
+                    <section aria-labelledby="mk-fc" className="flex flex-col gap-3">
+                        <div><SectionPill id="mk-fc">{t('market.forecast.title')}</SectionPill></div>
+                        <ResponsiveTable caption={t('market.forecast.title')} rows={MATCHES} rowKey={(m) => m.commitment} cols={[
+                            { key: 'c', label: t('market.col.commitment'), cell: (m) => { const c = COMMITMENTS.find((x) => x.id === m.commitment)!; return `${c.id} · ${c.week}`; } },
+                            { key: 'req', label: t('market.col.requested'), align: 'right', nowrap: true, cell: (m) => `${t1(m.requestedKg)} t` },
+                            { key: 'fc', label: t('market.col.forecast'), align: 'right', nowrap: true, cell: (m) => `${t1(forecastInWindow(COMMITMENTS.find((x) => x.id === m.commitment)!.window))} t` },
+                            { key: 'm', label: t('market.col.matched'), align: 'right', nowrap: true, cell: (m) => `${t1(m.kg)} t` },
+                            { key: 'n', label: t('market.col.lots'), align: 'right', cell: (m) => m.lots.length },
+                        ]} />
                     </section>
                 </div>
                 <aside className="flex-[1_1_340px] min-w-0" aria-labelledby="mk-match">
