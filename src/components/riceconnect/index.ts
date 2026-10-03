@@ -15,6 +15,7 @@ export { default as Icon, ICON_PATHS } from './Components/Icon';
 export { default as AppShell, PhoneShell, TeamFooter } from './Components/AppShell';
 export { default as ThemeToggle } from './Components/ThemeToggle';
 export { default as PhoneStage } from './Components/PhoneStage';
+export { default as Pagination } from './Components/Pagination';
 export { DemoChip, StatusChip, BigStat, FarmProfileCard, CommitmentCard, SearchField, FilterChips, HarvestCalendar, SlotTimeline,
     RouteLine, VehicleOption, SmsThread, DriverCard, HaulRequestCard, SettlementSlip, PhoneFrame, SmsBubble, LanguageSwitcher, EmptyState, EndCard, Terraces } from './Components/Enactus';
 export { I18nProvider, useI18n, translate, fill, STRINGS, LANGS, T, tx } from './lib/i18n';
