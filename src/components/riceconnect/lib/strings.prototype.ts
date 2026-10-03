@@ -50,4 +50,12 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     'market.col.forecast': ['Forecast in Window', 'Tantiya sa Panahon', 'Banta sa Tion'],
     'market.col.matched': ['Matched', 'Tugma', 'Nagtupong'],
     'market.col.lots': ['Lots', 'Lot', 'Lot'],
+    // dry
+    'dry.eyebrow': ['{dryer} · {place}', '{dryer} · {place}', '{dryer} · {place}'],
+    'dry.note.capacity': ['{t} t per day (assumed)', '{t} t bawat araw (tantiya)', '{t} t kada adlaw (banta)'],
+    'dry.note.booked': ['{pct}% of {cap} this week', '{pct}% ng {cap} ngayong linggo', '{pct}% sang {cap} subong nga semana'],
+    'dry.hero.label': ['Lot {lot} Slot', 'Slot ng Lot {lot}', 'Slot sang Lot {lot}'],
+    'dry.hero.note': ['{day} · {kg} kg · {sacks} sacks', '{day} · {kg} kg · {sacks} sako', '{day} · {kg} kg · {sacks} ka sako'],
+    'dry.weeks': ['Harvest Week', 'Linggo ng Ani', 'Semana sang Alani'],
+    'dry.rule': ['Each lot dries on its harvest day, or the next day with room. No day goes over {t} t.', 'Pinapatuyo ang bawat lot sa araw ng ani, o sa susunod na araw na may puwang. Walang araw na lalampas sa {t} t.', 'Ginapamala ang kada lot sa adlaw sang alani, ukon sa masunod nga adlaw nga may lugar. Wala sang adlaw nga molapaw sa {t} t.'],
 };

@@ -102,6 +102,11 @@ describe('dryer slots', () => {
         expect(D.SLOTS).toHaveLength(D.LOTS.length);
         for (const s of D.SLOTS) expect(s.dayIndex).toBeGreaterThanOrEqual(D.lotById(s.lot)!.dayIndex);
     });
+    it('the sack counts shown per day also stay within the day capacity', () => {
+        const m = new Map<number, number>();
+        for (const s of D.SLOTS) m.set(s.dayIndex, (m.get(s.dayIndex) ?? 0) + s.sacks);
+        for (const v of m.values()) expect(v).toBeLessThanOrEqual(D.DRYER.capacitySacks);
+    });
     it('pushes overflow to the next day', () => {
         const s = assignDryerSlots([{ id: 'a', dayIndex: 0, driedKg: 15000 }, { id: 'b', dayIndex: 0, driedKg: 15000 }], 24000);
         expect(s.map((x) => x.dayIndex)).toEqual([0, 1]);
