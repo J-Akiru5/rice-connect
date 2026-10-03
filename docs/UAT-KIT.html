@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RiceConnect Test Kit</title>
+<style>
+  :root { --ink:#0a2e24; --muted:#4b5563; --line:#d1d5db; --brand:#024635; --gold:#de9f24; --bg:#f8faf9; --card:#ffffff; --warn:#854d0e; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --ink:#ecfdf5; --muted:#c4d3cd; --line:#1a5240; --brand:#6ee7b7; --bg:#04130f; --card:#0b231c; --warn:#fde047; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 "Plus Jakarta Sans", system-ui, sans-serif; }
+  main { max-width: 1040px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: clamp(26px, 4vw, 36px); line-height: 1.15; margin: 0 0 8px; letter-spacing: -0.02em; }
+  h2 { font-size: 22px; margin: 40px 0 12px; padding-top: 8px; border-top: 2px solid var(--line); }
+  h3 { font-size: 17px; margin: 24px 0 8px; }
+  .chip { display: inline-block; background: var(--gold); color: #000; font-weight: 800; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; }
+  .tldr { background: var(--card); border: 2px solid var(--brand); border-radius: 16px; padding: 16px 20px; margin: 20px 0; }
+  .tldr ul { margin: 8px 0 0; padding-left: 20px; }
+  .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; }
+  .card b { display: block; }
+  table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; }
+  th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); font-size: 15px; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+  .wrap { overflow-x: auto; }
+  code { font-family: ui-monospace, monospace; font-size: 14px; background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 1px 5px; word-break: break-all; }
+  .box { width: 22px; height: 22px; border: 2px solid var(--ink); display: inline-block; border-radius: 4px; }
+  .note { color: var(--muted); font-size: 14px; }
+  .warn { color: var(--warn); font-weight: 700; }
+  ol.flow { counter-reset: s; list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  ol.flow li { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; font-weight: 700; font-size: 14px; }
+  ol.flow li + li::before { content: "→ "; color: var(--muted); }
+  @media print { body { background: #fff; color: #000; } h2 { break-before: page; } .card, table { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<main>
+<span class="chip">Prototype · Simulated data</span>
+<h1>RiceConnect test kit: team round and interviews</h1>
+<p class="note">Team Syntaxure Labs · ISUFST. Code freeze Oct 5; interviews Oct 6–7; contest Oct 9.</p>
+
+<section class="tldr" aria-labelledby="tldr">
+  <strong id="tldr">TL;DR</strong>
+  <ul>
+    <li>Run a 30–40 minute team test round on Oct 4: one tester per role, scripted tasks, a scribe filling the sheet.</li>
+    <li>On Oct 6–7, show interviewees the same flows (5 minutes each), read the consent note first, and record only anonymous feedback.</li>
+    <li>Everything is simulated: no real farmers, buyers, prices or locations. Say so out loud.</li>
+    <li>Triage: anything that blocks a task or shows a wrong number is <b>S1</b> and gets fixed before Oct 5 freeze.</li>
+  </ul>
+</section>
+
+<h2>1. Before you start</h2>
+<div class="grid">
+  <div class="card"><b>Device mix</b>One laptop (1440 or wider), one Android phone (Chrome), one tablet or a laptop window around 1024px.</div>
+  <div class="card"><b>Fresh state</b>Open the site in a private window per tester, so saved orders, language and theme start clean.</div>
+  <div class="card"><b>Roles</b>Facilitator (reads tasks, does not help), tester, scribe (fills the sheet). Rotate.</div>
+  <div class="card"><b>Timebox</b>One minute of silence before helping. Note where the tester hesitated, not only where they failed.</div>
+</div>
+
+<h2>2. Test scripts by role</h2>
+<p class="note">Paths are relative to the deployed site (e.g. <code>https://rice-connect-opal.vercel.app</code>). Each task has one pass condition. Mark P (pass), H (pass with help) or F (fail).</p>
+
+<h3>Coordinator (cluster manager)</h3>
+<div class="wrap"><table>
+<thead><tr><th>#</th><th>Task (read aloud)</th><th>Pass when</th><th>P/H/F</th></tr></thead>
+<tbody>
+<tr><td>C1</td><td>"Find farm F-014 and add it to the cluster." Start at <code>/farm</code>.</td><td>Profile shows "Added to Cluster 1".</td><td><span class="box"></span></td></tr>
+<tr><td>C2</td><td>"Show only Verified farms in Barangay B, then go to the second page."</td><td>URL has <code>status</code>, <code>barangay</code>, <code>page=2</code>; list text says "Showing 21–…" or the narrow pager says "Page 2 of …".</td><td><span class="box"></span></td></tr>
+<tr><td>C3</td><td>"Which harvest week is the busiest?" Start at <code>/plan</code>.</td><td>Tester says W4 (145.0 t).</td><td><span class="box"></span></td></tr>
+<tr><td>C4</td><td>"Commit lot L-03 to the best buyer." Start at <code>/market</code>.</td><td>"Committed to C-01" appears.</td><td><span class="box"></span></td></tr>
+<tr><td>C5</td><td>"When does L-03 dry, and how full is that day?" Start at <code>/dry</code>.</td><td>Tester finds slot D-58 on Thu 22 Oct.</td><td><span class="box"></span></td></tr>
+<tr><td>C6</td><td>"Send a truck for L-03; then give the job to a different driver."</td><td>Driver card changes; "Coordinator override" chip shows.</td><td><span class="box"></span></td></tr>
+<tr><td>C7</td><td>"How much does the farmer get, and when?" Start at <code>/pay</code>.</td><td>Tester says ₱100,000.00 net, ₱80,000.00 within 24 h, ₱20,000.00 when the buyer pays.</td><td><span class="box"></span></td></tr>
+<tr><td>C8</td><td>"Print the farmer's slip."</td><td>Print preview shows only the A6 slip, black on white.</td><td><span class="box"></span></td></tr>
+</tbody></table></div>
+
+<h3>Buyer: restaurant, market seller, retailer</h3>
+<div class="wrap"><table>
+<thead><tr><th>#</th><th>Task</th><th>Pass when</th><th>P/H/F</th></tr></thead>
+<tbody>
+<tr><td>B1</td><td>"Switch the view to Buyer, as a Restaurant." Use the header "View as".</td><td>Page is "Cluster Supply" with Restaurant selected.</td><td><span class="box"></span></td></tr>
+<tr><td>B2</td><td>"Which barangay has the most rice in W4?"</td><td>Tester reads it from the map or the table.</td><td><span class="box"></span></td></tr>
+<tr><td>B3</td><td>"Order 4 sacks for delivery in W3."</td><td>Order R-00x appears with 100 kg and ₱4,800.00 (assumed price).</td><td><span class="box"></span></td></tr>
+<tr><td>B4</td><td>"Try to order 0 sacks." Then "Try to order 10,000 sacks."</td><td>Both show a clear error; no order is created.</td><td><span class="box"></span></td></tr>
+<tr><td>B5</td><td>"Where did your rice come from?"</td><td>Tester follows Trace to the Farm down to farm F-014 and the farmer's payment.</td><td><span class="box"></span></td></tr>
+<tr><td>B6</td><td>Repeat B1–B3 as Market Seller on a phone.</td><td>No sideways scrolling; buttons easy to tap.</td><td><span class="box"></span></td></tr>
+</tbody></table></div>
+
+<h3>Buyer: miller</h3>
+<div class="wrap"><table>
+<thead><tr><th>#</th><th>Task</th><th>Pass when</th><th>P/H/F</th></tr></thead>
+<tbody>
+<tr><td>M1</td><td>"As a Miller, how much palay is not yet committed?" Start at <code>/buyer?type=miller</code>.</td><td>Tester reads the "Not Yet Committed" figure.</td><td><span class="box"></span></td></tr>
+<tr><td>M2</td><td>"Post a commitment for 10 t in W3–W4 at a price you choose."</td><td>New commitment shows matched tonnes and lots.</td><td><span class="box"></span></td></tr>
+<tr><td>M3</td><td>"Which farms are behind your commitment C-01?"</td><td>Tester reads the lot table (L-03 highlighted).</td><td><span class="box"></span></td></tr>
+</tbody></table></div>
+
+<h3>Driver and farmer</h3>
+<div class="wrap"><table>
+<thead><tr><th>#</th><th>Task</th><th>Pass when</th><th>P/H/F</th></tr></thead>
+<tbody>
+<tr><td>D1</td><td>On a phone: "View as Driver. Accept the job, pick up, deliver."</td><td>Stepper reaches Delivered.</td><td><span class="box"></span></td></tr>
+<tr><td>F1</td><td>"What does the farmer receive, and in which language?" Open <code>/sms</code>, switch EN → TL → HIL.</td><td>Three messages change language; each says "1 SMS".</td><td><span class="box"></span></td></tr>
+</tbody></table></div>
+
+<h3>Everyone, once</h3>
+<ul>
+  <li>Switch to Dark and back. Switch language to TL and HIL on two screens: nothing overflows or is cut off.</li>
+  <li>Use only the keyboard (Tab, Enter, arrows) on <code>/farm</code>: every control shows a visible focus ring.</li>
+  <li>Reload in the middle of a filtered list and press Back: the list state comes back.</li>
+</ul>
+
+<h2>3. Acceptance criteria (what "ready for interviews" means)</h2>
+<div class="wrap"><table>
+<thead><tr><th>Area</th><th>Criterion</th><th>Met</th></tr></thead>
+<tbody>
+<tr><td>Tasks</td><td>All S1 tasks above pass for at least 2 of 3 testers without help.</td><td><span class="box"></span></td></tr>
+<tr><td>Numbers</td><td>No on-screen number differs from <code>docs/NUMBERS.md</code>; assumed values are labeled "assumed" on screen.</td><td><span class="box"></span></td></tr>
+<tr><td>Layout</td><td>No sideways page scroll at 360, 390, 768, 1024, 1440, 1920 (see <code>docs/RESPONSIVE-CHECKLIST.md</code>).</td><td><span class="box"></span></td></tr>
+<tr><td>Honesty</td><td>"Prototype · Simulated data" chip visible on every screen; nobody leaves thinking the data is real.</td><td><span class="box"></span></td></tr>
+<tr><td>Language</td><td>TL/HIL shown as drafts ("Draft: needs native review"); a native speaker has read the SMS before farmers see them.</td><td><span class="box"></span></td></tr>
+<tr><td>Privacy</td><td>No real names, phone numbers or exact locations entered anywhere during testing.</td><td><span class="box"></span></td></tr>
+</tbody></table></div>
+
+<h2>4. Consent note (read before showing the prototype in an interview)</h2>
+<div class="card">
+  <p>"Thank you for your time. We are students from ISUFST testing an early prototype called RiceConnect. Everything you will see is <b>simulated</b>: the farms, names, prices and places are made up. We would like to show you a few screens and ask what you think.</p>
+  <p>We will <b>not</b> record your name, phone number or the name of your business. We will only write down your comments and your role (for example, restaurant owner or rice retailer). You can stop at any time, and you can skip any question.</p>
+  <p>Is it okay to continue?"</p>
+  <p class="note">Tagalog and Hiligaynon versions: have a native speaker translate this note before the interviews; the app's own TL/HIL text is still a draft.</p>
+</div>
+
+<h2>5. Feedback sheet (one row per observation)</h2>
+<p class="note">Copy into a shared spreadsheet with the same columns. Role = coordinator / miller / retailer / market seller / restaurant / driver / farmer / other. No personal data.</p>
+<div class="wrap"><table>
+<thead><tr><th>#</th><th>Date</th><th>Role</th><th>Device / width</th><th>Task</th><th>What happened (quote if possible)</th><th>Severity</th><th>Fix / owner</th></tr></thead>
+<tbody>
+<tr><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>2</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>3</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>4</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>5</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</tbody></table></div>
+
+<h3>Severity</h3>
+<div class="grid">
+  <div class="card"><b>S1 · Blocker</b>Task cannot be finished, a number is wrong, or something looks real that is not. Fix before Oct 5.</div>
+  <div class="card"><b>S2 · Major</b>Task finished only with help, or text overflows / is unreadable. Fix if time allows.</div>
+  <div class="card"><b>S3 · Minor</b>Wording, spacing, wishes. Log for after the contest.</div>
+</div>
+
+<h3>Interview questions (after the walkthrough)</h3>
+<ol>
+  <li>Who do you buy rice or palay from today, and what is the hardest part?</li>
+  <li>Would knowing supply by week and barangay change how you order? What else would you need to see?</li>
+  <li>Would you trust a lot more if you could trace it to the farm? What would make you trust it?</li>
+  <li>What would stop you from using this?</li>
+</ol>
+
+<h2>6. Schedule</h2>
+<ol class="flow">
+  <li>Oct 4 AM · team round</li>
+  <li>Oct 4 PM · triage S1/S2</li>
+  <li>Oct 5 · fixes + code freeze</li>
+  <li>Oct 6–7 · interviews</li>
+  <li>Oct 8 · fold quotes into slides</li>
+  <li>Oct 9 · contest</li>
+</ol>
+<p class="warn">Do not change numbers or flows after the Oct 5 freeze; record interview findings as "next steps" instead.</p>
+</main>
+</body>
+</html>
