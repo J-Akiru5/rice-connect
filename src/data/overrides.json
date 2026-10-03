@@ -82,5 +82,19 @@
     "pinStatus": "verified",
     "areaTenths": 15,
     "harvestWeek": "W3"
+  },
+  "milling": {
+    "_why": "Restaurants, retailers and market sellers buy milled rice; the brief gives no milling numbers. All ASSUMED placeholders: replace with a partner miller's or PhilRice/PSA figures.",
+    "recoveryPct": 62,
+    "priceCentavosPerKg": 4800,
+    "sackKg": 25,
+    "partnerMiller": "Buyer A (simulated)"
+  },
+  "buyerTypes": {
+    "_why": "Who buys what (assumed from the design's roles plus the team's decision to add restaurants and market sellers).",
+    "miller": "palay",
+    "retailer": "rice",
+    "market": "rice",
+    "restaurant": "rice"
   }
 }
