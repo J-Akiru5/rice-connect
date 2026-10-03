@@ -9,3 +9,4 @@
 | TL / HIL copy | Draft | Every Tagalog and Hiligaynon string (design + prototype additions) needs native review. |
 | Logo vectors | Trace | The SVGs are a trace of the raster logo; prefer the designer's original if one exists. |
 | Dryer clock times | Dropped | No source for slot clock times; slots show kg. Add times only with a real dryer schedule. |
+| Tag `demo-v1` | Not on GitHub | `git push origin demo-v1` is silently dropped by this environment's git proxy (it reports "Everything up-to-date"; GitHub lists no tags). Rollback point created instead as branch `rollback/demo-v1` at 550a55b (= `main` after PR #1). To make the tag yourself: `git fetch origin && git tag demo-v1 550a55b && git push origin demo-v1`. |
