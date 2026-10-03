@@ -15,4 +15,15 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     'cal.total': ['Total', 'Kabuuan', 'Kabilugan'],
     'cal.farms': ['{n} farms', '{n} bukid', '{n} ka uma'],
     'driver.away': ['{km} km away', '{km} km ang layo', '{km} km ang kalayuon'],
+    // farm list + profile
+    'farm.list': ['Cluster 1 Farms', 'Mga Bukid ng Cluster 1', 'Mga Uma sang Cluster 1'],
+    'farm.search': ['Search Farms', 'Maghanap ng Bukid', 'Mangita sang Uma'],
+    'farm.summary': ['{n} farms · {ha} ha', '{n} bukid · {ha} ha', '{n} ka uma · {ha} ha'],
+    'farm.open': ['Open {id}', 'Buksan ang {id}', 'Buksan ang {id}'],
+    'farm.back': ['All Farms', 'Lahat ng Bukid', 'Tanan nga Uma'],
+    'farm.harvest': ['Harvest', 'Ani', 'Alani'],
+    'farm.harvestLine': ['{week} · {date}', '{week} · {date}', '{week} · {date}'],
+    'farm.forecast': ['Forecast, Dried', 'Tantiya, Tuyo', 'Banta, Uga'],
+    'farm.lot': ['Lot', 'Lot', 'Lot'],
+    'farm.viewPlan': ['View in Plan', 'Tingnan sa Plano', 'Tan-awa sa Plano'],
 };

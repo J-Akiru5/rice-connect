@@ -43,3 +43,12 @@ Sources: design system https://claude.ai/artifact/97dKcK7FbnPNaW3ezBoTVt (versio
 | D9 | Haul H-07 | Truck T-02, 60 of 100 sacks, 11.8 km, PHP 3,500.00 per trip. | Auto-assign nearest available driver with enough capacity, tie-break lowest price. | Computed: 100 sacks → DR-05 Truck T-02 (nearest available truck, 6.2 km). Route km seeded. Haul sacks use the dried lot weight (simplification). |
 | D10 | Lot numbering | L-00 IDs, hero L-03. | IDs link F-014 → L-03. | One forecast lot per farm, numbered by harvest date; L-03 is reserved for F-014's lot. Only L-03 is "weighed" (5,000 kg); the rest are forecasts. |
 | D11 | Money units | `PRICE` in pesos (22.5). | Integer centavos. | `PRICE`/`SLIP`/vehicle prices in centavos; `peso()` and `rate()` format them. The design's `peso()` now takes centavos. |
+
+## Screens
+
+| # | Screen | Topic | Decision |
+|---|---|---|---|
+| S1 | /farm | The canvas has no list board. | List built from existing pieces only: glass panel, SearchField, StatusChip, line icons. Rows link to `/farm/[id]`. Search with no hits shows EmptyState (terrace band). |
+| S2 | /farm?state=empty | The design's empty state has an "Add Farm" button. | Button dropped: adding a farm is not a listed feature, and a button that does nothing is a dead control. Title and body kept. |
+| S3 | /farm/[id] | Profile shows the 8 fields via FarmProfileCard; "Add to Cluster" turns into "Added to Cluster 1" (the design's own behavior). | Added one glass "Harvest" panel (harvest week/date, lot ID, dried forecast) so the F-014 → L-03 link is visible. Farms already in the cluster show no Add button. |
+| S4 | State boards | The design draws error/success as separate boards. | Same route with `?state=error` / `?state=success`; Try Again returns to the profile, Next Farm opens the next farm. Pages render the default state on the server (Suspense fallback), then apply `?state=` on the client. |

@@ -1,12 +1,18 @@
 'use client';
-import { PhoneShell, PhoneStage } from '@/components/riceconnect';
+import { Suspense } from 'react';
+import { PhoneStage } from '@/components/riceconnect';
+import { FarmListScreen } from '@/screens/farm';
+import { useViewState } from '@/screens/params';
+
+function Inner() {
+  const state = useViewState(['empty'] as const);
+  return <FarmListScreen state={state} />;
+}
 
 export default function FarmPage() {
   return (
     <PhoneStage>
-      <PhoneShell title="farm.title" active="farms">
-        <p className="text-[16px]">Step 1 shell.</p>
-      </PhoneShell>
+      <Suspense fallback={<FarmListScreen />}><Inner /></Suspense>
     </PhoneStage>
   );
 }
