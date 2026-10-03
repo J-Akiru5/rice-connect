@@ -6,6 +6,7 @@ import ApplicationLogo from './ApplicationLogo';
 import Icon from './Icon';
 import ThemeToggle from './ThemeToggle';
 import Modal from './Modal';
+import { useRouter } from 'next/navigation';
 import { DemoChip, LanguageSwitcher } from './Enactus';
 import { useI18n, tx } from '../lib/i18n';
 
@@ -22,16 +23,29 @@ const NAV: Record<Role, Item[]> = {
         { key: 'dry', icon: 'Dry', href: '/dry' }, { key: 'logistics', icon: 'Logistics', href: '/haul', sub: 'haul' },
         { key: 'orders', icon: 'Orders', href: '/pay', sub: 'pay' }, { key: 'sms', icon: 'Sms', href: '/sms' },
     ],
-    buyer: [
-        { key: 'market', icon: 'Market', href: '/market' }, { key: 'orders', icon: 'Orders', href: '/pay', sub: 'pay' },
-        { key: 'logistics', icon: 'Logistics', href: '/haul', sub: 'haul' },
-    ],
+    buyer: [{ key: 'supply', icon: 'Market', href: '/buyer' }, { key: 'myorders', icon: 'Orders', href: '/buyer/orders' }],
     driver: [{ key: 'logistics', icon: 'Logistics', href: '/haul/driver', sub: 'haul' }, { key: 'sms', icon: 'Sms', href: '/sms' }],
 };
 /* Mobile bottom tabs; everything else in the role's nav goes into the "More" sheet. */
-const TABS: Record<Role, string[]> = { coordinator: ['farms', 'logistics', 'orders', 'sms'], buyer: ['market', 'orders', 'logistics'], driver: ['logistics', 'sms'] };
+const TABS: Record<Role, string[]> = { coordinator: ['farms', 'logistics', 'orders', 'sms'], buyer: ['supply', 'myorders'], driver: ['logistics', 'sms'] };
 const ROLE_LABEL: Record<Role, string> = { coordinator: 'role.coordinator', buyer: 'role.buyer', driver: 'role.driver' };
 const isActive = (n: Item, active: string) => active === n.key || active === n.sub;
+
+const HOME: Record<Role, string> = { coordinator: '/farm', buyer: '/buyer', driver: '/haul/driver' };
+/** "View as" (prototype addition): switches the demo between user groups. Navigation only, not access control. */
+export function RoleSwitcher({ role }: { role: Role }) {
+    const { t } = useI18n();
+    const router = useRouter();
+    return (
+        <label className="inline-flex items-center gap-2 text-[13px] font-extrabold uppercase tracking-[0.06em]">
+            <Icon name="Users" size={20} /><span className="sr-only md:not-sr-only">{t('role.view')}</span>
+            <select value={role} onChange={(e) => router.push(HOME[e.target.value as Role])}
+                className="min-h-[44px] md:min-h-[40px] px-3 rounded-full bg-[var(--glass-fill-strong)] text-[var(--ink)] border-2 border-[color:var(--text-muted)] text-[14px] font-extrabold normal-case tracking-normal">
+                {(['coordinator', 'buyer', 'driver'] as Role[]).map((r) => <option key={r} value={r}>{t('role.name.' + r)}</option>)}
+            </select>
+        </label>
+    );
+}
 
 export function TeamFooter({ className = '' }: { className?: string }) {
     return <footer className={'px-4 md:px-8 py-4 text-[13px] font-semibold text-[var(--text-secondary)] ' + className}>Team Syntaxure Labs · ISUFST</footer>;
@@ -84,6 +98,7 @@ export default function AppShell({ role = 'coordinator', active = 'farms', title
                         </div>
                         <div className="flex-1 md:hidden" />
                         <DemoChip className="hidden md:inline-flex" />
+                        <RoleSwitcher role={role} />
                         <LanguageSwitcher />
                         <ThemeToggle iconSize={20} />
                         {actions}

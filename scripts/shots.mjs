@@ -24,7 +24,7 @@ const SHOTS = [
   // [name, path, viewports] — viewports: 'both' | 'desktop'
   ['farm-list', '/farm', 'both'],
   ['farm-list-page-2', '/farm?page=2', 'both'],
-  ['farm-list-filtered', '/farm?status=verified&barangay=Barangay%20B%20(placeholder)', 'both'],
+  ['farm-list-filtered', '/farm?status=verified&barangay=Licu-an', 'both'],
   ['farm-no-match', '/farm?q=zzz', 'both'],
   ['farm-profile-F-014', '/farm/F-014', 'both'],
   ['farm-empty', '/farm?state=empty', 'both'],

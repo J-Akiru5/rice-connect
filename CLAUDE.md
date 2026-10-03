@@ -4,11 +4,11 @@ This repo is a **prototype** for a ~78 s demo video and slide screenshots. It is
 
 ## Hard rules
 
-- Next.js (App Router) + TypeScript + Tailwind. Extra deps allowed: vitest, @playwright/test, @fontsource/plus-jakarta-sans. Anything else: ask first.
+- Next.js (App Router) + TypeScript + Tailwind. Extra deps allowed: vitest, @playwright/test, @fontsource/plus-jakarta-sans, maplibre-gl (buyer supply map, approved by the team). Anything else: ask first.
 - Font: Plus Jakarta Sans via @fontsource (400–800, self-hosted). Never weight 900 (`font-extrabold` at most). `.tabular` on every number.
 - Ground: flat canvas + faint terrace-contour SVG watermark (`.rc-ground`, `.rc-ground-auth` in `src/components/riceconnect/app.css`). The rice-field photo is retired: never use or add it, never set `--rc-photo`. Check: `rg -i "rice-field|rc-photo|photo-scrim" src public` returns nothing.
-- No database, no auth, no env vars, no runtime network calls, no analytics, no map tiles. All data comes from `src/data/seed.ts` (deterministic: mulberry32, seed 20261009), in the same shapes as the design's `lib/demo.ts` (Farm, Lot, Haul, Slot, Slip, Commitment).
-- All data is simulated: farmers are codes ("Farmer F-014"), mobiles masked ("09•• ••• 4821"), barangays "Barangay A/B/C (placeholder)". No real people or photos.
+- No database, no auth, no env vars, no analytics. No runtime network calls except the buyer supply map's tiles (OpenFreeMap, no API key, `/buyer` only); the page must still work when tiles fail. All data comes from `src/data/seed.ts` (deterministic: mulberry32, seed 20261009), in the same shapes as the design's `lib/demo.ts` (Farm, Lot, Haul, Slot, Slip, Commitment).
+- All data is simulated: farmers are codes ("Farmer F-014"), mobiles masked ("09•• ••• 4821"), barangays are real places in Dingle, Iloilo (San Matias, Licu-an, Ilajas; team decision) but every farm, farmer and figure in them is simulated. No real people or photos.
 - Every route shows the DemoChip "PROTOTYPE · SIMULATED DATA" (translated) and the footer "Team Syntaxure Labs · ISUFST".
 - Colors only from tokens (`src/styles/tokens.css` is generated from `design/tokens.json`; never edit token values). Check: `rg "#[0-9a-fA-F]{3,8}" src --glob '!**/tokens*' --glob '!**/app.css'` returns nothing.
 - Money in integer centavos, shown as ₱ with 2 decimals. Units always shown (kg, ₱/kg, t, sacks).

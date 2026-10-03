@@ -75,3 +75,20 @@ Slip ID S-0303 is the design's ID (the brief names no slip ID).
 | /sms | chars · SMS parts | e.g. 107 chars · 1 SMS | computed by SmsBubble; every message ≤ 160 GSM-7 characters (tested) |
 | /demo | Beat times, flips | 0–6 … 72–78 s; EN/TL/HIL at 64/67/70 s | brief (tested) |
 | /demo | End card line | "One cluster. One hundred farms. 80% paid within 24 hours." | design copy; 100 farms and 80% within 24 h match the brief |
+
+## Buyer portal assumptions (added for restaurants, retailers and market sellers)
+
+| Value | Where | Why |
+|---|---|---|
+| Milling recovery 62% (100 kg dried palay → 62 kg milled rice) | `milling.recoveryPct` | **assumed** placeholder. Replace with the partner miller's actual figure (or PhilRice data). |
+| Milled rice ₱48.00/kg to retailers, market sellers and restaurants | `milling.priceCentavosPerKg` | **assumed** placeholder. Replace with a quoted price; no buyer fee is shown on rice orders because the brief only defines the fee for palay. |
+| Milled rice sold in 25 kg sacks | `milling.sackKg` | **assumed**. |
+| Buyer A (simulated) is the partner miller that mills for rice buyers | `milling.partnerMiller` | **assumed**: rice available = palay matched to C-01 × 62%. |
+| Millers buy palay; retailers, market sellers and restaurants buy milled rice | `buyerTypes` | **assumed** from the design's roles plus the team's decision to add restaurants and market sellers. |
+
+## Places
+
+| Value | Where | Source |
+|---|---|---|
+| Barangays San Matias, Licu-an, Ilajas in Dingle, Iloilo | `params.ts` `BARANGAYS` | team decision (real places; all farm data in them simulated) |
+| Map points San Matias 11.0002, 122.6599 · Licu-an 11.0097, 122.6519 · Ilajas 11.0007, 122.6870 | `places.ts` | PhilAtlas barangay pages (barangay reference points, not farms) |
