@@ -6,7 +6,9 @@ export const TOTAL_AREA_TENTHS = 1200; // 120.0 ha, exactly
 export const AREA_MIN_TENTHS = 5; // 0.5 ha
 export const AREA_MAX_TENTHS = 25; // 2.5 ha
 export const BARANGAY_SPLIT = [33, 34, 33] as const;
-export const BARANGAYS = ['Barangay A (placeholder)', 'Barangay B (placeholder)', 'Barangay C (placeholder)'] as const;
+/* Real barangays of Dingle, Iloilo, chosen by the team (the farms in them are still simulated). */
+export const BARANGAYS = ['San Matias', 'Licu-an', 'Ilajas'] as const;
+export const MUNICIPALITY = 'Dingle, Iloilo';
 export const WEEKS = ['W1', 'W2', 'W3', 'W4'] as const;
 
 export const YIELD_WET_KG_PER_HA = 4000;

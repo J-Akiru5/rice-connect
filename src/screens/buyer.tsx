@@ -4,7 +4,8 @@ import { AppShell, BigStat, Icon, useI18n } from '@/components/riceconnect';
 import { WEEKS } from '@/data/seed';
 import { MILLING, SUPPLY, SUPPLY_WEEK_TOTAL, UNCOMMITTED_LOTS, RICE_AVAILABLE_KG, buysPalay, type BuyerType } from '@/data/buyers';
 import { peso } from '@/data/money';
-import { SupplyMap } from './supply-map';
+import dynamic from 'next/dynamic';
+const SupplyMap = dynamic(() => import('./supply-map').then((m) => m.SupplyMap), { ssr: false, loading: () => <div className="glass-panel rounded-[1.5rem] h-[384px] md:h-[444px]" aria-hidden /> });
 import { BuyerTypePicker } from './buyer-type';
 import { SectionPill, Note, ResponsiveTable } from './ui';
 
@@ -51,7 +52,7 @@ export function BuyerSupplyScreen({ type, onType, week, onWeek }: { type: BuyerT
                                 { key: 'b', label: t('farm.barangay'), cell: (r) => r.barangay },
                                 ...WEEKS.map((w, i) => ({ key: w, label: w, align: 'right' as const, nowrap: true, cell: (r: (typeof rows)[number]) => <span className={i === week ? 'underline decoration-[3px] underline-offset-4' : ''}>{t1(r.v[i])} t</span> })),
                             ]} />
-                            <Note>{t(palay ? 'buyer.buys.palay' : 'buyer.buys.rice')}. {t('supply.mapNote')}</Note>
+                            <Note>{t(palay ? 'buyer.buys.palay' : 'buyer.buys.rice')}.</Note>
                             <Link href={`/buyer/orders?type=${type}`} className="btn-2026 self-start"><Icon name={palay ? 'Plus' : 'Sack'} size={20} /><span>{t(palay ? 'supply.cta.palay' : 'supply.cta.rice')}</span></Link>
                         </div>
                     </div>

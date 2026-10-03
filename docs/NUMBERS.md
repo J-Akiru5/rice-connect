@@ -85,3 +85,10 @@ Slip ID S-0303 is the design's ID (the brief names no slip ID).
 | Milled rice sold in 25 kg sacks | `milling.sackKg` | **assumed**. |
 | Buyer A (simulated) is the partner miller that mills for rice buyers | `milling.partnerMiller` | **assumed**: rice available = palay matched to C-01 × 62%. |
 | Millers buy palay; retailers, market sellers and restaurants buy milled rice | `buyerTypes` | **assumed** from the design's roles plus the team's decision to add restaurants and market sellers. |
+
+## Places
+
+| Value | Where | Source |
+|---|---|---|
+| Barangays San Matias, Licu-an, Ilajas in Dingle, Iloilo | `params.ts` `BARANGAYS` | team decision (real places; all farm data in them simulated) |
+| Map points San Matias 11.0002, 122.6599 · Licu-an 11.0097, 122.6519 · Ilajas 11.0007, 122.6870 | `places.ts` | PhilAtlas barangay pages (barangay reference points, not farms) |

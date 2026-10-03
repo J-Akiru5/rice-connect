@@ -51,7 +51,7 @@ rg "#[0-9a-fA-F]{3,8}" src --glob '!**/tokens*' --glob '!**/app.css'
 | `/haul`, `/haul/driver` | Haul request with auto-assigned driver and override (two columns when wide); the driver's job card | all |
 | `/pay`, `/pay/L-03` | Lots to settle; lot record, settlement, A6 slip (Print Slip prints only the slip) | desktop |
 | `/sms` (`?all=1`) | The three SMS on the farmer's phone (all three languages) | all |
-| `/buyer`, `/buyer/orders` | Buyer portal: supply by barangay (map + table), order milled rice or post a palay commitment, trace an order to the farm. `?type=miller\|retailer\|market\|restaurant` | all |
+| `/buyer`, `/buyer/orders` | Buyer portal: supply by barangay on a MapLibre map of Dingle, Iloilo (OpenFreeMap tiles) + table, order milled rice or post a palay commitment, trace an order to the farm. `?type=miller\|retailer\|market\|restaurant` | all |
 | `/demo` | The guided 78 s sequence | both |
 
 State boards from the design: add `?state=empty|error|success` (see `docs/BOARDS.md`).
