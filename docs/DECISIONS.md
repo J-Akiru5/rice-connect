@@ -100,3 +100,12 @@ Every new desktop/tablet layout below is **derived, not in canvas**: composed on
 | B6 | Buyer type state | `?type=` in the URL (shareable for testers), else the last choice in localStorage, else Restaurant. |
 | B7 | Real map (team request, supersedes B4's drawing) | `/buyer` uses **MapLibre GL** (`maplibre-gl` 5.24.0, approved by the team) with **OpenFreeMap** tiles (`tiles.openfreemap.org/styles/liberty`: free, no API key, so still no env vars; OpenStreetMap attribution shown). Centered on Dingle, Iloilo, fitted to three markers, one per barangay, sized and labeled by supply for the selected week and buyer type. Still no farm pins (privacy, no bypassing the cluster). `cooperativeGestures` so the page still scrolls on phones. This is the prototype's only runtime network call; if tiles fail, a notice appears and the table next to the map carries every number. |
 | B8 | Real barangays | Team decision: "Barangay A/B/C (placeholder)" → **San Matias, Licu-an, Ilajas** (Dingle, Iloilo), in the same 33/34/33 split, so no number changes. Cluster Dryer 1 is listed in Licu-an (simulated; no map pin, its location is unknown). Barangay reference points from PhilAtlas: San Matias 11.0002, 122.6599 · Licu-an 11.0097, 122.6519 · Ilajas 11.0007, 122.6870 (`src/data/places.ts`). Supersedes D3. |
+
+## Monorepo (team decision, Oct 4)
+
+| # | Topic | Decision |
+|---|---|---|
+| M1 | Branching | The team asked to land the monorepo on `main` directly instead of five stacked phase PRs. Rollback point: branch `rollback/demo-v2` at ec7de9e (tag pushes are dropped by this environment's git proxy). |
+| M2 | Rules conflict | The monorepo brief repeated older rules ("no map tiles", "placeholder barangays"). `main` already ships the team-approved MapLibre map and the real Dingle barangays (B7, B8); Phase A required zero behavior change, so both stay. `pnpm demo:local` with the network off still works: the map shows its offline notice and the table. |
+| M3 | Marketing reference | The LikasLens reference was dropped by the team; the marketing site follows this design system instead. |
+| M4 | Phase A | pnpm 10 + Turborepo 2.11. Packages `@rc/config`, `@rc/ui`, `@rc/domain`, `@rc/i18n`, `@rc/store` are consumed as TypeScript source (`transpilePackages`). The old app moved to `apps/web` unchanged. The buyer screen's raw localStorage became `@rc/store` (same behavior; old keys `rc-rice-orders` / `rc-commitments` are migrated into `rc-store-v1`). |

@@ -1,0 +1,10 @@
+{
+  "name": "@rc/domain",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": { "./*": "./src/*.ts", "./overrides.json": "./src/overrides.json" },
+  "scripts": { "lint": "tsc --noEmit -p .", "test": "vitest run", "build": "echo source package" },
+  "dependencies": {},
+  "devDependencies": { "@rc/config": "workspace:*", "typescript": "5.6.3", "vitest": "2.1.9", "@types/node": "20.17.10" }
+}
