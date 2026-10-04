@@ -19,7 +19,7 @@ export function SupplyMap({ values, unit, label }: { values: number[]; unit: str
     const map = useRef<import('maplibre-gl').Map | null>(null);
     const markers = useRef<HTMLDivElement[]>([]);
     const [offline, setOffline] = useState(false);
-    const summary = BARANGAYS.map((b, i) => `${b}: ${values[i].toFixed(1)} ${unit}`).join('; ');
+    const summary = BARANGAYS.map((b, i) => `${b}: ${(values[i] ?? 0).toFixed(1)} ${unit}`).join('; ');
 
     useEffect(() => {
         let cancelled = false;
@@ -64,16 +64,16 @@ export function SupplyMap({ values, unit, label }: { values: number[]; unit: str
     const max = Math.max(1, ...values);
     function setMarkers() {
         markers.current.forEach((el, i) => {
-            const size = 18 + Math.round(26 * (values[i] / max));
+            const size = 18 + Math.round(26 * ((values[i] ?? 0) / max));
             el.innerHTML = '';
             const tag = document.createElement('span');
             tag.className = 'rc-map-tag tabular';
-            tag.textContent = `${BARANGAYS[i]} · ${values[i].toFixed(1)} ${unit}`;
+            tag.textContent = `${BARANGAYS[i]} · ${(values[i] ?? 0).toFixed(1)} ${unit}`;
             const dot = document.createElement('span');
             dot.className = 'rc-map-dot';
             dot.style.width = dot.style.height = `${size}px`;
             el.append(tag, dot);
-            el.setAttribute('aria-label', `${BARANGAYS[i]}: ${values[i].toFixed(1)} ${unit}`);
+            el.setAttribute('aria-label', `${BARANGAYS[i]}: ${(values[i] ?? 0).toFixed(1)} ${unit}`);
         });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

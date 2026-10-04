@@ -21,7 +21,7 @@ describe('store actions', () => {
     });
     it('keeps unknown replies without changing anything else', () => {
         const s = farmerReply('hello', ids)(emptyState());
-        expect(s.smsReplies[0].action).toBeNull();
+        expect(s.smsReplies[0]?.action).toBeNull();
         expect(s.slots).toEqual({});
     });
     it('numbers replies in order and adds a farm once', () => {

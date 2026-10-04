@@ -30,7 +30,7 @@ describe('LocalAdapter', () => {
         expect(a.get().riceOrders).toHaveLength(1);
         expect(JSON.parse(storage.getItem(STORE_KEY)!).riceOrders[0].id).toBe('R-001');
         expect(seen).toBe(1);
-        expect(new LocalAdapter({ storage }).get().riceOrders[0].id).toBe('R-001');
+        expect(new LocalAdapter({ storage }).get().riceOrders[0]?.id).toBe('R-001');
     });
     it('migrates the old buyer-portal keys', () => {
         const storage = new MemStorage();

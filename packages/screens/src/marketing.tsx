@@ -64,7 +64,7 @@ const NAV_LINKS = [
     ['#who', 'mk.nav.who'],
     ['#status', 'mk.nav.status'],
     ['#faq', 'mk.nav.faq']
-];
+] as const;
 const linkCls =
     'inline-flex items-center gap-2 min-h-[44px] text-[15px] font-bold text-[var(--ink)] hover:text-[var(--text-accent)]';
 
@@ -264,7 +264,7 @@ function HarvestTracker() {
                 </h2>
                 <span className="flex items-center gap-2 flex-wrap">
                     <span className="text-[13px] font-bold text-[var(--text-secondary)] tabular">
-                        {t('mk.tracker.week', { w: WEEKS[week] })}
+                        {t('mk.tracker.week', { w: WEEKS[week] ?? WEEKS[0] })}
                     </span>
                     <ClaimTag tag="simulated" />
                 </span>
@@ -378,11 +378,13 @@ export function MarketingPage() {
                         </a>
                     </div>
                     <ul className="flex flex-wrap gap-2" aria-label={t('mk.hero.card')}>
-                        {[
-                            ['Sms', 'mk.badge.sms'],
-                            ['Language', 'mk.badge.lang'],
-                            ['MapPin', 'mk.badge.place']
-                        ].map(([icon, k]) => (
+                        {(
+                            [
+                                ['Sms', 'mk.badge.sms'],
+                                ['Language', 'mk.badge.lang'],
+                                ['MapPin', 'mk.badge.place']
+                            ] as const
+                        ).map(([icon, k]) => (
                             <li
                                 key={k}
                                 className="inline-flex items-center gap-2 min-h-[32px] px-3 py-1 rounded-full glass-panel !shadow-none text-[13px] font-bold"

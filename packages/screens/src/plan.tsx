@@ -102,7 +102,7 @@ export function PlanScreen({ list }: { list?: ListState }) {
                         label="plan.stat.peak"
                         value={WEEKS[peak]}
                         icon="Plan"
-                        note={t('plan.note.peak', { t: t1(WEEK_KG[peak]) })}
+                        note={t('plan.note.peak', { t: t1(WEEK_KG[peak] ?? 0) })}
                     />
                 </div>
                 <section aria-labelledby="plan-cal">

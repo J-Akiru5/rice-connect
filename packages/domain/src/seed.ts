@@ -84,19 +84,22 @@ export function normalizeAreas(
     const pinnedSum = Object.values(pinned).reduce((a, b) => a + b, 0);
     const freeRaw = raw.reduce((s, x, i) => (i in pinned ? s : s + x), 0);
     const scale = (total - pinnedSum) / freeRaw;
-    const out = raw.map((x, i) => (i in pinned ? pinned[i] : Math.min(max, Math.max(min, Math.round(x * scale)))));
+    const out = raw.map((x, i) => {
+        const pin = pinned[i];
+        return pin !== undefined ? pin : Math.min(max, Math.max(min, Math.round(x * scale)));
+    });
     const last = out.length - 1;
     out[last] = total - out.slice(0, last).reduce((a, b) => a + b, 0);
     // If the residual left the range, move single tenths to or from the earliest farms that have room.
-    for (let i = 0; out[last] > max && i < last; i++)
-        while (!(i in pinned) && out[i] < max && out[last] > max) {
-            out[i]++;
-            out[last]--;
+    for (let i = 0; (out[last] ?? 0) > max && i < last; i++)
+        while (!(i in pinned) && (out[i] ?? 0) < max && (out[last] ?? 0) > max) {
+            out[i] = (out[i] ?? 0) + 1;
+            out[last] = (out[last] ?? 0) - 1;
         }
-    for (let i = 0; out[last] < min && i < last; i++)
-        while (!(i in pinned) && out[i] > min && out[last] < min) {
-            out[i]--;
-            out[last]++;
+    for (let i = 0; (out[last] ?? 0) < min && i < last; i++)
+        while (!(i in pinned) && (out[i] ?? 0) > min && (out[last] ?? 0) < min) {
+            out[i] = (out[i] ?? 0) - 1;
+            out[last] = (out[last] ?? 0) + 1;
         }
     return out;
 }
@@ -114,9 +117,10 @@ export const FARMS: Farm[] = draws.map((d, i) => {
     const n = i + 1;
     const id = 'F-' + String(n).padStart(3, '0');
     const isHero = i === HERO_INDEX;
+    const areaTenths = areas[i] ?? 0;
     const week = isHero ? WEEKS.indexOf(overrides.hero.harvestWeek as (typeof WEEKS)[number]) : d.week;
     const harvestDay = week * 7 + d.day;
-    const driedKg = driedKgFor(areas[i]);
+    const driedKg = driedKgFor(areaTenths);
     const status: FarmStatus = isHero
         ? (overrides.hero.pinStatus as FarmStatus)
         : n % 9 === 0
@@ -129,19 +133,21 @@ export const FARMS: Farm[] = draws.map((d, i) => {
         name: `Farmer ${id}`,
         mobile: `09•• ••• ${String(d.mobile).padStart(4, '0')}`,
         barangay: BARANGAYS[barangayOf(i)],
-        areaHa: areas[i] / 10,
-        areaTenths: areas[i],
-        variety: VARIETIES[d.variety],
+        areaHa: areaTenths / 10,
+        areaTenths,
+        variety: VARIETIES[d.variety] ?? VARIETIES[0],
         plantingWeek: monthWeekLabel(harvestDay - overrides.cropDaysPlantingToHarvest),
         status,
-        harvestWeek: WEEKS[week],
+        harvestWeek: WEEKS[week] ?? WEEKS[0],
         harvestDay,
         harvestLabel: dayLabel(harvestDay),
         tonnes: Math.round(driedKg / 100) / 10,
         driedKg
     };
 });
-export const HERO_FARM: Farm = FARMS[HERO_INDEX];
+const heroFarm = FARMS[HERO_INDEX];
+if (!heroFarm) throw new Error(`hero farm index ${HERO_INDEX} is outside the seed`);
+export const HERO_FARM: Farm = heroFarm;
 export const farmById = (id: string) => FARMS.find((f) => f.id === id);
 
 /* ---------- lots ---------- */
@@ -313,7 +319,7 @@ export const DRIVERS: Driver[] = overrides.drivers.map((d) => ({
     name: `Driver ${d.id}`,
     distanceKm: Math.round((0.5 + rng() * 9.5) * 10) / 10 // seeded, drawn after the farms
 }));
-const legKm = [Math.round((1 + rng() * 9) * 10) / 10, Math.round((1 + rng() * 9) * 10) / 10]; // farm→dryer, dryer→buyer
+const legKm: [number, number] = [Math.round((1 + rng() * 9) * 10) / 10, Math.round((1 + rng() * 9) * 10) / 10]; // farm→dryer, dryer→buyer
 const heroBuyer = COMMITMENTS.find((c) => c.id === HERO.commitment)!.buyer;
 const heroDriver = autoAssign(HERO_LOT.sacks, DRIVERS, VEHICLES);
 export const HAUL = {

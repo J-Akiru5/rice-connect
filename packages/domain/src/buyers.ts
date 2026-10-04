@@ -33,7 +33,7 @@ export const SUPPLY = BARANGAYS.map((b) => {
     );
     return { barangay: b, farms: FARMS.filter((f) => f.barangay === b).length, palay, rice: palay.map(milledKg) };
 });
-export const SUPPLY_WEEK_TOTAL = WEEKS.map((_, i) => SUPPLY.reduce((s, r) => s + r.palay[i], 0));
+export const SUPPLY_WEEK_TOTAL = WEEKS.map((_, i) => SUPPLY.reduce((s, r) => s + (r.palay[i] ?? 0), 0));
 
 /** Milled rice the partner miller can offer from the palay committed to it (C-01 today), at the assumed recovery. */
 export const PARTNER_COMMITMENT = COMMITMENTS.find((c) => c.buyer === MILLING.partnerMiller)!;

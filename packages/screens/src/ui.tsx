@@ -44,7 +44,8 @@ export function ResponsiveTable<T>({
     rowKey: (r: T) => string;
     highlight?: (r: T) => boolean;
 }) {
-    const [head, ...rest] = cols;
+    const [first, ...rest] = cols;
+    const head: Col<T> = first ?? { key: 'head', label: caption, cell: rowKey };
     const capCls = 'text-[12px] leading-4 font-extrabold uppercase tracking-[0.1em] text-[var(--text-muted)]';
     return (
         <>

@@ -152,11 +152,11 @@ export function SmsScreen({ reply = false }: { reply?: boolean }) {
                                     <span className="flex items-baseline justify-between gap-2 flex-wrap">
                                         <span className="text-[15px] font-extrabold break-words">{HERO_FARM.name}</span>
                                         <span className="text-[12px] font-semibold text-[var(--text-secondary)] tabular">
-                                            {last.time}
+                                            {last?.time}
                                         </span>
                                     </span>
                                     <span className="block text-[14px] leading-5 font-medium text-[var(--text-secondary)] break-words">
-                                        {last.text[lang]}
+                                        {last?.text[lang]}
                                     </span>
                                 </span>
                             </a>

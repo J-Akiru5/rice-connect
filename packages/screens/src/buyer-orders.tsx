@@ -262,6 +262,7 @@ function PalayCommitments() {
         }));
         const id = `C-${String(COMMITMENTS.length + mine.length + 1).padStart(2, '0')}`;
         const [r] = autoMatch([{ id, tonnes: tn, grade: HERO_LOT.grade, mcPct: HERO_LOT.mcPct, window }], pool);
+        if (!r) throw new Error('auto-match returned no result for the new commitment');
         updateDemoState((st) => ({
             ...st,
             commitments: [{ id, tonnes: tn, price: pc, window, kg: r.kg, lots: r.lots }, ...st.commitments]
@@ -344,8 +345,8 @@ function PalayCommitments() {
                                     price: c.price,
                                     week:
                                         c.window.length > 1
-                                            ? `${c.window[0]}-${c.window[c.window.length - 1]}`
-                                            : c.window[0],
+                                            ? `${c.window[0] ?? ''}-${c.window[c.window.length - 1] ?? ''}`
+                                            : (c.window[0] ?? ''),
                                     filled: Math.round(c.kg / 100) / 10,
                                     status: c.kg >= c.tonnes * 1000 ? 'full' : 'open'
                                 }}

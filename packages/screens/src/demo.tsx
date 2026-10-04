@@ -11,13 +11,13 @@ import { PayLotScreen } from './pay';
 import { SmsScreen } from './sms';
 import { HERO_FARM } from '@rc/domain/seed';
 
-import { BEATS, TOTAL, beatIndexAt, flipLang, haulAt } from './timeline';
+import { BEATS, TOTAL, beatByIndex, beatIndexAt, flipLang, haulAt } from './timeline';
 export { BEATS, TOTAL };
 
 /** One frame of the sequence at time t (seconds). */
 export function Stage({ t }: { t: number }) {
     const { t: tr } = useI18n();
-    const beat = BEATS[beatIndexAt(t)].key;
+    const beat = beatByIndex(beatIndexAt(t)).key;
     switch (beat) {
         case 'farm':
             return (
@@ -91,8 +91,9 @@ export function DemoPlayer({ rec, flip, startBeat }: { rec: boolean; flip: boole
     const go = useCallback((delta: number) => {
         setTime((x) => {
             const i = beatIndexAt(x);
-            const target = delta < 0 && x - BEATS[i].start > 1 ? i : Math.min(BEATS.length - 1, Math.max(0, i + delta));
-            return BEATS[target].start;
+            const target =
+                delta < 0 && x - beatByIndex(i).start > 1 ? i : Math.min(BEATS.length - 1, Math.max(0, i + delta));
+            return beatByIndex(target).start;
         });
         last.current = null;
     }, []);
@@ -135,7 +136,7 @@ export function DemoPlayer({ rec, flip, startBeat }: { rec: boolean; flip: boole
 
     const i = beatIndexAt(time);
     return (
-        <div className="relative min-h-screen" data-demo-time={time.toFixed(1)} data-demo-beat={BEATS[i].key}>
+        <div className="relative min-h-screen" data-demo-time={time.toFixed(1)} data-demo-beat={beatByIndex(i).key}>
             <Stage t={time} />
             {!rec && (
                 <div
@@ -145,7 +146,7 @@ export function DemoPlayer({ rec, flip, startBeat }: { rec: boolean; flip: boole
                 >
                     <div className="flex flex-wrap items-center gap-2">
                         <span className="eyebrow min-w-0 flex-1" aria-live="polite">
-                            {i + 1}/{BEATS.length} · {t('demo.beat.' + BEATS[i].key)}
+                            {i + 1}/{BEATS.length} · {t('demo.beat.' + beatByIndex(i).key)}
                         </span>
                         <span className="text-[14px] font-extrabold tabular">
                             {mmss(time)} / {mmss(TOTAL)}

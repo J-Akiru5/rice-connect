@@ -88,7 +88,7 @@ export function BuyerSupplyScreen({
                 </div>
                 <section aria-labelledby="sup-map" className="flex flex-col gap-3">
                     <div className="flex flex-wrap items-center justify-between gap-3">
-                        <SectionPill id="sup-map">{t('supply.map', { week: WEEKS[week] })}</SectionPill>
+                        <SectionPill id="sup-map">{t('supply.map', { week: WEEKS[week] ?? WEEKS[0] })}</SectionPill>
                         <div
                             role="radiogroup"
                             aria-label={t('dry.weeks')}
@@ -110,9 +110,9 @@ export function BuyerSupplyScreen({
                     </div>
                     <div className="cq-two">
                         <SupplyMap
-                            values={rows.map((r) => Number(t1(r.v[week])))}
+                            values={rows.map((r) => Number(t1(r.v[week] ?? 0)))}
                             unit={unit}
-                            label={t('supply.map', { week: WEEKS[week] })}
+                            label={t('supply.map', { week: WEEKS[week] ?? WEEKS[0] })}
                         />
                         <div className="flex flex-col gap-3">
                             <ResponsiveTable
@@ -132,7 +132,7 @@ export function BuyerSupplyScreen({
                                                     i === week ? 'underline decoration-[3px] underline-offset-4' : ''
                                                 }
                                             >
-                                                {t1(r.v[i])} t
+                                                {t1(r.v[i] ?? 0)} t
                                             </span>
                                         )
                                     }))

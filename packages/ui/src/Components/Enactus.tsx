@@ -372,7 +372,7 @@ export function HarvestCalendar({
 }) {
     const { t } = useI18n();
     const max = Math.max(...rows.flatMap((r) => r.weeks));
-    const totals = weeks.map((_, i) => Math.round(rows.reduce((s, r) => s + r.weeks[i], 0) * 10) / 10);
+    const totals = weeks.map((_, i) => Math.round(rows.reduce((s, r) => s + (r.weeks[i] ?? 0), 0) * 10) / 10);
     return (
         <div className={'glass-panel rounded-[1.5rem] p-5 overflow-x-auto ' + className}>
             <table className="w-full border-separate border-spacing-0 tabular">

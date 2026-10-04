@@ -45,7 +45,9 @@ export function autoMatch(
         used.add(l.id);
     }
     // 2. Earliest window first; inside it, earliest harvest first, then lot id.
-    const order = [...commitments].sort((a, b) => a.window[0].localeCompare(b.window[0]) || a.id.localeCompare(b.id));
+    const order = [...commitments].sort(
+        (a, b) => (a.window[0] ?? '').localeCompare(b.window[0] ?? '') || a.id.localeCompare(b.id)
+    );
     const pool = [...lots].sort((a, b) => a.dayIndex - b.dayIndex || a.id.localeCompare(b.id));
     for (const c of order) {
         const r = out.get(c.id)!;

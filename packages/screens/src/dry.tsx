@@ -128,10 +128,10 @@ export function DryScreen({ list, week: weekParam }: { list?: ListState; week?: 
                 </section>
                 <section aria-labelledby="dry-list" className="flex flex-col gap-3">
                     <div>
-                        <SectionPill id="dry-list">{t('dry.slots', { week: WEEKS[week] })}</SectionPill>
+                        <SectionPill id="dry-list">{t('dry.slots', { week: WEEKS[week] ?? WEEKS[0] })}</SectionPill>
                     </div>
                     <ResponsiveTable
-                        caption={t('dry.slots', { week: WEEKS[week] })}
+                        caption={t('dry.slots', { week: WEEKS[week] ?? WEEKS[0] })}
                         cols={cols}
                         rows={pg.rows}
                         rowKey={(s) => s.id}

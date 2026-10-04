@@ -300,7 +300,7 @@ export function FarmProfileScreen({
     const ownAdded = useDemoState().farmsAdded.includes(farm.id) || farm.status === 'cluster';
     const added = forcedAdded ?? ownAdded;
     const [view, setView] = useState<FarmState>(state);
-    const next = FARMS[(FARMS.indexOf(farm) + 1) % FARMS.length];
+    const next = FARMS[(FARMS.indexOf(farm) + 1) % FARMS.length] ?? farm;
     if (view === 'error') {
         return (
             <ModuleShell title="farm.title" active="farms">

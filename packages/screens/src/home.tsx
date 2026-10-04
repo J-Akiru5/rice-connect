@@ -60,7 +60,7 @@ export function CoordinatorHomeScreen() {
     return (
         <AppShell
             title="home.title"
-            eyebrow={t('home.eyebrow', { week: WEEKS[WEEK], date: dayLabel(TODAY) })}
+            eyebrow={t('home.eyebrow', { week: WEEKS[WEEK] ?? WEEKS[0], date: dayLabel(TODAY) })}
             active="home"
         >
             <div className="flex flex-col gap-6">
@@ -84,7 +84,7 @@ export function CoordinatorHomeScreen() {
                 <div className="cq-two">
                     <Panel
                         id="h-harvest"
-                        title={t('home.harvests', { week: WEEKS[WEEK] })}
+                        title={t('home.harvests', { week: WEEKS[WEEK] ?? WEEKS[0] })}
                         href="/plan"
                         cta={t('farm.viewPlan')}
                     >

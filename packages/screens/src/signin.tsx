@@ -153,8 +153,10 @@ export function AuthScreen({ role, mode }: { role: SessionRole; mode: AuthMode }
             return;
         }
         setBusy(true);
-        const identifier = a.identifier === 'mobile' ? toE164(values.identifier) : values.identifier.trim();
-        const { identifier: _i, password, name = '', ...profile } = values;
+        const identifier =
+            a.identifier === 'mobile' ? toE164(values.identifier ?? '') : (values.identifier ?? '').trim();
+        const { identifier: _i, password: passwordRaw, name = '', ...profile } = values;
+        const password = passwordRaw ?? '';
         const res = signup
             ? await auth.signUp(role, { identifier, password, name: name.trim(), profile })
             : await auth.signIn(role, { identifier, password });

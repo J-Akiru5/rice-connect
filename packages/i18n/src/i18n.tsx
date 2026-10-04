@@ -266,7 +266,7 @@ export const STRINGS: Dict = {
 Object.assign(STRINGS, PROTOTYPE_STRINGS);
 
 const idx: Record<Lang, number> = { en: 0, tl: 1, hil: 2 };
-export const translate = (lang: Lang, key: string) => (STRINGS[key] ? STRINGS[key][idx[lang]] : key);
+export const translate = (lang: Lang, key: string) => STRINGS[key]?.[idx[lang]] ?? key;
 /** Fill {name} placeholders. Values are already formatted (money, kg, dates). */
 export const fill = (text: string, vars?: Record<string, string | number>) =>
     vars ? text.replace(/\{(\w+)\}/g, (m, k) => (vars[k] !== undefined ? String(vars[k]) : m)) : text;

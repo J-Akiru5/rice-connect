@@ -28,3 +28,5 @@ export function beatIndexAt(t: number) {
     const i = BEATS.findIndex((b) => t >= b.start && t < b.end);
     return i < 0 ? 0 : i;
 }
+/** The beat at an index, clamped to the first beat (the index is always in range). */
+export const beatByIndex = (i: number) => BEATS[i] ?? BEATS[0];
