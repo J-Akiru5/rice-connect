@@ -14,7 +14,12 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [['github'], ['list']] : 'list',
-  use: { baseURL: `http://127.0.0.1:${mainPort}`, trace: 'retain-on-failure' },
+  use: {
+    baseURL: `http://127.0.0.1:${mainPort}`,
+    trace: 'retain-on-failure'
+    // Visual baselines are stored per project and platform (default snapshot naming), so Windows and Linux
+    // keep their own (Q-06); CI regenerates its own only with the visual-update label.
+  },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: [
     {

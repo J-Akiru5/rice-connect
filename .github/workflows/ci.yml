@@ -58,3 +58,7 @@ jobs:
       # The browser is downloaded inside the job only; agent sessions never download it.
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm e2e
+      # Baselines are updated only when the PR carries the visual-update label.
+      - name: Visual snapshots (label: visual-update)
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'visual-update')
+        run: VISUAL=1 pnpm e2e e2e/visual.spec.ts --update-snapshots
