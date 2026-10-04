@@ -5,7 +5,7 @@ import NavLink from './NavLink';
 import ApplicationLogo from './ApplicationLogo';
 import Icon from './Icon';
 import ThemeToggle from './ThemeToggle';
-import Modal from './Modal';
+import { Dialog } from '../kit/Dialog';
 import { DemoChip, LanguageSwitcher } from './Enactus';
 import { useI18n, tx } from '@rc/i18n';
 import type { SessionRole } from '@rc/store';
@@ -260,7 +260,15 @@ export default function AppShell({
                     </button>
                 )}
             </nav>
-            <Modal show={more} onClose={() => setMore(false)} maxWidth="sm" label={t('nav.more')}>
+            <Dialog
+                open={more}
+                onOpenChange={(o) => !o && setMore(false)}
+                title={t('nav.more')}
+                hideTitle
+                maxWidth="sm"
+                closeButton={false}
+                className="!p-0"
+            >
                 <div className="p-4 flex flex-col gap-2">
                     <div className="flex items-center justify-between gap-2">
                         <h2 className="eyebrow">{t('nav.more')}</h2>
@@ -285,7 +293,7 @@ export default function AppShell({
                         </NavLink>
                     ))}
                 </div>
-            </Modal>
+            </Dialog>
         </div>
     );
 }

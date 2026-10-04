@@ -25,6 +25,13 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
         'Development board for the UI kit. Every wrapper ships with keyboard and focus tests.',
         'Development board for the UI kit. Every wrapper ships with keyboard and focus tests.'
     ],
+    'kit.typedPrompt': [
+        'Type {word} to confirm',
+        'I-type ang {word} para kumpirmahin',
+        'I-type ang {word} para makumpirma'
+    ],
+    'action.cancel': ['Cancel', 'Kanselahin', 'Kanselahon'],
+    'action.confirm': ['Confirm', 'Kumpirmahin', 'Kumpirmahon'],
     'phone.net': ['4G', '4G', '4G'],
     'sms.chars': ['chars', 'mga karakter', 'mga karakter'],
     'slip.item': ['Item', 'Aytem', 'Butang'],

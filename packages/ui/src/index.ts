@@ -9,7 +9,6 @@ export { default as InputLabel } from './Components/InputLabel';
 export { default as InputError } from './Components/InputError';
 export { default as Checkbox } from './Components/Checkbox';
 export { default as NavLink } from './Components/NavLink';
-export { default as Modal } from './Components/Modal';
 export { default as DeliveryStatusStepper } from './Components/DeliveryStatusStepper';
 export { default as Icon, ICON_PATHS } from './Components/Icon';
 export { default as AppShell, PhoneShell, TeamFooter, AccountButton } from './Components/AppShell';
@@ -47,5 +46,5 @@ export { ZoneProvider, ZLink, useZone, useZoneNav, resolveZone, gatewayPath, zon
 export type { Zone } from './lib/zone';
 export { ACCOUNTS, auth } from './lib/account';
 export type { Account } from './lib/account';
-export { cx } from './kit';
+export { cx, Dialog, AlertDialog } from './kit';
 export type { KitTone } from './kit';

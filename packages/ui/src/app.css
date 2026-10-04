@@ -210,4 +210,7 @@
     .rc-scrim::backdrop {
         background-color: color-mix(in srgb, var(--emerald-950) 55%, transparent);
     }
+    .rc-overlay {
+        background-color: color-mix(in srgb, var(--emerald-950) 55%, transparent);
+    }
 }

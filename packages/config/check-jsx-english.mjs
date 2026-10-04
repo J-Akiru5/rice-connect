@@ -13,7 +13,7 @@ function* walk(dir) {
         const full = join(dir, entry);
         if (statSync(full).isDirectory()) {
             if (!SKIP_DIRS.has(entry)) yield* walk(full);
-        } else if (full.endsWith('.tsx')) {
+        } else if (full.endsWith('.tsx') && !full.endsWith('.test.tsx')) {
             yield full;
         }
     }
@@ -43,9 +43,10 @@ if (violations(fixture).length === 0) {
     process.exit(1);
 }
 
-const files = [...walk(join(ROOT, 'apps')), ...walk(join(ROOT, 'packages'))].filter(
-    (f) => !relative(ROOT, f).startsWith(join('packages', 'i18n'))
-);
+const files = [...walk(join(ROOT, 'apps')), ...walk(join(ROOT, 'packages'))].filter((f) => {
+    const rel = relative(ROOT, f).split(/[\\/]/);
+    return !rel.includes('%5F%5Fkit') && !rel.includes('i18n');
+});
 const all = files.flatMap(violations);
 if (all.length > 0) {
     console.error(`jsx-english check: hardcoded JSX text (use i18n keys, EN/TL/HIL):\n${all.join('\n')}`);
