@@ -5,7 +5,7 @@ How a task goes from the backlog to a merged PR when an AI agent writes most of 
 ## The loop
 
 ```mermaid
-flowchart LR
+flowchart TB
   A[Backlog ticket] --> B[GitHub issue from template]
   B --> C[Route to model]
   C --> D[Agent: read rules + ticket + listed files]
@@ -38,7 +38,7 @@ One sentence: what the user can do after this ticket.
 
 ### Acceptance criteria
 - [ ] ...
-- [ ] All applicable states from 04-ux-standards.md#state-matrix
+- [ ] All applicable states from 04-ux-standards.md#2-state-matrix
 - [ ] i18n keys added in EN/TL/HIL (TL/HIL marked draft)
 
 ### Test plan

@@ -74,7 +74,7 @@ Rule: a bug fix comes with a test that fails before the fix.
 ## CI pipeline
 
 ```mermaid
-flowchart LR
+flowchart TB
   A[install --frozen-lockfile] --> B[lint + typecheck]
   B --> C[unit tests]
   C --> D[build]

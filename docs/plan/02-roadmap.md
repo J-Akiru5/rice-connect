@@ -3,7 +3,7 @@
 Six phases. Each ends at a **gate**: a short list of checks that must all be true before the next phase starts. Dates are given only where they are fixed by events; everything else is ordered, not scheduled, because estimates for agent-assisted work on this codebase have no track record yet.
 
 ```mermaid
-flowchart LR
+flowchart TB
   P0["Phase 0<br/>Freeze + usability test<br/>now → Oct 9"] --> G0{{Gate 0}}
   G0 --> P1["Phase 1<br/>Guardrails + foundations"] --> G1{{Gate 1}}
   G1 --> P2["Phase 2<br/>Functional UI shell<br/>(mock adapters)"] --> G2{{Gate 2}}
@@ -50,7 +50,7 @@ flowchart LR
 **Goal:** every screen a pilot user will touch works end to end against mock adapters, with every state designed.
 
 - Rebuild each screen on the UI, form and data kits, one screen per PR, highest-traffic first: farmer SMS and slip, driver haul, buyer order, coordinator home, haul, dry, pay, plan, market, farm, then admin.
-- Each screen implements the full state matrix in [04-ux-standards.md](04-ux-standards.md#state-matrix) and the idiot-proofing rules for its actions.
+- Each screen implements the full state matrix in [04-ux-standards.md](04-ux-standards.md#2-state-matrix) and the idiot-proofing rules for its actions.
 - Fix every severity 3–4 finding from the usability test; severity 2 findings are scheduled.
 - Real route guards behind a mode switch: in product mode, app routes require sign-in for the right role; in demo mode they stay open (so the demo video and screenshots keep working).
 - Native review of all Tagalog and Hiligaynon strings that farmers and drivers see.
