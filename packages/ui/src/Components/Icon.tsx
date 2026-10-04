@@ -65,8 +65,10 @@ export const ICON_PATHS: Record<string, string> = {
  "LogIn": "<path d=\"m10 17 5-5-5-5\" /> <path d=\"M15 12H3\" /> <path d=\"M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4\" />",
  "Menu": "<path d=\"M4 12h16\" /> <path d=\"M4 18h16\" /> <path d=\"M4 6h16\" />",
  "Activity": "<path d=\"M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2\" />",
- "LogOut": "<path d=\"m16 17 5-5-5-5\" /> <path d=\"M21 12H9\" /> <path d=\"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4\" />"
-};/* Prototype additions (Lucide, ISC): Moon, Sun (theme toggle), Play, Pause, ChevronLeft (demo controls), Globe (language menu), LogIn, LogOut, Menu, Activity. */
+ "LogOut": "<path d=\"m16 17 5-5-5-5\" /> <path d=\"M21 12H9\" /> <path d=\"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4\" />",
+ "Eye": "<path d=\"M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0\" /> <circle cx=\"12\" cy=\"12\" r=\"3\" />",
+ "EyeOff": "<path d=\"M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49\" /> <path d=\"M14.084 14.158a3 3 0 0 1-4.242-4.242\" /> <path d=\"M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143\" /> <path d=\"m2 2 20 20\" />"
+};/* Prototype additions (Lucide, ISC): Moon, Sun (theme toggle), Play, Pause, ChevronLeft (demo controls), Globe (language menu), LogIn, LogOut, Eye, EyeOff, Menu, Activity. */
 export type IconName = keyof typeof ICON_PATHS;
 export default function Icon({ name, size = 20, strokeWidth = 2, title, ...props }: SVGAttributes<SVGSVGElement> & { name: string; size?: number; title?: string }) {
     return (

@@ -1,6 +1,6 @@
 'use client';
-import { SignInScreen } from '@rc/screens/signin';
+import { AuthScreen } from '@rc/screens/signin';
 
-export default function DriverLogin() {
-  return <SignInScreen role="driver" />;
+export default function DriverSignIn() {
+  return <AuthScreen role="driver" mode="signin" />;
 }

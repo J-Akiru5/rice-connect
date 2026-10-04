@@ -1,6 +1,6 @@
 'use client';
-import { SignInScreen } from '@rc/screens/signin';
+import { AuthScreen } from '@rc/screens/signin';
 
-export default function CoordinatorLogin() {
-  return <SignInScreen role="coordinator" />;
+export default function CoordinatorSignIn() {
+  return <AuthScreen role="coordinator" mode="signin" />;
 }
