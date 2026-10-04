@@ -1,63 +1,220 @@
 'use client';
-import { useState } from 'react';
-import { ACCOUNTS, ApplicationLogo, DemoChip, Icon, LanguageSwitcher, PrimaryButton, SecondaryButton, TeamFooter, ThemeToggle, ZLink, tx, useI18n, useZoneNav } from '@rc/ui';
-import { signIn, signOut, type SessionRole } from '@rc/store';
-import { useDemoState, updateDemoState } from '@rc/store/react';
+import { useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { ACCOUNTS, ApplicationLogo, Checkbox, DemoChip, Icon, InputError, InputLabel, LanguageSwitcher, PrimaryButton, SecondaryButton, TeamFooter, TextInput, ThemeToggle, ZLink, auth, tx, useI18n, useZoneNav } from '@rc/ui';
+import type { SessionRole } from '@rc/store';
+import { useDemoState } from '@rc/store/react';
+import { checkConsent, checkIdentifier, checkPassword, checkRequired, toE164 } from '@rc/domain/auth-form';
+import { BUYER_TYPES } from '@rc/domain/buyers';
+import { BARANGAYS } from '@rc/domain/params';
+import { VEHICLES } from '@rc/domain/seed';
 
-/* Simulated sign-in, one page per app (prototype addition, docs/DECISIONS.md M22): /login (coordinator),
-   /buyer/login, /driver/login, /admin/login. Each page signs in that app's one demo identity from the seed.
-   No accounts, no passwords, no choosing who you are; the "session" is a field in this browser's demo state. */
-export function SignInScreen({ role }: { role: SessionRole }) {
+/* Sign In / Sign Up, one pair per app (prototype addition, docs/DECISIONS.md M23): /login + /signup (coordinator),
+   /buyer/login + /buyer/signup, /driver/login + /driver/signup, /farmer/login + /farmer/signup, /admin/login.
+   Split layout: brand panel left (desktop), form right. Production-shaped: labelled fields, autocomplete hints,
+   inline errors, focus on the first invalid field, loading state, server-error slot. The form talks only to the
+   AuthAdapter (`auth` from @rc/ui), which is the mock today: nothing typed is kept, and it signs in as the app's
+   one demo identity. */
+export type AuthMode = 'signin' | 'signup';
+type Field = { name: string; label: string; kind: 'text' | 'email' | 'tel' | 'password' | 'select'; autoComplete?: string; options?: { value: string; label: string }[]; hint?: string };
+
+/* The extra sign-up fields for each app (besides the identifier, password and consent). */
+function profileFields(role: SessionRole, t: (k: string) => string): Field[] {
+    const select = (values: readonly string[], label: (v: string) => string) => values.map((v) => ({ value: v, label: label(v) }));
+    switch (role) {
+        case 'buyer': return [
+            { name: 'name', label: 'auth.f.business', kind: 'text', autoComplete: 'organization' },
+            { name: 'buyerType', label: 'auth.f.buyerType', kind: 'select', options: select(BUYER_TYPES, (v) => t(`buyer.type.${v}`)) },
+        ];
+        case 'driver': return [
+            { name: 'name', label: 'auth.f.name', kind: 'text', autoComplete: 'name' },
+            { name: 'vehicle', label: 'auth.f.vehicle', kind: 'select', options: select(VEHICLES.map((v) => v.id), (v) => t(`veh.${v}`)) },
+        ];
+        case 'farmer': return [
+            { name: 'name', label: 'auth.f.name', kind: 'text', autoComplete: 'name' },
+            { name: 'barangay', label: 'auth.f.barangay', kind: 'select', options: select(BARANGAYS, (v) => v) },
+        ];
+        default: return [{ name: 'name', label: 'auth.f.name', kind: 'text', autoComplete: 'name' }];
+    }
+}
+
+export function AuthScreen({ role, mode }: { role: SessionRole; mode: AuthMode }) {
     const { t } = useI18n();
     const nav = useZoneNav();
     const a = ACCOUNTS[role];
+    const signup = mode === 'signup' && a.signUp !== null;
     const current = useDemoState().session[role];
+    const uid = useId();
+    const formRef = useRef<HTMLFormElement>(null);
+
+    const idField: Field = a.identifier === 'email'
+        ? { name: 'identifier', label: 'auth.f.email', kind: 'email', autoComplete: 'email' }
+        : { name: 'identifier', label: 'auth.f.mobile', kind: 'tel', autoComplete: 'tel', hint: 'auth.mobile.hint' };
+    const pwField: Field = { name: 'password', label: 'auth.f.password', kind: 'password', autoComplete: signup ? 'new-password' : 'current-password', hint: signup ? 'auth.pw.hint' : undefined };
+    const fields = signup ? [...profileFields(role, t), idField, pwField] : [idField, pwField];
+
+    const [values, setValues] = useState<Record<string, string>>({});
+    const [consent, setConsent] = useState(false);
+    const [errors, setErrors] = useState<Record<string, string | null>>({});
+    const [submitted, setSubmitted] = useState(false);
     const [busy, setBusy] = useState(false);
-    const go = () => { setBusy(true); updateDemoState(signIn(role, a.id)); nav(a.home); };
-    return (
-        <div className="rc-ground-auth min-h-screen flex flex-col">
-            <header className="px-4 md:px-8 py-3 flex items-center gap-3 flex-wrap">
-                <ZLink href="/" className="rounded-xl shrink-0"><ApplicationLogo height={40} /></ZLink>
-                <div className="flex-1" />
-                <LanguageSwitcher />
-                <ThemeToggle iconSize={20} />
-            </header>
-            <main className="flex-1 flex items-center justify-center px-4 py-8">
-                <section aria-labelledby="signin-h" className="glass-panel rounded-[2rem] p-6 md:p-8 w-full max-w-[480px] flex flex-col gap-5">
-                    <div className="flex flex-wrap items-center gap-2"><span className="eyebrow">{t('login.eyebrow')}</span><DemoChip /></div>
-                    <div className="flex items-start gap-3">
-                        <span className="icon-box shrink-0"><Icon name={a.icon} size={24} /></span>
-                        <div className="min-w-0 flex flex-col gap-1">
-                            <h1 id="signin-h" className="text-[28px] md:text-[32px] leading-tight font-extrabold tracking-[-0.03em]">{t('signin.title', { app: t(a.name) })}</h1>
-                            <p className="m-0 text-[16px] leading-6 font-medium text-[var(--text-secondary)]">{t(a.about)}</p>
-                        </div>
-                    </div>
-                    <dl className="m-0 rounded-[1.25rem] border-2 border-[color:var(--glass-border)] p-4 flex flex-col gap-3">
-                        <div className="flex flex-col gap-0.5">
-                            <dt className="eyebrow">{t('signin.account')}</dt>
-                            <dd className="m-0 text-[17px] font-extrabold break-words">{tx(t, a.id)}</dd>
-                        </div>
-                        <div className="flex flex-col gap-0.5">
-                            <dt className="eyebrow">{t('signin.password')}</dt>
-                            <dd className="m-0 text-[15px] font-semibold text-[var(--text-secondary)]">{t('signin.password.none')}</dd>
-                        </div>
-                    </dl>
-                    {current ? (
-                        <div className="flex flex-col gap-3">
-                            <p role="status" className="m-0 inline-flex items-center gap-2 text-[15px] font-semibold"><Icon name="Check" size={20} className="shrink-0 text-[var(--text-accent)]" />{t('signin.as', { who: tx(t, current) })}</p>
-                            <div className="flex flex-wrap gap-3">
-                                <PrimaryButton icon="ArrowRight" onClick={() => nav(a.home)}>{t('signin.continue')}</PrimaryButton>
-                                <SecondaryButton icon="LogOut" onClick={() => updateDemoState(signOut(role))}>{t('signin.out')}</SecondaryButton>
-                            </div>
-                        </div>
-                    ) : (
-                        <PrimaryButton icon="LogIn" onClick={go} disabled={busy} className="w-full justify-center">{t('signin.cta')}</PrimaryButton>
+    const [formError, setFormError] = useState<string | null>(null);
+    const [showPw, setShowPw] = useState(false);
+
+    const check = (v: Record<string, string>, c: boolean) => {
+        const e: Record<string, string | null> = {};
+        for (const f of fields) {
+            const x = v[f.name] ?? '';
+            e[f.name] = f.name === 'identifier' ? checkIdentifier(a.identifier, x) : f.name === 'password' ? checkPassword(x, signup) : checkRequired(x);
+        }
+        if (signup) e.consent = checkConsent(c);
+        return e;
+    };
+    const set = (name: string, v: string) => { const next = { ...values, [name]: v }; setValues(next); if (submitted) setErrors(check(next, consent)); };
+    const setC = (c: boolean) => { setConsent(c); if (submitted) setErrors(check(values, c)); };
+
+    const submit = async (ev: FormEvent) => {
+        ev.preventDefault();
+        setSubmitted(true); setFormError(null);
+        const e = check(values, consent);
+        setErrors(e);
+        const first = Object.keys(e).find((k) => e[k]);
+        if (first) { formRef.current?.querySelector<HTMLElement>(`[name="${first}"]`)?.focus(); return; }
+        setBusy(true);
+        const identifier = a.identifier === 'mobile' ? toE164(values.identifier) : values.identifier.trim();
+        const { identifier: _i, password, name = '', ...profile } = values;
+        const res = signup ? await auth.signUp(role, { identifier, password, name: name.trim(), profile }) : await auth.signIn(role, { identifier, password });
+        if (!res.ok) { setBusy(false); setFormError(t(`auth.err.${res.code}`)); return; }
+        nav(a.home);
+    };
+
+    const input = (f: Field) => {
+        const id = `${uid}-${f.name}`;
+        const err = errors[f.name];
+        const describedBy = [f.hint && `${id}-hint`, err && `${id}-err`].filter(Boolean).join(' ') || undefined;
+        const common = { id, name: f.name, value: values[f.name] ?? '', 'aria-invalid': err ? true : undefined, 'aria-describedby': describedBy, required: true };
+        return (
+            <div key={f.name} className="flex flex-col">
+                <div className="flex items-end justify-between gap-2">
+                    <InputLabel htmlFor={id}>{t(f.label)}</InputLabel>
+                    {f.kind === 'password' && (
+                        <button type="button" onClick={() => setShowPw((s) => !s)} aria-controls={id} aria-pressed={showPw}
+                            className="mb-1 inline-flex items-center gap-1.5 min-h-[40px] px-2 rounded-full text-[13px] font-extrabold uppercase tracking-[0.06em] text-[var(--text-accent)]">
+                            <Icon name={showPw ? 'EyeOff' : 'Eye'} size={20} />{t(showPw ? 'auth.pw.hide' : 'auth.pw.show')}
+                        </button>
                     )}
-                    <p className="m-0 flex items-start gap-2 text-[14px] leading-5 font-semibold text-[var(--text-secondary)]"><Icon name="Shield" size={20} className="shrink-0" />{t('signin.note')} {t('login.note')}</p>
-                    <ZLink href="/" className="self-start inline-flex items-center gap-2 min-h-[44px] text-[14px] font-extrabold uppercase tracking-[0.06em] text-[var(--text-accent)]"><Icon name="ChevronLeft" size={20} />{t('mk.back')}</ZLink>
-                </section>
-            </main>
-            <TeamFooter className="text-center" />
+                </div>
+                {f.kind === 'select' ? (
+                    <select {...common} onChange={(e) => set(f.name, e.target.value)} className="input-2026 !text-base">
+                        <option value="">{t('auth.select')}</option>
+                        {f.options!.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                    </select>
+                ) : (
+                    <TextInput {...common} onChange={(e) => set(f.name, e.target.value)} autoComplete={f.autoComplete}
+                        type={f.kind === 'password' ? (showPw ? 'text' : 'password') : f.kind}
+                        inputMode={f.kind === 'tel' ? 'tel' : f.kind === 'email' ? 'email' : undefined}
+                        placeholder={f.kind === 'email' ? 'name@example.com' : f.kind === 'tel' ? '09XX XXX XXXX' : undefined}
+                        className="!text-base" />
+                )}
+                {f.hint && <p id={`${id}-hint`} className="m-0 mt-2 text-[14px] leading-5 font-medium text-[var(--text-secondary)]">{t(f.hint)}</p>}
+                <InputError id={`${id}-err`} message={err ? t(err) : undefined} />
+            </div>
+        );
+    };
+
+    const title = signup ? t('auth.signup.h', { app: t(a.name) }) : t('auth.signin.h');
+    const sub = signup ? t(a.about) : t('auth.signin.sub', { app: t(a.name) });
+    return (
+        <div className="rc-ground-auth min-h-screen lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+            <BrandPanel role={role} />
+            <div className="min-h-screen flex flex-col min-w-0">
+                <header className="px-4 md:px-8 py-3 flex items-center gap-3 flex-wrap">
+                    <ZLink href="/" className="lg:hidden rounded-xl shrink-0"><ApplicationLogo height={36} /></ZLink>
+                    <ZLink href="/" className="hidden lg:inline-flex items-center gap-2 min-h-[40px] text-[13px] font-extrabold uppercase tracking-[0.06em] text-[var(--text-accent)]"><Icon name="ChevronLeft" size={20} />{t('mk.back')}</ZLink>
+                    <div className="flex-1" />
+                    <LanguageSwitcher />
+                    <ThemeToggle iconSize={20} />
+                </header>
+                <main className="flex-1 flex items-center justify-center px-4 py-8 md:py-12">
+                    <section aria-labelledby={`${uid}-h`} className="w-full max-w-[440px] flex flex-col gap-6">
+                        <div className="flex flex-col gap-3">
+                            <div className="flex flex-wrap items-center gap-2">
+                                <span className="lg:hidden icon-box !w-10 !h-10 shrink-0"><Icon name={a.icon} size={20} /></span>
+                                <span className="eyebrow">{t(a.name)}</span>
+                                <DemoChip />
+                            </div>
+                            <h1 id={`${uid}-h`} className="m-0 text-[30px] md:text-[36px] leading-tight font-extrabold tracking-[-0.03em]">{title}</h1>
+                            <p className="m-0 text-[16px] leading-6 font-medium text-[var(--text-secondary)]">{sub}</p>
+                        </div>
+                        <p className="m-0 flex items-start gap-2 rounded-2xl border-2 border-[color:var(--glass-border-strong)] bg-[var(--glass-fill-strong)] px-4 py-3 text-[14px] leading-5 font-semibold">
+                            <Icon name="Info" size={20} className="shrink-0 mt-px text-[var(--info)]" /><span>{t('auth.mock', { id: tx(t, a.id) })}</span>
+                        </p>
+                        {current ? (
+                            <div className="glass-panel rounded-[1.5rem] p-5 flex flex-col gap-4">
+                                <p role="status" className="m-0 inline-flex items-center gap-2 text-[16px] font-semibold"><Icon name="Check" size={20} className="shrink-0 text-[var(--text-accent)]" />{t('signin.as', { who: tx(t, current) })}</p>
+                                <div className="flex flex-wrap gap-3">
+                                    <PrimaryButton icon="ArrowRight" onClick={() => nav(a.home)}>{t('signin.continue')}</PrimaryButton>
+                                    <SecondaryButton icon="LogOut" onClick={() => { void auth.signOut(role); }}>{t('signin.out')}</SecondaryButton>
+                                </div>
+                            </div>
+                        ) : (
+                            <form ref={formRef} noValidate onSubmit={submit} aria-busy={busy} className="flex flex-col gap-5">
+                                {formError && <p role="alert" className="m-0 flex items-start gap-2 rounded-2xl bg-[var(--danger-soft)] text-[var(--danger-ink)] px-4 py-3 text-[14px] leading-5 font-semibold"><Icon name="Alert" size={20} className="shrink-0" />{formError}</p>}
+                                {fields.map(input)}
+                                {signup && (
+                                    <div className="flex flex-col">
+                                        <label className="flex items-start gap-3 min-h-[44px] cursor-pointer">
+                                            <Checkbox name="consent" checked={consent} onChange={(e) => setC(e.target.checked)} aria-invalid={errors.consent ? true : undefined} aria-describedby={errors.consent ? `${uid}-consent-err` : undefined} className="shrink-0 mt-0.5" />
+                                            <span className="text-[14px] leading-5 font-semibold">{t('auth.consent')}</span>
+                                        </label>
+                                        <InputError id={`${uid}-consent-err`} message={errors.consent ? t(errors.consent) : undefined} />
+                                    </div>
+                                )}
+                                <PrimaryButton type="submit" icon={signup ? 'Plus' : 'LogIn'} disabled={busy} className="w-full justify-center">
+                                    {t(busy ? (signup ? 'auth.busy.signup' : 'auth.busy.signin') : (signup ? 'auth.cta.signup' : 'signin.cta'))}
+                                </PrimaryButton>
+                            </form>
+                        )}
+                        <SwitchLine role={role} signup={signup} />
+                        <p className="m-0 flex items-start gap-2 text-[14px] leading-5 font-medium text-[var(--text-secondary)]"><Icon name="Shield" size={20} className="shrink-0" />{t('login.note')}</p>
+                    </section>
+                </main>
+                <TeamFooter className="text-center" />
+            </div>
         </div>
+    );
+}
+
+/** "New to RiceConnect? Create an Account" / "Already have an account? Sign In" / admin: invite only. */
+function SwitchLine({ role, signup }: { role: SessionRole; signup: boolean }) {
+    const { t } = useI18n();
+    const a = ACCOUNTS[role];
+    const link = (href: string, children: ReactNode) => <ZLink href={href} className="inline-flex items-center min-h-[44px] md:min-h-[40px] font-extrabold text-[var(--text-accent)] underline underline-offset-4">{children}</ZLink>;
+    if (!a.signUp) return <p className="m-0 text-[15px] font-semibold text-[var(--text-secondary)]">{t('auth.admin.invite')}</p>;
+    return (
+        <p className="m-0 flex flex-wrap items-center gap-x-2 text-[15px] font-semibold text-[var(--text-secondary)]">
+            {signup ? <>{t('auth.have.q')} {link(a.signIn, t('signin.cta'))}</> : <>{t('auth.new.q')} {link(a.signUp, t('auth.cta.signup'))}</>}
+        </p>
+    );
+}
+
+/* Desktop brand panel (≥1200px). Below that, the form column carries the logo and the app name instead. */
+function BrandPanel({ role }: { role: SessionRole }) {
+    const { t } = useI18n();
+    const a = ACCOUNTS[role];
+    return (
+        <aside className="hidden lg:flex sticky top-0 h-screen flex-col justify-between gap-10 p-12 bg-[var(--fill-strong)] text-[var(--on-fill-strong)] overflow-hidden">
+            <ZLink href="/" className="self-start rounded-xl"><ApplicationLogo tone="reversed" height={44} /></ZLink>
+            <div className="flex flex-col gap-6 max-w-[520px]">
+                <span className="inline-flex items-center gap-2 text-[13px] font-extrabold uppercase tracking-[0.12em] opacity-90"><Icon name={a.icon} size={20} />{t(a.name)}</span>
+                <p className="m-0 text-[44px] leading-[1.1] font-extrabold tracking-[-0.03em]">{t(`auth.panel.${role}`)}</p>
+                <p className="m-0 text-[18px] leading-7 font-medium opacity-90">{t(a.about)}</p>
+                <ul className="m-0 p-0 list-none flex flex-col gap-3">
+                    {['auth.panel.lang', 'auth.panel.sim'].map((k) => (
+                        <li key={k} className="flex items-start gap-3 text-[16px] leading-6 font-semibold"><Icon name="Check" size={20} className="shrink-0 mt-0.5" />{t(k)}</li>
+                    ))}
+                </ul>
+            </div>
+            <DemoChip className="self-start" />
+        </aside>
     );
 }

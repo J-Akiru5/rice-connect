@@ -1,6 +1,6 @@
 'use client';
-import { SignInScreen } from '@rc/screens/signin';
+import { AuthScreen } from '@rc/screens/signin';
 
-export default function BuyerLogin() {
-  return <SignInScreen role="buyer" />;
+export default function BuyerSignIn() {
+  return <AuthScreen role="buyer" mode="signin" />;
 }

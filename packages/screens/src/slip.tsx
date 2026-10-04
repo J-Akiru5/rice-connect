@@ -2,11 +2,11 @@
 import { AppShell, ASSETS, PrimaryButton, SettlementSlip, ZLink, Icon, useI18n } from '@rc/ui';
 import { HERO_FARM, SLIP } from '@rc/domain/seed';
 
-/** Farmer slip viewer (farmer app, no login): the A6 settlement slip the farmer gets on paper, printable. */
+/** Farmer slip viewer (farmer app): the A6 settlement slip the farmer gets on paper, printable. */
 export function SlipScreen() {
     const { t } = useI18n();
     return (
-        <AppShell title="slip.title" eyebrow={t('slip.viewer', { farm: HERO_FARM.id, slip: SLIP.id })} active="sms">
+        <AppShell role="farmer" title="slip.title" eyebrow={t('slip.viewer', { farm: HERO_FARM.id, slip: SLIP.id })} active="slip">
             <div className="flex flex-col items-center gap-4">
                 <div className="flex flex-wrap gap-3 justify-center print:hidden">
                     <PrimaryButton icon="Print" onClick={() => window.print()}>{t('slip.print')}</PrimaryButton>

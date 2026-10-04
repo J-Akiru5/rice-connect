@@ -1,6 +1,6 @@
 'use client';
-import { SignInScreen } from '@rc/screens/signin';
+import { AuthScreen } from '@rc/screens/signin';
 
-export default function AdminLogin() {
-  return <SignInScreen role="admin" />;
+export default function AdminSignIn() {
+  return <AuthScreen role="admin" mode="signin" />;
 }
