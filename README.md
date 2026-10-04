@@ -14,7 +14,7 @@ pnpm + Turborepo. Four apps, served on one origin through Next.js multi-zones.
 
 | Path | What | Port (local) | URL |
 |---|---|---|---|
-| `apps/main` | Public site (`/`, `/launch`) **and** the coordinator app: Home, Farm Profile, Plan, Market, Dry, Logistics (Haul), Orders/Pay, `/demo`. The origin users visit; rewrites `/buyer`, `/driver`, `/farmer` and redirects the old URLs | 3000 | `/`, `/launch`, `/coordinator/...` |
+| `apps/main` | Public site (`/`, `/launch`, `/login` simulated sign-in), the **super admin** (`/admin`) **and** the coordinator app: Home, Farm Profile, Plan, Market, Dry, Logistics (Haul), Orders/Pay, `/demo`. The origin users visit; rewrites `/buyer`, `/driver`, `/farmer` and redirects the old URLs | 3000 | `/`, `/launch`, `/login`, `/admin/...`, `/coordinator/...` |
 | `apps/buyer` | Supply map, orders, commitments (basePath `/buyer`) | 3002 | `/buyer`, `/buyer/orders` |
 | `apps/driver` | Haul job (basePath `/driver`) | 3003 | `/driver` |
 | `apps/farmer` | SMS inbox simulator with replies, slip viewer, no login (basePath `/farmer`) | 3004 | `/farmer`, `/farmer/slip` |

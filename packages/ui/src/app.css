@@ -98,3 +98,6 @@
 .rc-dark-only { display: none !important; }
 [data-theme="dark"] .rc-light-only, .dark .rc-light-only { display: none !important; }
 [data-theme="dark"] .rc-dark-only, .dark .rc-dark-only { display: block !important; }
+
+/* Outlined wordmark at the foot of the public site (M18): token stroke, transparent fill, decorative only. */
+.rc-wordmark { color: transparent; -webkit-text-stroke: 2px var(--text-muted); opacity: .22; }

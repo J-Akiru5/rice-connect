@@ -1,6 +1,7 @@
 import { zoneOrigins } from '@rc/config/zones.mjs';
 
-/* Main app: the public site ("/", "/launch") and the coordinator app ("/coordinator/*") in one Next.js app.
+/* Main app: the public site ("/", "/launch", "/login"), the coordinator ("/coordinator/*") and the super admin
+   ("/admin/*") in one Next.js app.
    It is also the one origin users visit: /buyer, /driver and /farmer are rewritten to their own apps, so
    every app shares localStorage and BroadcastChannel. The original single-app URLs redirect to their homes. */
 const z = zoneOrigins();
@@ -27,9 +28,10 @@ const nextConfig = {
   async redirects() {
     return legacy.map(([source, destination]) => ({ source, destination, permanent: false }));
   },
-  /* The coordinator app is not for search engines; the public site is. */
+  /* The coordinator and super admin pages are not for search engines; the public site is. */
   async headers() {
-    return [{ source: '/coordinator/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] }];
+    const noindex = [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }];
+    return [{ source: '/coordinator/:path*', headers: noindex }, { source: '/admin/:path*', headers: noindex }, { source: '/admin', headers: noindex }];
   },
 };
 export default nextConfig;

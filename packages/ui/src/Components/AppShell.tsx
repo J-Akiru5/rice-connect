@@ -14,7 +14,7 @@ import { useI18n, tx } from '@rc/i18n';
    Prototype port (see docs/DECISIONS.md): the photo ground is removed; nav items without a route
    (Console, Inventory, Settings) are dropped so there are no dead links; every item links to a real route;
    a ThemeToggle and the team footer are added. Haul lives under Logistics, Pay under Orders. */
-export type Role = 'coordinator' | 'buyer' | 'driver';
+export type Role = 'coordinator' | 'buyer' | 'driver' | 'admin';
 type Item = { key: string; icon: string; href: string; sub?: string };
 const NAV: Record<Role, Item[]> = {
     coordinator: [
@@ -24,13 +24,18 @@ const NAV: Record<Role, Item[]> = {
     ],
     buyer: [{ key: 'supply', icon: 'Market', href: '/buyer' }, { key: 'myorders', icon: 'Orders', href: '/buyer/orders' }],
     driver: [{ key: 'logistics', icon: 'Logistics', href: '/haul/driver', sub: 'haul' }, { key: 'sms', icon: 'Sms', href: '/sms' }],
+    /* Super admin (prototype addition, docs/DECISIONS.md M20): read-only overview of every app. */
+    admin: [
+        { key: 'overview', icon: 'Console', href: '/admin' }, { key: 'users', icon: 'Users', href: '/admin/users' },
+        { key: 'config', icon: 'Settings', href: '/admin/settings' }, { key: 'activity', icon: 'Activity', href: '/admin/activity' },
+    ],
 };
 /* Mobile bottom tabs; everything else in the role's nav goes into the "More" sheet. */
-const TABS: Record<Role, string[]> = { coordinator: ['home', 'farms', 'logistics', 'orders'], buyer: ['supply', 'myorders'], driver: ['logistics', 'sms'] };
-const ROLE_LABEL: Record<Role, string> = { coordinator: 'role.coordinator', buyer: 'role.buyer', driver: 'role.driver' };
+const TABS: Record<Role, string[]> = { coordinator: ['home', 'farms', 'logistics', 'orders'], buyer: ['supply', 'myorders'], driver: ['logistics', 'sms'], admin: ['overview', 'users', 'config', 'activity'] };
+const ROLE_LABEL: Record<Role, string> = { coordinator: 'role.coordinator', buyer: 'role.buyer', driver: 'role.driver', admin: 'role.admin' };
 const isActive = (n: Item, active: string) => active === n.key || active === n.sub;
 
-const HOME: Record<Role, string> = { coordinator: '/home', buyer: '/buyer', driver: '/haul/driver' };
+const HOME: Record<Role, string> = { coordinator: '/home', buyer: '/buyer', driver: '/haul/driver', admin: '/admin' };
 /** "View as" (prototype addition): switches the demo between user groups. Navigation only, not access control. */
 export function RoleSwitcher({ role }: { role: Role }) {
     const { t } = useI18n();
@@ -40,7 +45,7 @@ export function RoleSwitcher({ role }: { role: Role }) {
             <Icon name="Users" size={20} /><span className="sr-only md:not-sr-only">{t('role.view')}</span>
             <select value={role} onChange={(e) => nav(HOME[e.target.value as Role])}
                 className="min-h-[44px] md:min-h-[40px] px-3 rounded-full bg-[var(--glass-fill-strong)] text-[var(--ink)] border-2 border-[color:var(--text-muted)] text-[14px] font-extrabold normal-case tracking-normal">
-                {(['coordinator', 'buyer', 'driver'] as Role[]).map((r) => <option key={r} value={r}>{t('role.name.' + r)}</option>)}
+                {(['coordinator', 'buyer', 'driver', 'admin'] as Role[]).map((r) => <option key={r} value={r}>{t('role.name.' + r)}</option>)}
             </select>
         </label>
     );

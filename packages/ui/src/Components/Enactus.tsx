@@ -1,5 +1,5 @@
 'use client';
-import { ButtonHTMLAttributes, HTMLAttributes, InputHTMLAttributes, PropsWithChildren, ReactNode } from 'react';
+import { ButtonHTMLAttributes, HTMLAttributes, InputHTMLAttributes, PropsWithChildren, ReactNode, useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import Icon from './Icon';
 import { useI18n, LANGS, Lang, tx } from '@rc/i18n';
 import { peso, rate, PRICE, SMS } from '../lib/demo';
@@ -424,21 +424,58 @@ export function SmsThread({ lang, only, className = '' }: { lang?: Lang; only?: 
 }
 
 /* ---------- LanguageSwitcher ---------- */
-export function LanguageSwitcher({ showDraftNote = true, className = '' }: { showDraftNote?: boolean; className?: string }) {
+/** Language menu (prototype change, docs/DECISIONS.md M17): a "globe + EN" button that opens a list of the three
+    languages. The draft note for TL/HIL lives inside the menu and in the button's tooltip, so changing the language
+    never changes the header's height (the old pill row grew a line under it and pushed the page down). */
+export function LanguageSwitcher({ className = '', align = 'right' }: { showDraftNote?: boolean; className?: string; align?: 'left' | 'right' }) {
     const { lang, setLang, t } = useI18n();
+    const [open, setOpen] = useState(false);
+    const root = useRef<HTMLDivElement>(null);
+    const items = useRef<(HTMLButtonElement | null)[]>([]);
     const cur = LANGS.find((l) => l.id === lang)!;
+    useEffect(() => {
+        if (!open) return;
+        const onDown = (e: MouseEvent) => { if (!root.current?.contains(e.target as Node)) setOpen(false); };
+        const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+        document.addEventListener('mousedown', onDown);
+        document.addEventListener('keydown', onKey);
+        items.current[Math.max(0, LANGS.findIndex((l) => l.id === lang))]?.focus();
+        return () => { document.removeEventListener('mousedown', onDown); document.removeEventListener('keydown', onKey); };
+    }, [open, lang]);
+    const move = (e: ReactKeyboardEvent, i: number) => {
+        if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+        e.preventDefault();
+        items.current[(i + (e.key === 'ArrowDown' ? 1 : LANGS.length - 1)) % LANGS.length]?.focus();
+    };
     return (
-        <div className={'inline-flex flex-col items-end gap-1 ' + className}>
-            <div role="radiogroup" aria-label={t('lang.label')} className="inline-flex p-1 rounded-full glass-panel !shadow-none">
-                {LANGS.map((l) => (
-                    <button key={l.id} type="button" role="radio" aria-checked={lang === l.id} lang={l.id === 'hil' ? 'hil' : l.id} title={l.name}
-                        onClick={() => setLang(l.id as Lang)}
-                        className={`min-w-[44px] min-h-[36px] px-3 rounded-full text-[13px] font-extrabold tracking-[0.06em] ${lang === l.id ? 'bg-[var(--fill-strong)] text-[var(--on-fill-strong)]' : 'text-[var(--ink)]'}`}>
-                        {l.short}
-                    </button>
-                ))}
-            </div>
-            {showDraftNote && cur.draft && <span className="text-[12px] font-bold text-[var(--warning-ink)] flex items-center gap-1"><Icon name="Alert" size={14} />{t('lang.draft')}</span>}
+        <div ref={root} className={'relative inline-flex shrink-0 ' + className}>
+            <button type="button" aria-haspopup="listbox" aria-expanded={open} aria-label={`${t('lang.label')}: ${cur.name}`}
+                title={cur.draft ? t('lang.draft') : cur.name} onClick={() => setOpen((o) => !o)}
+                className="inline-flex items-center gap-1.5 min-h-[44px] md:min-h-[40px] px-3 rounded-full glass-panel !shadow-none text-[13px] font-extrabold tracking-[0.06em] whitespace-nowrap">
+                <Icon name="Globe" size={18} /><span>{cur.short}</span>
+                {cur.draft && <span aria-hidden className="w-1.5 h-1.5 rounded-full bg-[var(--warning-ink)]" />}
+                <Icon name="ChevronDown" size={16} className={`transition-transform motion-reduce:transition-none ${open ? 'rotate-180' : ''}`} />
+            </button>
+            {open && (
+                <div className={`absolute top-full mt-2 z-50 w-[248px] max-w-[calc(100vw-2rem)] rounded-[1.25rem] glass-panel bg-[var(--glass-fill-strong)] p-2 shadow-[var(--shadow-popover)] ${align === 'right' ? 'right-0' : 'left-0'}`}>
+                    <div role="listbox" aria-label={t('lang.label')} className="flex flex-col gap-1">
+                        {LANGS.map((l, i) => (
+                            <button key={l.id} ref={(el) => { items.current[i] = el; }} type="button" role="option" aria-selected={lang === l.id}
+                                lang={l.id === 'hil' ? 'hil' : l.id} onKeyDown={(e) => move(e, i)}
+                                onClick={() => { setLang(l.id as Lang); setOpen(false); }}
+                                className={`flex items-center gap-3 min-h-[44px] px-3 rounded-xl text-left text-[15px] font-bold ${lang === l.id ? 'bg-[var(--fill-strong)] text-[var(--on-fill-strong)]' : 'text-[var(--ink)] hover:bg-[rgba(5,150,105,.1)]'}`}>
+                                <span className="w-9 text-[13px] font-extrabold tracking-[0.06em]">{l.short}</span>
+                                <span className="flex-1 min-w-0 break-words">{l.name}</span>
+                                {l.draft && <span className={`text-[12px] font-extrabold uppercase tracking-[0.06em] ${lang === l.id ? '' : 'text-[var(--warning-ink)]'}`}>{t('lang.draftTag')}</span>}
+                                {lang === l.id && <Icon name="Check" size={18} />}
+                            </button>
+                        ))}
+                    </div>
+                    <p className="m-0 mt-2 px-3 pb-1 pt-2 border-t border-[color:var(--glass-border-strong)] text-[12px] leading-4 font-bold text-[var(--warning-ink)] flex items-start gap-1.5">
+                        <Icon name="Alert" size={14} className="shrink-0 mt-px" /><span>{t('lang.draftNote')}</span>
+                    </p>
+                </div>
+            )}
         </div>
     );
 }
