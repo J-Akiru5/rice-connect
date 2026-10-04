@@ -499,6 +499,7 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     'sms.reply.label': ['Reply to RiceConnect', 'Sumagot sa RiceConnect', 'Sabat sa RiceConnect'],
     'sms.reply.quick': ['Quick replies', 'Mabilisang sagot', 'Madasig nga sabat'],
     'sms.reply.sending': ['Sending', 'Ipinapadala', 'Ginapadala'],
+    'slip.sameSms': ['Same numbers as the SMS', 'Parehong numero sa SMS', 'Pareho nga numero sa SMS'],
     'sms.reply.quickOk': ['1 OK', '1 OK', '1 OK'],
     'sms.reply.quickMove': ['2 Move', '2 Ilipat', '2 Ibalhin'],
     'sms.reply.placeholder': [

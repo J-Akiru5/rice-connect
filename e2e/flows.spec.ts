@@ -7,9 +7,11 @@ test.describe('critical flows', () => {
     await page.goto('/farmer');
     await page.getByRole('button', { name: '1 OK' }).click();
     await expect(page.getByText('Slot D-58 confirmed').first()).toBeVisible();
-    await page.goto('/farmer/slip');
-    await expect(page.getByText('Net to Farmer').first()).toBeVisible();
-    await expect(page.getByText(/100,000\.00/).first()).toBeVisible();
+        await page.goto('/farmer/slip');
+        await expect(page.getByText('Net to Farmer').first()).toBeVisible();
+        await expect(page.getByText(/100,000\.00/).first()).toBeVisible();
+        await expect(page.getByText(/80,000\.00/).first()).toBeVisible();
+        await expect(page.getByText(/20,000\.00/).first()).toBeVisible();
   });
 
   test('driver: accept, pick up, deliver', async ({ page }) => {
