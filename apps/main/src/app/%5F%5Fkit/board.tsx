@@ -1,11 +1,16 @@
 'use client';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 import {
   AlertDialog,
   Checkbox,
   Dialog,
   ErrorState,
+  Field,
   ForbiddenState,
+  Form,
+  FormErrorSummary,
   LoadingState,
   Menu,
   MenuItem,
@@ -15,13 +20,42 @@ import {
   RefreshMarker,
   SecondaryButton,
   Select,
+  SubmitButton,
   Switch,
   Tabs,
   Tooltip,
   Popover,
   useToast,
-  useI18n
+  useI18n,
+  zodResolver
 } from '@rc/ui';
+
+const demoSchema = z.object({ name: z.string().min(2) });
+
+function FormDemo() {
+  const form = useForm({ resolver: zodResolver(demoSchema), defaultValues: { name: '' } });
+  const [saved, setSaved] = useState('');
+  return (
+    <Form form={form} onSubmit={(v) => setSaved(v.name)} className="flex flex-col gap-3 max-w-[360px]">
+      <FormErrorSummary />
+      <Field name="name" label="Farmer name" hint="At least 2 characters">
+        {({ value, onChange, onBlur, name, invalid, describedBy }) => (
+          <input
+            className="min-h-[44px] px-3 rounded-xl border-2 border-[color:var(--text-muted)] bg-[var(--glass-fill-strong)] text-[16px] font-bold"
+            name={name}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            onBlur={onBlur}
+            aria-invalid={invalid}
+            aria-describedby={describedBy}
+          />
+        )}
+      </Field>
+      <SubmitButton label="Save" pendingLabel="Saving" />
+      {saved && <p className="m-0 text-[14px] font-bold text-[var(--text-accent)]">Saved {saved}</p>}
+    </Form>
+  );
+}
 
 /* Development board for the UI kit (K-01). Every wrapper gets a section here as it lands. */
 export function KitBoard() {
@@ -127,6 +161,11 @@ export function KitBoard() {
             { value: 'w3', label: 'W3' }
           ]}
         />
+      </section>
+
+      <section className="glass-panel rounded-[1.5rem] p-4 flex flex-col gap-3">
+        <h2 className="text-[18px] font-extrabold">Form</h2>
+        <FormDemo />
       </section>
 
       <section className="glass-panel rounded-[1.5rem] p-4 flex flex-col gap-3">

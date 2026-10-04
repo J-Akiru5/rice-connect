@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { I18nProvider } from '@rc/i18n';
 import { Popover, Tooltip, ToastProvider, useToast } from './index';
@@ -23,9 +23,11 @@ describe('Toast', () => {
             </I18nProvider>
         );
         fireEvent.click(screen.getByRole('button', { name: 'Deliver' }));
-        const status = await screen.findByRole('status');
-        expect(status.textContent).toContain('Haul H-07 marked Delivered');
-        fireEvent.click(screen.getByRole('button', { name: /Undo/ }));
+        const toast = (await screen.findAllByRole('status')).find((el) =>
+            el.textContent?.includes('Haul H-07 marked Delivered')
+        );
+        expect(toast).toBeTruthy();
+        fireEvent.click(within(toast!).getByRole('button', { name: /Undo/ }));
         expect(onUndo).toHaveBeenCalledTimes(1);
     });
 });
