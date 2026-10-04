@@ -51,4 +51,16 @@ describe('LocalAdapter', () => {
         await tick();
         expect(a.get()).toEqual(emptyState());
     });
+    it('reset keeps the simulated sign-ins', () => {
+        const a = new LocalAdapter({ storage: new MemStorage() });
+        a.update((s) => ({ ...s, riceOrders: [order], session: { coordinator: 'Cluster 1' } }));
+        a.reset();
+        expect(a.get()).toEqual({ ...emptyState(), session: { coordinator: 'Cluster 1' } });
+    });
+    it('loads older saves without a session as signed out', () => {
+        const storage = new MemStorage();
+        const { session: _, ...old } = emptyState();
+        storage.setItem(STORE_KEY, JSON.stringify(old));
+        expect(new LocalAdapter({ storage }).get().session).toEqual({});
+    });
 });
