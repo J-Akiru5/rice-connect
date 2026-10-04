@@ -11,7 +11,7 @@ Ordered by phase, then priority. Size: **S** (under half a day of agent work), *
 | P0-03 | Update `docs/UAT-KIT.html` tasks that use the removed "View as" switcher | S | Agent | B1 and D1 start from `/buyer/login` and `/driver/login`; no mention of "View as" remains. |
 | P0-04 | Run the Oct 6–7 usability test | M | Team | Sheets filled per [07-usability-test.md](07-usability-test.md); consent read to everyone; no personal data recorded. |
 | P0-05 | Log findings as issues | S | Team | Every severity 2+ finding is an issue with `ux-finding` + `sev-N` labels within 24 hours. |
-| P0-06 | Owner answers O1 (freeze end) and O2 (one app or four) | S | Owner | Answers recorded in `docs/DECISIONS.md`. |
+| P0-06 | Owner answers O2 (one app or four) | S | Owner | Answer recorded in `docs/DECISIONS.md`. (O1 closed by M31.) |
 
 ## Phase 1: guardrails and foundations
 

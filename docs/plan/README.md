@@ -1,13 +1,13 @@
 # RiceConnect product plan
 
-Status: **approved direction, Phase 0 in progress** (4 Oct 2026). Owner: Jeff (Syntaxure Labs). Written for 2–3 developers working with AI agents.
+Status: **approved direction, Phase 0 in progress; Release 3 in production** (4 Oct 2026). Owner: Jeff (Syntaxure Labs). Written for 2–3 developers working with AI agents.
 
 This folder is the source of truth for turning the Enactus prototype into an industry-grade product. Agents and developers follow these files; the HTML portal is a rendered copy for reading and sharing. When the two disagree, these files win.
 
 ## TL;DR
 
 - **Two tracks, one repo.** The Enactus demo is frozen as a release branch and stays deployable. The product is built in the same monorepo, starting from the UI shell, with data contracts fixed at the same time.
-- **Order of work.** Phase 0 (now to Oct 9): run the Oct 6–7 usability test on the frozen demo, collect findings, change nothing in production. Phase 1: guardrails and foundations. Phase 2: the functional UI shell for every role, built against mock adapters. Phase 3: the Supabase backend behind the same adapters. Phase 4: privacy, SMS and operations readiness. Phase 5: the real pilot with one cluster.
+- **Order of work.** Phase 0 (now to Oct 9): run the Oct 6–7 usability test on production (Release 3, simulated data) and collect findings; the owner lifted the production freeze on 4 Oct after checking sign-in (M31). Phase 1: guardrails and foundations. Phase 2: the functional UI shell for every role, built against mock adapters. Phase 3: the Supabase backend behind the same adapters. Phase 4: privacy, SMS and operations readiness. Phase 5: the real pilot with one cluster.
 - **Idiot-proofing is enforced by machines, not by memory.** Required CI on `develop`, `staging` and `main` (no reviewer needed), lint rules that block the known mistakes, Playwright end-to-end tests in CI, one component kit that makes the accessible and safe path the easy path, and one form and data pattern used everywhere.
 - **No real personal data before Phase 4 passes.** The usability test uses the simulated prototype only.
 
@@ -24,6 +24,7 @@ This folder is the source of truth for turning the Enactus prototype into an ind
 | [07-usability-test.md](07-usability-test.md) | The Oct 6–7 usability test: scripts per role, consent, observation sheet, severity scale, findings log. |
 | [08-pilot-readiness.md](08-pilot-readiness.md) | What must be true before real people's data goes in: Data Privacy Act (RA 10173), SMS, operations. |
 | [09-backlog.md](09-backlog.md) | Prioritised tickets with acceptance criteria, sized for agents. |
+| [10-changelog.md](10-changelog.md) | What has shipped to production, release by release. |
 | [AGENTS.next.md](AGENTS.next.md) | The product rules that replace `AGENTS.md` / `CLAUDE.md` at the start of Phase 1. |
 
 ## How to use this plan

@@ -16,15 +16,15 @@ flowchart TB
 
 **Goal:** protect the Enactus demo and learn where real people get stuck.
 
-- Keep `main` frozen (no merges) until the end of Oct 9 (see correction C4). Production stays at commit `02a6199`.
-- Create the rollback point `release/demo-enactus-2026` at `02a6199` (a branch, because tag pushes are dropped by the agent environment's git proxy, see `docs/BLOCKERS.md`).
+- Production carries Release 3 (sign-in and sign-up per app, the plan), released on 4 Oct by the owner's decision (M31) after checking sign-in on staging. Until the contest on Oct 9, only fixes checked on staging go to `main`.
+- Rollback point: the branch `release/demo-enactus-2026` at the previous production commit `02a6199` (a branch, because tag pushes are dropped by the agent environment's git proxy, see `docs/BLOCKERS.md`); Vercel Instant Rollback for deploys.
 - Owner checks production in a private window: it must open without a Vercel login.
 - Run the Oct 6–7 usability test with the kit in [07-usability-test.md](07-usability-test.md). Log every finding as a GitHub issue with the `ux-finding` label and a severity.
-- Work may continue on `develop` (docs, Phase 1 preparation); nothing is promoted to `main`.
+- Work may continue on `develop` (docs, Phase 1 preparation); only staged fixes are promoted to `main` before Oct 9.
 
 **Out of scope:** any production change, any real personal data, any new dependency.
 
-**Gate 0:** the release branch exists; findings are logged with severity; the owner has answered O1 and O2 in [01-decisions.md](01-decisions.md).
+**Gate 0:** the release branch exists; findings are logged with severity; the owner has answered O2 in [01-decisions.md](01-decisions.md).
 
 ## Phase 1: guardrails and foundations
 

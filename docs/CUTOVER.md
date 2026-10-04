@@ -24,7 +24,7 @@ feature/* ──PR──▶ develop ──PR──▶ staging ──PR──▶ 
 - Vercel builds only `main` and `staging` (`git.deploymentEnabled` in each `apps/*/vercel.json`).
 - GitHub Actions CI runs lint, build, test and the guard checks on every PR and on pushes to `develop`.
 - Required CI, no required reviewer (decision M27): `develop`, `staging` and `main` accept changes only by PR with green CI. Until the owner turns the ruleset on (ticket F-01), this is a convention.
-- `main` is frozen until after the Enactus events (decision M26); the demo's rollback point is the branch `release/demo-enactus-2026`.
+- Release 3 went to `main` on 4 Oct (decision M31). Until the contest on Oct 9, only fixes checked on staging go to `main`. Rollback point for the previous production: the branch `release/demo-enactus-2026` (`02a6199`).
 - Staging preview URLs are behind Vercel Authentication (team members only). The staging preview of `apps/main` sends `/buyer`, `/driver` and `/farmer` to the **production** apps (decision M16).
 
 ## Before merging `staging` → `main`
