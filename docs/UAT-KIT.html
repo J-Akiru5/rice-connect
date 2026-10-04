@@ -78,7 +78,7 @@
 <div class="wrap"><table>
 <thead><tr><th>#</th><th>Task</th><th>Pass when</th><th>P/H/F</th></tr></thead>
 <tbody>
-<tr><td>B1</td><td>"Switch the view to Buyer, as a Restaurant." Use the header "View as".</td><td>Page is "Cluster Supply" with Restaurant selected.</td><td><span class="box"></span></td></tr>
+<tr><td>B1</td><td>"Sign in as the buyer, then choose Restaurant." Start at <code>/buyer/login</code>.</td><td>Page is "Cluster Supply" with Restaurant selected.</td><td><span class="box"></span></td></tr>
 <tr><td>B2</td><td>"Which barangay has the most rice in W4?"</td><td>Tester reads Licu-an (36.6 t of rice in W4) from the map markers or the table. If the map stays blank (no signal), the table still answers it.</td><td><span class="box"></span></td></tr>
 <tr><td>B3</td><td>"Order 4 sacks for delivery in W3."</td><td>Order R-00x appears with 100 kg and ₱4,800.00 (assumed price).</td><td><span class="box"></span></td></tr>
 <tr><td>B4</td><td>"Try to order 0 sacks." Then "Try to order 10,000 sacks."</td><td>Both show a clear error; no order is created.</td><td><span class="box"></span></td></tr>
@@ -99,7 +99,7 @@
 <div class="wrap"><table>
 <thead><tr><th>#</th><th>Task</th><th>Pass when</th><th>P/H/F</th></tr></thead>
 <tbody>
-<tr><td>D1</td><td>On a phone: "View as Driver. Accept the job, pick up, deliver."</td><td>Stepper reaches Delivered.</td><td><span class="box"></span></td></tr>
+<tr><td>D1</td><td>On a phone: "Sign in as the driver, then accept the job, pick up, deliver." Start at <code>/driver/login</code>.</td><td>Stepper reaches Delivered.</td><td><span class="box"></span></td></tr>
 <tr><td>F1</td><td>"What does the farmer receive, and in which language?" Open <code>/sms</code>, switch EN → TL → HIL.</td><td>Three messages change language; each says "1 SMS".</td><td><span class="box"></span></td></tr>
 </tbody></table></div>
 
