@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import { THEME_BOOT } from '@rc/ui/theme';
 import { Providers } from './providers';
 
 export const metadata: Metadata = {
@@ -9,9 +10,6 @@ export const metadata: Metadata = {
   icons: { icon: '/driver/brand/riceconnect-mark.svg' }
 };
 export const viewport: Viewport = { width: 'device-width', initialScale: 1 };
-
-/* Sets the theme before paint; storage access is wrapped so a blocked store falls back to light. */
-const THEME_BOOT = `try{if(localStorage.getItem('rc-theme')==='dark'){document.documentElement.setAttribute('data-theme','dark')}}catch(e){}`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

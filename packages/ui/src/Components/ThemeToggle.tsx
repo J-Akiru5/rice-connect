@@ -2,10 +2,10 @@
 import { useEffect, useState } from 'react';
 import Icon from './Icon';
 import { useI18n } from '@rc/i18n';
+import { THEME_KEY } from '../lib/theme';
 
 /* Prototype addition (logged in docs/DECISIONS.md): light is the default; dark sets data-theme="dark" on <html>.
    The choice is kept in localStorage inside try/catch, so a blocked store just falls back to light. */
-export const THEME_KEY = 'rc-theme';
 export type Theme = 'light' | 'dark';
 
 export function readTheme(): Theme {
