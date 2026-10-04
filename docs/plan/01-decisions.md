@@ -15,6 +15,8 @@
 | P9 | Branch protection (earlier, M24) | Superseded by P3: still no reviewers, but CI is required. |
 | P10 | Sign-in (M23) | Mock Sign In and Sign Up per app (split layout), farmer by mobile number, pages open without signing in in demo mode. |
 | P11 | Release now (4 Oct, M31) | The owner checked sign-in on staging and **lifted the freeze**: everything on `staging` (sign-in/sign-up and the plan) goes to `main` now. Supersedes P2 and closes O1. |
+| P12 | App structure (O2, 4 Oct) | **Keep the four multi-zone apps.** The one-app fold is declined; F-10 is dropped. Consequences in M32. |
+| P13 | Optional dependencies (O3–O5, 4 Oct) | **Approved, exact pins:** Prettier, Testing Library + jsdom, `@axe-core/playwright` (M33). |
 
 ### Library guardrails (owner's words, binding)
 
@@ -43,17 +45,17 @@ The bottleneck was never typing speed. It was the Data Privacy Act (consent reco
 `docs/UAT-KIT.html` tasks B1 and D1 say "View as Buyer / Driver" in the header. That switcher was removed in decision M22, and production no longer has it. *Fix:* the kit's B1 and D1 now start from `/buyer/login` and `/driver/login` (updated in the same PR as this plan).
 
 **C6. Four separate apps cost a 2–3 person team more than they return.**
-Multi-zones give independent deploys, which this team does not need, and they already caused a real gap: the staging preview of the main app cannot show the staging buyer, driver and farmer apps (decision M16), so new zone pages cannot be tested end to end on staging. They also mean four Vercel projects, four layouts and cross-zone navigation rules. *Recommendation:* fold the four apps into one Next.js app with route groups per role, keeping all `packages/*`. **This contradicts an earlier owner decision (keep separate buyer, driver and farmer apps), so it is open question O2, not a change the plan makes.**
+Multi-zones give independent deploys, which this team does not need, and they already caused a real gap: the staging preview of the main app cannot show the staging buyer, driver and farmer apps (decision M16), so new zone pages cannot be tested end to end on staging. They also mean four Vercel projects, four layouts and cross-zone navigation rules. *Recommendation:* fold the four apps into one Next.js app with route groups per role, keeping all `packages/*`. **This contradicts an earlier owner decision (keep separate buyer, driver and farmer apps), so it was open question O2, not a change the plan makes. Declined on 4 Oct (P12/M32): the four apps stay and F-10 is dropped.**
 
 ## Open questions for the owner
 
 | # | Question | Recommendation | Blocks |
 |---|---|---|---|
 | O1 | ~~Keep `main` frozen through Oct 9?~~ **Closed by P11** (released 4 Oct). | Until Oct 9, promote to `main` only fixes that were checked on staging. | — |
-| O2 | One app with route groups instead of four multi-zone apps? | Yes, early in Phase 1, before the UI kit work multiplies across four apps. See [03-architecture.md](03-architecture.md#d1-one-app-or-four). | Phase 1 ticket F-10. |
-| O3 | Formatter: Prettier or Biome (a new dependency)? | Prettier, run in CI with `--check`; it removes style debates from agent PRs. | Ticket F-06 (optional). |
-| O4 | Component tests: Testing Library + jsdom (new dependencies)? | Yes, for the UI kit wrappers only; screens are covered by Playwright. | Ticket Q-03. |
-| O5 | Accessibility checks in E2E: `@axe-core/playwright` (new dependency)? | Yes; it catches missing labels and contrast regressions on every PR. | Ticket Q-04. |
+| O2 | ~~One app with route groups instead of four multi-zone apps?~~ **Closed by P12 (4 Oct): keep four apps.** | — | F-10 dropped (M32). |
+| O3 | ~~Formatter: Prettier or Biome (a new dependency)?~~ **Closed by P13 (4 Oct): Prettier 3.9.9.** | Run in CI with `--check`. | Ticket F-06. |
+| O4 | ~~Component tests: Testing Library + jsdom (new dependencies)?~~ **Closed by P13 (4 Oct): approved.** | Testing Library 16.3.3 + jsdom 30.1.1, UI kit wrappers only; screens are covered by Playwright. | Q-03 covered by the K-02…K-05 tests. |
+| O5 | ~~Accessibility checks in E2E: `@axe-core/playwright` (new dependency)?~~ **Closed by P13 (4 Oct): approved.** | `@axe-core/playwright` 4.13.0. | Ticket Q-04. |
 | O6 | Error tracking in production: Sentry (new dependency, external service)? | Yes, from Phase 3 (real users), with personal data scrubbed. | Phase 3–4. |
 | O7 | Who is the Data Protection Officer (or compliance officer) for the pilot? | Name one person before Phase 4. | Phase 4 gate. |
 | O8 | Which SMS aggregator, and who registers the sender name? | Decide in Phase 3; start registration early because it has lead time. | Phase 4 gate. |

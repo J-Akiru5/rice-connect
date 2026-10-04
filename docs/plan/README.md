@@ -1,6 +1,6 @@
 # RiceConnect product plan
 
-Status: **approved direction, Phase 0 in progress; Release 3 in production** (4 Oct 2026). Owner: Jeff (Syntaxure Labs). Written for 2–3 developers working with AI agents.
+Status: **approved direction, Phase 0 in progress; Release 3 in production; Phase 1 decisions taken** (4 Oct 2026: keep four apps, O3–O5 approved, F-03 target — decisions M32–M36). Owner: Jeff (Syntaxure Labs). Written for 2–3 developers working with AI agents.
 
 This folder is the source of truth for turning the Enactus prototype into an industry-grade product. Agents and developers follow these files; the HTML portal is a rendered copy for reading and sharing. When the two disagree, these files win.
 
@@ -25,7 +25,7 @@ This folder is the source of truth for turning the Enactus prototype into an ind
 | [08-pilot-readiness.md](08-pilot-readiness.md) | What must be true before real people's data goes in: Data Privacy Act (RA 10173), SMS, operations. |
 | [09-backlog.md](09-backlog.md) | Prioritised tickets with acceptance criteria, sized for agents. |
 | [10-changelog.md](10-changelog.md) | What has shipped to production, release by release. |
-| [AGENTS.next.md](AGENTS.next.md) | The product rules that replace `AGENTS.md` / `CLAUDE.md` at the start of Phase 1. |
+| [AGENTS.next.md](AGENTS.next.md) | The product rules, adopted as `AGENTS.md` (F-02, M36); kept for provenance. |
 
 ## How to use this plan
 
