@@ -5,7 +5,8 @@ export const keys = {
     farms: {
         all: ['farms'] as const,
         list: (q: FarmQuery = {}) => ['farms', 'list', q] as const,
-        one: (id: string) => ['farms', 'one', id] as const
+        one: (id: string) => ['farms', 'one', id] as const,
+        created: ['farms', 'created'] as const
     },
     lots: {
         all: ['lots'] as const,

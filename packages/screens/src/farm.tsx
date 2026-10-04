@@ -1,13 +1,33 @@
 'use client';
 import { ZLink, useZoneNav } from '@rc/ui';
 import { useEffect, useMemo, useState } from 'react';
-import { EmptyState, FarmProfileCard, Icon, Pagination, SearchField, StatusChip, useI18n } from '@rc/ui';
+import {
+    Dialog,
+    EmptyState,
+    FarmProfileCard,
+    Field,
+    Form,
+    Icon,
+    Pagination,
+    SearchField,
+    SecondaryButton,
+    Select,
+    StatusChip,
+    SubmitButton,
+    TextInput,
+    useForm,
+    useI18n,
+    useToast,
+    zodResolver
+} from '@rc/ui';
+import { z } from 'zod';
 import { filterFarms, paginate, sortBy } from '@rc/domain/list';
 import { staticListState, type ListState } from './list-state';
 import { ModuleShell } from './shell';
 import { useDemoState, updateDemoState } from '@rc/store/react';
 import { addFarm } from '@rc/store';
-import { BARANGAYS, FARMS, TOTALS, KG_PER_SACK, lotOfFarm, farmById, type Farm } from '@rc/domain/seed';
+import { useCreateFarm, useCreatedFarms } from '@rc/data';
+import { BARANGAYS, FARMS, TOTALS, KG_PER_SACK, VARIETIES, lotOfFarm, farmById, type Farm } from '@rc/domain/seed';
 
 export type FarmState = 'default' | 'empty' | 'error' | 'success';
 const STATUSES: Farm['status'][] = ['registered', 'verified', 'cluster'];
@@ -15,28 +35,137 @@ const cap = 'text-[12px] leading-4 font-extrabold uppercase tracking-[0.1em] tex
 const selectCls =
     'min-h-[44px] px-4 rounded-[2rem] bg-[var(--glass-fill-strong)] text-[var(--ink)] border-2 border-[color:var(--text-muted)] font-bold text-[16px] w-full';
 
-/** Narrow container: one card per farm, linking to the full profile (as before; no ellipsis, text wraps). */
-function FarmCard({ farm }: { farm: Farm }) {
+/** Narrow container: one card per farm, linking to the full profile (as before; no ellipsis, text wraps).
+    Farms created through the Add Farm form have no profile yet, so they render unlinked. */
+function FarmCard({ farm, linked = true }: { farm: Farm; linked?: boolean }) {
     const { t } = useI18n();
+    const body = (
+        <>
+            <span className="min-w-0 flex-1">
+                <span className="block text-[16px] leading-6 font-extrabold tabular">
+                    {farm.id} · {farm.areaHa.toFixed(1)} {t('unit.ha')}
+                </span>
+                <span className="block text-[14px] leading-5 font-semibold text-[var(--text-secondary)] break-words">
+                    {farm.barangay}
+                </span>
+            </span>
+            <StatusChip status={farm.status} />
+            {linked && <Icon name="ChevronRight" size={24} className="shrink-0 text-[var(--text-muted)]" />}
+        </>
+    );
+    const cls =
+        'flex items-center gap-3 min-h-[64px] px-4 py-3 border-b border-[color:var(--glass-border-strong)] last:border-0';
     return (
         <li>
-            <ZLink
-                href={`/farm/${farm.id}`}
-                aria-label={t('farm.open', { id: farm.id })}
-                className="flex items-center gap-3 min-h-[64px] px-4 py-3 border-b border-[color:var(--glass-border-strong)] last:border-0 rc-hover-accent-soft"
-            >
-                <span className="min-w-0 flex-1">
-                    <span className="block text-[16px] leading-6 font-extrabold tabular">
-                        {farm.id} · {farm.areaHa.toFixed(1)} {t('unit.ha')}
-                    </span>
-                    <span className="block text-[14px] leading-5 font-semibold text-[var(--text-secondary)] break-words">
-                        {farm.barangay}
-                    </span>
-                </span>
-                <StatusChip status={farm.status} />
-                <Icon name="ChevronRight" size={24} className="shrink-0 text-[var(--text-muted)]" />
-            </ZLink>
+            {linked ? (
+                <ZLink
+                    href={`/farm/${farm.id}`}
+                    aria-label={t('farm.open', { id: farm.id })}
+                    className={cls + ' rc-hover-accent-soft'}
+                >
+                    {body}
+                </ZLink>
+            ) : (
+                <div className={cls}>{body}</div>
+            )}
         </li>
+    );
+}
+
+const addFarmSchema = z.object({
+    name: z.string().min(2),
+    barangay: z.enum(BARANGAYS),
+    variety: z.enum(VARIETIES),
+    areaHa: z.coerce.number().min(0.5).max(2.5),
+    week: z.enum(['W1', 'W2', 'W3', 'W4'] as const)
+});
+type AddFarmValues = z.infer<typeof addFarmSchema>;
+
+/** Add Farm (S-10): the form kit, simulated data only; the new farm appears in the list as "in cluster". */
+function AddFarmDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+    const { t } = useI18n();
+    const toast = useToast();
+    const createFarm = useCreateFarm();
+    const form = useForm<AddFarmValues>({
+        resolver: zodResolver(addFarmSchema),
+        defaultValues: { name: '', barangay: BARANGAYS[0], variety: VARIETIES[0], areaHa: 1, week: 'W3' }
+    });
+    const submit = async (values: AddFarmValues) => {
+        const { week, ...rest } = values;
+        const farm = await createFarm.mutateAsync({ input: { ...rest, harvestWeek: week } });
+        toast.show(t('farm.add.saved', { id: farm.id }));
+        form.reset();
+        onOpenChange(false);
+    };
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange} title={t('farm.add.title')} maxWidth="md">
+            <Form form={form} onSubmit={submit} busy={createFarm.isPending} className="flex flex-col gap-4">
+                <Field name="name" label={t('farm.add.name')} hint={t('farm.add.hint')}>
+                    {({ value, onChange, onBlur, name, invalid, describedBy }) => (
+                        <TextInput
+                            name={name}
+                            value={value}
+                            onChange={(e) => onChange(e.target.value)}
+                            onBlur={onBlur}
+                            aria-invalid={invalid}
+                            aria-describedby={describedBy}
+                            className="!text-base"
+                        />
+                    )}
+                </Field>
+                <Field name="barangay" label={t('farm.barangay')}>
+                    {({ value, onChange, name }) => (
+                        <Select
+                            value={value}
+                            onValueChange={(v) => onChange(v)}
+                            label={name}
+                            className="w-full"
+                            options={BARANGAYS.map((b) => ({ value: b, label: b }))}
+                        />
+                    )}
+                </Field>
+                <Field name="variety" label={t('farm.variety')}>
+                    {({ value, onChange, name }) => (
+                        <Select
+                            value={value}
+                            onValueChange={(v) => onChange(v)}
+                            label={name}
+                            className="w-full"
+                            options={VARIETIES.map((v) => ({ value: v, label: v }))}
+                        />
+                    )}
+                </Field>
+                <Field name="areaHa" label={`${t('farm.area')} (ha)`}>
+                    {({ value, onChange, onBlur, name, invalid, describedBy }) => (
+                        <TextInput
+                            name={name}
+                            value={value}
+                            onChange={(e) => onChange(e.target.value)}
+                            onBlur={onBlur}
+                            inputMode="decimal"
+                            aria-invalid={invalid}
+                            aria-describedby={describedBy}
+                            className="!text-base"
+                        />
+                    )}
+                </Field>
+                <Field name="week" label={t('dry.weeks')}>
+                    {({ value, onChange, name }) => (
+                        <Select
+                            value={value}
+                            onValueChange={(v) => onChange(v)}
+                            label={name}
+                            className="w-full"
+                            options={['W1', 'W2', 'W3', 'W4'].map((w) => ({ value: w, label: w }))}
+                        />
+                    )}
+                </Field>
+                <div className="flex flex-wrap justify-end gap-2">
+                    <SecondaryButton onClick={() => onOpenChange(false)}>{t('action.cancel')}</SecondaryButton>
+                    <SubmitButton icon="Plus" label={t('farm.add.submit')} pendingLabel={t('sms.reply.sending')} />
+                </div>
+            </Form>
+        </Dialog>
     );
 }
 
@@ -107,13 +236,27 @@ export function FarmListScreen({
     const L = list ?? staticListState('/farm');
     const [q, setQ] = useState(L.q);
     useEffect(() => setQ(L.q), [L.q]);
+    const [addOpen, setAddOpen] = useState(false);
+    const createdQuery = useCreatedFarms();
+    const created = useMemo(() => createdQuery.data ?? [], [createdQuery.data]);
+    const createdIds = useMemo(() => new Set(created.map((f) => f.id)), [created]);
     const filtered = useMemo(
-        () => sortBy(filterFarms(FARMS, { q: L.q, status: L.status, barangay: L.barangay }), (f) => f.id),
-        [L.q, L.status, L.barangay]
+        () =>
+            sortBy(
+                filterFarms([...created, ...FARMS], { q: L.q, status: L.status, barangay: L.barangay }),
+                (f) => f.id
+            ),
+        [created, L.q, L.status, L.barangay]
     );
     const pg = paginate(filtered, L.page, L.size);
     const selected = pg.rows.find((f) => f.id === selectedId) ?? pg.rows[0];
     const farmsAdded = useDemoState().farmsAdded;
+    const totalFarms = FARMS.length + created.length;
+    const totalHa = (TOTALS.areaTenths + created.reduce((s, f) => s + f.areaTenths, 0)) / 10;
+    const clearFilters = () => {
+        setQ('');
+        L.set({ q: '', status: '', barangay: '', page: null, farm: null });
+    };
 
     return (
         <ModuleShell title="farm.title" active="farms">
@@ -124,9 +267,14 @@ export function FarmListScreen({
                     <div className="glass-panel rounded-[1.5rem] p-4 flex flex-col gap-3">
                         <div className="flex items-baseline justify-between gap-2 flex-wrap">
                             <h2 className="eyebrow">{t('farm.list')}</h2>
-                            <span className="text-[14px] font-bold tabular">
-                                {t('farm.summary', { n: TOTALS.farms, ha: (TOTALS.areaTenths / 10).toFixed(1) })}
-                            </span>
+                            <div className="flex items-center gap-3 flex-wrap">
+                                <span className="text-[14px] font-bold tabular">
+                                    {t('farm.summary', { n: totalFarms, ha: totalHa.toFixed(1) })}
+                                </span>
+                                <SecondaryButton icon="Plus" onClick={() => setAddOpen(true)}>
+                                    {t('farm.add')}
+                                </SecondaryButton>
+                            </div>
                         </div>
                         <div
                             role="group"
@@ -176,12 +324,17 @@ export function FarmListScreen({
                         </div>
                     </div>
                     {pg.total === 0 ? (
-                        <EmptyState variant="empty" title="farm.noMatch" />
+                        <EmptyState
+                            variant="filtered"
+                            title="farm.noMatch"
+                            action="farm.clearFilters"
+                            onAction={clearFilters}
+                        />
                     ) : (
                         <>
                             <ul className="cq-narrow-only glass-panel rounded-[1.5rem] overflow-hidden">
                                 {pg.rows.map((f) => (
-                                    <FarmCard key={f.id} farm={f} />
+                                    <FarmCard key={f.id} farm={f} linked={!createdIds.has(f.id)} />
                                 ))}
                             </ul>
                             <div className="cq-wide-only cq-split">
@@ -214,15 +367,21 @@ export function FarmListScreen({
                                                         className={`border-t border-[color:var(--glass-border-strong)] text-[14px] font-bold align-top ${on ? 'rc-bg-highlight' : ''}`}
                                                     >
                                                         <th scope="row" className="py-1.5 pr-3">
-                                                            <ZLink
-                                                                href={L.href({ farm: f.id, page: pg.page })}
-                                                                replace
-                                                                scroll={false}
-                                                                aria-current={on ? 'true' : undefined}
-                                                                className="inline-flex items-center min-h-[40px] font-extrabold text-[var(--text-accent)] underline underline-offset-4"
-                                                            >
-                                                                {f.id}
-                                                            </ZLink>
+                                                            {createdIds.has(f.id) ? (
+                                                                <span className="inline-flex items-center min-h-[40px] font-extrabold tabular">
+                                                                    {f.id}
+                                                                </span>
+                                                            ) : (
+                                                                <ZLink
+                                                                    href={L.href({ farm: f.id, page: pg.page })}
+                                                                    replace
+                                                                    scroll={false}
+                                                                    aria-current={on ? 'true' : undefined}
+                                                                    className="inline-flex items-center min-h-[40px] font-extrabold text-[var(--text-accent)] underline underline-offset-4"
+                                                                >
+                                                                    {f.id}
+                                                                </ZLink>
+                                                            )}
                                                         </th>
                                                         <td className="py-2.5 pr-3 break-words">{f.name}</td>
                                                         <td className="py-2.5 pr-3 break-words">{f.barangay}</td>
@@ -242,22 +401,33 @@ export function FarmListScreen({
                                 </div>
                                 {selected && (
                                     <aside aria-label={t('farm.title')} className="flex flex-col gap-3 min-w-0">
-                                        <FarmDetail
-                                            farm={selected}
-                                            added={farmsAdded.includes(selected.id) || selected.status === 'cluster'}
-                                            onAdd={
-                                                selected.status === 'cluster'
-                                                    ? undefined
-                                                    : () => updateDemoState(addFarm(selected.id))
-                                            }
-                                        />
-                                        <ZLink
-                                            href={`/farm/${selected.id}`}
-                                            className="self-start inline-flex items-center gap-2 min-h-[40px] text-[13px] font-extrabold uppercase tracking-[0.08em] text-[var(--text-accent)]"
-                                        >
-                                            {t('farm.fullPage', { id: selected.id })}
-                                            <Icon name="ArrowRight" size={20} />
-                                        </ZLink>
+                                        {createdIds.has(selected.id) ? (
+                                            <p className="m-0 glass-panel rounded-[1.5rem] p-5 text-[15px] leading-6 font-semibold">
+                                                {t('farm.created.note')}
+                                            </p>
+                                        ) : (
+                                            <>
+                                                <FarmDetail
+                                                    farm={selected}
+                                                    added={
+                                                        farmsAdded.includes(selected.id) ||
+                                                        selected.status === 'cluster'
+                                                    }
+                                                    onAdd={
+                                                        selected.status === 'cluster'
+                                                            ? undefined
+                                                            : () => updateDemoState(addFarm(selected.id))
+                                                    }
+                                                />
+                                                <ZLink
+                                                    href={`/farm/${selected.id}`}
+                                                    className="self-start inline-flex items-center gap-2 min-h-[40px] text-[13px] font-extrabold uppercase tracking-[0.08em] text-[var(--text-accent)]"
+                                                >
+                                                    {t('farm.fullPage', { id: selected.id })}
+                                                    <Icon name="ArrowRight" size={20} />
+                                                </ZLink>
+                                            </>
+                                        )}
                                     </aside>
                                 )}
                             </div>
@@ -272,6 +442,7 @@ export function FarmListScreen({
                     )}
                 </div>
             )}
+            <AddFarmDialog open={addOpen} onOpenChange={setAddOpen} />
         </ModuleShell>
     );
 }

@@ -1,5 +1,20 @@
-import { COMMITMENTS, FARMS, HAUL, HERO_LOT, LOTS, SLIP, SLOTS, SMS, farmById, lotById } from '@rc/domain/seed';
+import {
+    COMMITMENTS,
+    FARMS,
+    HAUL,
+    HERO_LOT,
+    LOTS,
+    SLIP,
+    SLOTS,
+    SMS,
+    DRIED_KG_PER_HA,
+    farmById,
+    lotById
+} from '@rc/domain/seed';
+import { dayLabel, monthWeekLabel } from '@rc/domain/calendar';
+import overrides from '@rc/domain/overrides.json';
 import { makeRiceOrder } from '@rc/domain/buyers';
+import { FarmSchema } from '@rc/domain/schemas';
 import type { Commitment, Farm, Lot, Slip, Slot, SmsMessage } from '@rc/domain/schemas';
 import type { Week } from '@rc/domain/schemas';
 import { addFarm, farmerReply, haulStatus, setHaul } from './actions';
@@ -49,6 +64,18 @@ export interface FarmRepo {
     list(q?: FarmQuery): Promise<Page<Farm>>;
     /** Adds a farm to the cluster (idempotent). */
     add(id: string, opts: WriteOpts): Promise<Farm>;
+    /** Farms added through the Add Farm form. */
+    created(): Promise<Farm[]>;
+    /** Creates a simulated farm (data only; no plots, lots or settlements are derived). */
+    create(input: FarmDraft, opts: WriteOpts): Promise<Farm>;
+}
+
+export interface FarmDraft {
+    name: string;
+    barangay: Farm['barangay'];
+    areaHa: number;
+    variety: string;
+    harvestWeek: Farm['harvestWeek'];
 }
 export interface LotRepo {
     get(id: string): Promise<Lot>;
@@ -131,10 +158,11 @@ export function createMockRepos(adapter: DataAdapter): Repos {
 
     const farms: FarmRepo = {
         async get(id) {
-            return must(farmById(id), id, 'Farm');
+            const created = state().farmsCreated?.find((f) => f.id === id);
+            return must(created ?? farmById(id), id, 'Farm');
         },
         async list(q) {
-            let all = [...FARMS];
+            let all = [...(state().farmsCreated ?? []), ...FARMS];
             if (q?.barangay) all = all.filter((f) => f.barangay === q.barangay);
             if (q?.status) all = all.filter((f) => f.status === q.status);
             if (q?.q) {
@@ -144,9 +172,45 @@ export function createMockRepos(adapter: DataAdapter): Repos {
             return pageOf(all, q);
         },
         async add(id, opts) {
-            return once(opts.idempotencyKey, () => {
-                const farm = must(farmById(id), id, 'Farm');
+            return once(opts.idempotencyKey, async () => {
+                const farm = await farms.get(id);
                 if (!state().farmsAdded.includes(id)) adapter.update(addFarm(id));
+                return farm;
+            });
+        },
+        async created() {
+            return state().farmsCreated ?? [];
+        },
+        async create(input, opts) {
+            return once(opts.idempotencyKey, () => {
+                const created = state().farmsCreated ?? [];
+                if (!Number.isFinite(input.areaHa) || input.areaHa < 0.5 || input.areaHa > 2.5)
+                    throw new RepoError('validation', 'area must be between 0.5 and 2.5 ha');
+                const areaTenths = Math.round(input.areaHa * 10);
+                const weekIndex = ['W1', 'W2', 'W3', 'W4'].indexOf(input.harvestWeek);
+                const harvestDay = (weekIndex < 0 ? 0 : weekIndex) * 7;
+                const driedKg = Math.round((areaTenths * DRIED_KG_PER_HA) / 10);
+                const farm = FarmSchema.parse({
+                    id: `F-${String(101 + created.length).padStart(3, '0')}`,
+                    name: input.name.trim(),
+                    mobile: '09•• ••• 0000',
+                    barangay: input.barangay,
+                    areaHa: areaTenths / 10,
+                    variety: input.variety,
+                    plantingWeek: monthWeekLabel(harvestDay - overrides.cropDaysPlantingToHarvest),
+                    status: 'cluster',
+                    harvestWeek: input.harvestWeek,
+                    tonnes: Math.round(driedKg / 100) / 10,
+                    areaTenths,
+                    harvestDay,
+                    harvestLabel: dayLabel(harvestDay),
+                    driedKg
+                });
+                adapter.update((s) => ({
+                    ...s,
+                    farmsCreated: [...(s.farmsCreated ?? []), farm],
+                    farmsAdded: s.farmsAdded.includes(farm.id) ? s.farmsAdded : [...s.farmsAdded, farm.id]
+                }));
                 return farm;
             });
         }

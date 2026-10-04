@@ -343,6 +343,26 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     'filter.allStatuses': ['All statuses', 'Lahat ng katayuan', 'Tanan nga kahimtangan'],
     'filter.allBarangays': ['All barangays', 'Lahat ng barangay', 'Tanan nga barangay'],
     'farm.noMatch': ['No farms match', 'Walang bukid na tugma', 'Wala sang uma nga nagtupong'],
+    'farm.clearFilters': ['Clear Filters', 'Burahin ang mga Filter', 'Panason ang mga Filter'],
+    'farm.add': ['Add Farm', 'Magdagdag ng Bukid', 'Magdugang sang Uma'],
+    'farm.add.title': ['Add Farm to Cluster', 'Magdagdag ng Bukid sa Cluster', 'Magdugang sang Uma sa Cluster'],
+    'farm.add.name': ['Farmer Name', 'Pangalan ng Magsasaka', 'Ngalan sang Mangunguma'],
+    'farm.add.hint': [
+        'Simulated data only: use a made-up name. No real mobile number is collected.',
+        'Simulated data lamang: gumamit ng gawa-gawang pangalan. Walang totoong numero ang kinukuha.',
+        'Simulated data lamang: gamita ang hinimo-himo nga ngalan. Wala sang matuod nga numero nga ginkuha.'
+    ],
+    'farm.add.saved': [
+        'Farm {id} added to the cluster',
+        'Naidagdag ang bukid {id} sa cluster',
+        'Nadugang ang uma {id} sa cluster'
+    ],
+    'farm.add.submit': ['Add Farm', 'Idagdag ang Bukid', 'Idugang ang Uma'],
+    'farm.created.note': [
+        'Added with the Add Farm form. No lot or settlement yet.',
+        'Naidagdag gamit ang Add Farm. Wala pang lot o settlement.',
+        'Nadugang gamit ang Add Farm. Wala pa sang lot ukon settlement.'
+    ],
     'farm.fullPage': [
         'Open {id} as a Full Page',
         'Buksan ang {id} sa Buong Pahina',

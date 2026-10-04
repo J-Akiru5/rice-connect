@@ -1008,7 +1008,7 @@ export function EmptyState({
     onAction,
     className = ''
 }: {
-    variant?: 'empty' | 'error' | 'success';
+    variant?: 'empty' | 'filtered' | 'error' | 'success';
     title: string;
     body?: ReactNode;
     action?: string;

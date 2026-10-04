@@ -72,6 +72,23 @@ test.describe('critical flows', () => {
     await expect(page.locator('table').getByText('Verified').first()).toBeVisible();
     await expect(page.locator('table').getByText('Registered')).toHaveCount(0);
 
+    // Empty (filtered): a distinct state with a Clear Filters action.
+    await page.goto('/coordinator/farm?q=zzz');
+    await expect(page.getByText('No farms match')).toBeVisible();
+    await page.getByRole('button', { name: 'Clear Filters' }).click();
+    await expect(page).not.toHaveURL(/q=/);
+
+    // Add Farm: the form kit; simulated data only; the new farm joins the cluster.
+    await page.getByRole('button', { name: 'Add Farm' }).click();
+    const addDialog = page.getByRole('dialog');
+    await expect(addDialog).toBeVisible();
+    await addDialog.getByLabel(/Farmer Name/).fill('Demo Farm One');
+    await addDialog.getByLabel(/Area/).fill('1.5');
+    await addDialog.getByRole('button', { name: 'Add Farm' }).click();
+    await expect(page.getByText(/Farm F-101 added/)).toBeVisible({ timeout: 15000 });
+    await page.goto('/coordinator/farm?q=F-101');
+    await expect(page.locator('table').getByText(/F-101/).first()).toBeVisible();
+
     await page.goto('/coordinator/haul');
     const list = page.getByRole('group', { name: 'Pick Any Driver' }).first();
     const target = list.getByRole('listitem').filter({ hasText: 'DR-06' });

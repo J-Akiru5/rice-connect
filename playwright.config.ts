@@ -13,6 +13,8 @@ export default defineConfig({
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: 1,
+  // Local runs serialise so shared dev servers stay stable; CI keeps its parallel workers and one retry.
+  workers: process.env.CI ? undefined : 1,
   reporter: process.env.CI ? [['github'], ['list']] : 'list',
   use: {
     baseURL: `http://127.0.0.1:${mainPort}`,

@@ -1,4 +1,5 @@
 import type { BuyerType, RiceOrder } from '@rc/domain/buyers';
+import type { Farm } from '@rc/domain/schemas';
 
 /** A palay commitment a miller posted in the buyer app (auto-matched against lots not yet committed). */
 export interface LocalCommitment {
@@ -37,6 +38,8 @@ export interface DemoState {
     buyerType?: BuyerType;
     /** Settlement marked paid by the coordinator: lot id → ISO timestamp. Irreversible in the app. */
     settlementsPaid?: Record<string, string>;
+    /** Farms added through the Add Farm form (simulated data only). */
+    farmsCreated?: Farm[];
     /** Simulated sign-in per app (no accounts, no passwords): the demo identity signed in to each app, absent = signed out. */
     session: Partial<Record<SessionRole, string>>;
 }

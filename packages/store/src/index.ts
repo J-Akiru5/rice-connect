@@ -10,6 +10,7 @@ export type {
     WriteOpts,
     ListQuery,
     FarmQuery,
+    FarmDraft,
     HaulQuery,
     RepoErrorCode,
     FarmRepo,

@@ -31,6 +31,27 @@ describe('farm repository', () => {
         const again = await r.farms.add('F-002', { idempotencyKey: 'k2' });
         expect(again.id).toBe('F-002');
     });
+
+    it('creates a simulated farm once per key and validates the area', async () => {
+        const r = repos();
+        const draft = {
+            name: 'Demo Farm One',
+            barangay: 'Ilajas' as const,
+            areaHa: 1.5,
+            variety: 'NSIC Rc 222',
+            harvestWeek: 'W3' as const
+        };
+        const farm = await r.farms.create(draft, { idempotencyKey: 'f1' });
+        expect(farm.id).toBe('F-101');
+        expect(farm.status).toBe('cluster');
+        expect(farm.areaTenths).toBe(15);
+        await r.farms.create(draft, { idempotencyKey: 'f1' });
+        expect(await r.farms.created()).toHaveLength(1);
+        expect((await r.farms.list({ q: 'F-101' })).total).toBe(1);
+        await expect(r.farms.create({ ...draft, areaHa: 9 }, { idempotencyKey: 'f2' })).rejects.toMatchObject({
+            code: 'validation'
+        });
+    });
 });
 
 describe('lot repository', () => {

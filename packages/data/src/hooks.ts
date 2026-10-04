@@ -1,6 +1,6 @@
 'use client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getRepos, type FarmQuery, type ListQuery } from '@rc/store';
+import { getRepos, type FarmDraft, type FarmQuery, type ListQuery } from '@rc/store';
 import type { BuyerType, Week } from '@rc/domain/schemas';
 import { keys } from './keys';
 
@@ -69,6 +69,18 @@ export const useAddFarm = () => {
     return useMutation({
         mutationFn: ({ id, idempotencyKey = newIdempotencyKey() }: { id: string; idempotencyKey?: string }) =>
             getRepos().farms.add(id, { idempotencyKey }),
+        onSuccess: () => qc.invalidateQueries({ queryKey: keys.farms.all })
+    });
+};
+
+export const useCreatedFarms = () =>
+    useQuery({ queryKey: keys.farms.created, queryFn: () => getRepos().farms.created() });
+
+export const useCreateFarm = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ input, idempotencyKey = newIdempotencyKey() }: { input: FarmDraft; idempotencyKey?: string }) =>
+            getRepos().farms.create(input, { idempotencyKey }),
         onSuccess: () => qc.invalidateQueries({ queryKey: keys.farms.all })
     });
 };
