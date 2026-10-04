@@ -76,8 +76,11 @@ test.describe('critical flows', () => {
     const list = page.getByRole('group', { name: 'Pick Any Driver' }).first();
     const target = list.getByRole('listitem').filter({ hasText: 'DR-06' });
     await target.getByRole('button', { name: 'Assign' }).click();
-    // Undo for reassignment lands with S-07 (Phase 2); the override chip is the evidence today.
     await expect(page.getByText('Coordinator override').first()).toBeVisible();
+    await expect(page.getByText(/Override history/).first()).toBeVisible();
+    // Undo restores the auto-assigned driver.
+    await page.getByRole('button', { name: 'Undo' }).click();
+    await expect(page.getByText('Coordinator override')).toHaveCount(0);
   });
 
   test('auth: empty submit shows errors, sign in works, sign out returns', async ({ page }) => {

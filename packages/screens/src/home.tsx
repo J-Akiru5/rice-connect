@@ -1,11 +1,10 @@
 'use client';
-import { AppShell, BigStat, Icon, StatusChip, ZLink, useI18n } from '@rc/ui';
+import { AppShell, BigStat, ErrorState, Icon, LoadingState, StatusChip, ZLink, useI18n } from '@rc/ui';
 import overrides from '@rc/domain/overrides.json';
 import { FARMS, HAUL, HERO_LOT, SETTLEMENT, SLIP, SLOT, WEEKS } from '@rc/domain/seed';
 import { dayLabel } from '@rc/domain/calendar';
 import { peso } from '@rc/domain/money';
-import { useDemoState } from '@rc/store/react';
-import { haulStatus } from '@rc/store';
+import { useHaulStatus, useMyCommitments, useOrders, useSmsReplies, useSlotStatus } from '@rc/data';
 import { SectionPill, Note } from './ui';
 
 const t1 = (kg: number) => (Math.round(kg / 100) / 10).toFixed(1);
@@ -44,19 +43,32 @@ function Panel({
     );
 }
 
-/** Coordinator Home (derived, not in canvas): what needs attention this week. Live: buyer orders and farmer replies
-    made in other apps (other tabs, same origin) appear here through the shared store within a second. */
+/** Coordinator Home (derived, not in canvas): what needs attention this week, today first. Live: buyer orders
+    and farmer replies made in other apps (other tabs, same origin) appear here through the data hooks. */
 export function CoordinatorHomeScreen() {
     const { t } = useI18n();
-    const s = useDemoState();
+    const haul = useHaulStatus(HAUL.id);
+    const slotQuery = useSlotStatus(SLOT.id);
+    const ordersQuery = useOrders({ size: 50 });
+    const commitmentsQuery = useMyCommitments();
+    const repliesQuery = useSmsReplies();
     const harvests = FARMS.filter((f) => f.harvestDay >= WEEK * 7 && f.harvestDay < WEEK * 7 + 7).sort(
         (a, b) => a.harvestDay - b.harvestDay || a.id.localeCompare(b.id)
     );
-    const hStatus = haulStatus(s, HAUL.id);
+    const hStatus = haul.data ?? 'assigned';
     const waiting = hStatus === 'assigned' || hStatus === 'requested';
-    const slot = s.slots[SLOT.id] ?? 'scheduled';
-    const orders = s.riceOrders.length + s.commitments.length;
-    const lastReply = s.smsReplies[s.smsReplies.length - 1];
+    const slot = slotQuery.data ?? 'scheduled';
+    const riceOrders = ordersQuery.data?.rows ?? [];
+    const commitments = commitmentsQuery.data ?? [];
+    const orders = riceOrders.length + commitments.length;
+    const replies = repliesQuery.data ?? [];
+    const lastReply = replies[replies.length - 1];
+    const live = [haul, slotQuery, ordersQuery, commitmentsQuery, repliesQuery];
+    const loading = live.some((q) => q.isPending);
+    const failed = live.some((q) => q.isError);
+    const retry = () => live.forEach((q) => void q.refetch());
+    const gate = (content: React.ReactNode) =>
+        loading ? <LoadingState rows={2} /> : failed ? <ErrorState onRetry={retry} /> : content;
     return (
         <AppShell
             title="home.title"
@@ -113,19 +125,21 @@ export function CoordinatorHomeScreen() {
                     </Panel>
                     <div className="flex flex-col gap-4">
                         <Panel id="h-hauls" title={t('home.hauls')} href="/haul" cta={t('home.openHaul')}>
-                            {waiting ? (
-                                <div className="flex flex-wrap items-center justify-between gap-3">
-                                    <span className="text-[16px] font-extrabold tabular">
-                                        {HAUL.id} · {t('unit.lot')} {HAUL.lot} · {HAUL.sacks} {t('unit.sacks')} ·{' '}
-                                        {HAUL.pickup}
-                                    </span>
-                                    <StatusChip status={hStatus} />
-                                </div>
-                            ) : (
-                                <p className="m-0 text-[15px] font-bold flex items-center gap-2">
-                                    <Icon name="CircleCheck" size={20} />
-                                    {t('home.noHauls', { id: HAUL.id })} <StatusChip status={hStatus} />
-                                </p>
+                            {gate(
+                                waiting ? (
+                                    <div className="flex flex-wrap items-center justify-between gap-3">
+                                        <span className="text-[16px] font-extrabold tabular">
+                                            {HAUL.id} · {t('unit.lot')} {HAUL.lot} · {HAUL.sacks} {t('unit.sacks')} ·{' '}
+                                            {HAUL.pickup}
+                                        </span>
+                                        <StatusChip status={hStatus} />
+                                    </div>
+                                ) : (
+                                    <p className="m-0 text-[15px] font-bold flex items-center gap-2">
+                                        <Icon name="CircleCheck" size={20} />
+                                        {t('home.noHauls', { id: HAUL.id })} <StatusChip status={hStatus} />
+                                    </p>
+                                )
                             )}
                         </Panel>
                         <Panel
@@ -143,51 +157,65 @@ export function CoordinatorHomeScreen() {
                             </p>
                         </Panel>
                         <Panel id="h-orders" title={t('home.orders')} href="/buyer/orders" cta={t('home.openBuyer')}>
-                            {orders === 0 ? (
-                                <Note>{t('home.noOrders')}</Note>
-                            ) : (
-                                <ul className="flex flex-col gap-2" aria-live="polite">
-                                    {s.riceOrders.map((o) => (
-                                        <li
-                                            key={o.id}
-                                            className="flex flex-wrap items-center justify-between gap-2 tabular"
-                                        >
-                                            <span className="text-[15px] font-bold">
-                                                {o.id} · {t('buyer.type.' + o.type)} · {o.sacks} {t('unit.sacks')} ·{' '}
-                                                {o.week} · {peso(o.total)}
-                                            </span>
-                                            <StatusChip status="requested" />
-                                        </li>
-                                    ))}
-                                    {s.commitments.map((c) => (
-                                        <li
-                                            key={c.id}
-                                            className="flex flex-wrap items-center justify-between gap-2 tabular"
-                                        >
-                                            <span className="text-[15px] font-bold">
-                                                {c.id} · {t('buyer.type.miller')} · {c.tonnes} {t('unit.t')} ·{' '}
-                                                {c.window.join('-')}
-                                            </span>
-                                            <StatusChip status="matched" />
-                                        </li>
-                                    ))}
-                                </ul>
+                            {gate(
+                                orders === 0 ? (
+                                    <Note>{t('home.noOrders')}</Note>
+                                ) : (
+                                    <ul className="flex flex-col gap-2" aria-live="polite">
+                                        {riceOrders.map((o) => (
+                                            <li
+                                                key={o.id}
+                                                className="flex flex-wrap items-center justify-between gap-2 tabular"
+                                            >
+                                                <ZLink
+                                                    href="/buyer/orders"
+                                                    className="text-[15px] font-bold text-[var(--text-accent)] underline underline-offset-4 min-h-[40px] inline-flex items-center"
+                                                >
+                                                    {o.id} · {t('buyer.type.' + o.type)} · {o.sacks} {t('unit.sacks')} ·{' '}
+                                                    {o.week} · {peso(o.total)}
+                                                </ZLink>
+                                                <StatusChip status="requested" />
+                                            </li>
+                                        ))}
+                                        {commitments.map((c) => (
+                                            <li
+                                                key={c.id}
+                                                className="flex flex-wrap items-center justify-between gap-2 tabular"
+                                            >
+                                                <ZLink
+                                                    href="/buyer/orders"
+                                                    className="text-[15px] font-bold text-[var(--text-accent)] underline underline-offset-4 min-h-[40px] inline-flex items-center"
+                                                >
+                                                    {c.id} · {t('buyer.type.miller')} · {c.tonnes} {t('unit.t')} ·{' '}
+                                                    {c.window.join('-')}
+                                                </ZLink>
+                                                <StatusChip status="matched" />
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )
                             )}
                         </Panel>
                         <Panel id="h-sms" title={t('home.replies')} href="/sms" cta={t('home.openSms')}>
-                            <div aria-live="polite" className="flex flex-wrap items-center gap-2">
-                                <span className="text-[15px] font-bold">
-                                    {lastReply
-                                        ? t('home.lastReply', { farm: lastReply.farm, text: lastReply.text })
-                                        : t('home.noReplies')}
-                                </span>
-                                <StatusChip
-                                    status={
-                                        slot === 'confirmed' ? 'paid' : slot === 'move-requested' ? 'pending' : 'open'
-                                    }
-                                    label={t('slot.' + slot, { id: SLOT.id })}
-                                />
-                            </div>
+                            {gate(
+                                <div aria-live="polite" className="flex flex-wrap items-center gap-2">
+                                    <span className="text-[15px] font-bold">
+                                        {lastReply
+                                            ? t('home.lastReply', { farm: lastReply.farm, text: lastReply.text })
+                                            : t('home.noReplies')}
+                                    </span>
+                                    <StatusChip
+                                        status={
+                                            slot === 'confirmed'
+                                                ? 'paid'
+                                                : slot === 'move-requested'
+                                                  ? 'pending'
+                                                  : 'open'
+                                        }
+                                        label={t('slot.' + slot, { id: SLOT.id })}
+                                    />
+                                </div>
+                            )}
                         </Panel>
                     </div>
                 </div>

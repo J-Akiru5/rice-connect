@@ -217,6 +217,16 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     'haul.free': ['Available', 'Bakante', 'Bakante'],
     'haul.trips': ['{n} trip(s) · {price}', '{n} biyahe · {price}', '{n} ka biyahe · {price}'],
     'haul.overridden': ['Coordinator override', 'Pinalitan ng coordinator', 'Ginbaylo sang coordinator'],
+    'haul.overrideNote': [
+        'Override history: {from} → {to}',
+        'Kasaysayan ng pagpalit: {from} → {to}',
+        'Kasaysayan sang pagkambyo: {from} → {to}'
+    ],
+    'haul.reassigned': [
+        'Haul {id} reassigned to {driver}',
+        'Inilipat ang hakot {id} kay {driver}',
+        'Ginbalhin ang hakot {id} kay {driver}'
+    ],
     'haul.close': ['Close List', 'Isara ang Listahan', 'Isira ang Listahan'],
     'haul.delivered': ['Mark Delivered', 'Markahang Naihatid', 'Markahan nga Naihatod'],
     'haul.notSent': ['Not sent yet', 'Hindi pa naipapadala', 'Wala pa napadala'],

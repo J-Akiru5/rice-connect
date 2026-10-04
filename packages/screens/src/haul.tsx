@@ -17,8 +17,6 @@ import {
     useToast
 } from '@rc/ui';
 import { ModuleShell } from './shell';
-import { useDemoState, updateDemoState } from '@rc/store/react';
-import { haulStatus, setHaul } from '@rc/store';
 import { useHaulStatus, useSetHaulStatus } from '@rc/data';
 import { DRIVERS, DRYER, HAUL, HERO_LOT, KG_PER_SACK, SLOT, VEHICLES, vehicleOf } from '@rc/domain/seed';
 import { autoAssign, tripsFor, type Driver } from '@rc/domain/assign';
@@ -58,28 +56,47 @@ export function HaulCoordinatorScreen({
     status?: HaulStatus;
 }) {
     const { t } = useI18n();
+    const toast = useToast();
     const [view, setView] = useState<'form' | 'card' | 'empty' | 'error' | 'success'>(
         state === 'default' ? 'card' : state
     );
     const [sacks, setSacks] = useState(HAUL.sacks);
     const [driver, setDriver] = useState<Driver | null>(HAUL.driver);
-    const [overridden, setOverridden] = useState(false);
+    const [base] = useState<Driver | null>(HAUL.driver);
     const [listOpen, setListOpen] = useState(false);
-    const shared = haulStatus(useDemoState(), HAUL.id);
+    const sharedQuery = useHaulStatus(HAUL.id);
+    const shared: HaulStatus = sharedQuery.data ?? 'assigned';
     const status: HaulStatus = forced ?? (view === 'form' ? 'requested' : shared);
+    const overridden = Boolean(driver && base && driver.id !== base.id);
 
     const send = () => {
         const d = autoAssign(sacks, DRIVERS, VEHICLES);
         setDriver(d);
-        setOverridden(false);
         setView(d ? 'card' : 'error');
     };
     const pick = (d: Driver) => {
+        const previous = driver;
         setDriver(d);
-        setOverridden(true);
         setListOpen(false);
+        if (previous && previous.id !== d.id)
+            toast.show(t('haul.reassigned', { id: HAUL.id, driver: d.name }), {
+                label: t('action.undo'),
+                onClick: () => setDriver(previous)
+            });
     };
 
+    if (!forced && sharedQuery.isPending)
+        return (
+            <ModuleShell title="haul.title" active="logistics">
+                <LoadingState rows={3} />
+            </ModuleShell>
+        );
+    if (!forced && sharedQuery.isError)
+        return (
+            <ModuleShell title="haul.title" active="logistics">
+                <ErrorState onRetry={() => void sharedQuery.refetch()} />
+            </ModuleShell>
+        );
     if (view === 'empty')
         return (
             <ModuleShell title="haul.title" active="logistics">
@@ -266,6 +283,11 @@ export function HaulCoordinatorScreen({
                                 />
                             )}
                             {overridden && <StatusChip status="assigned" label="haul.overridden" kind="warning" hard />}
+                            {overridden && driver && base && (
+                                <p className="m-0 text-[14px] font-bold text-black tabular">
+                                    {t('haul.overrideNote', { from: base.name, to: driver.name })}
+                                </p>
+                            )}
                             {driver && v && (
                                 <div className="hard-thin p-3 flex flex-col gap-1.5">
                                     <Row label={t('haul.eta')}>{HAUL.pickup}</Row>
