@@ -68,7 +68,9 @@ export {
     FieldError,
     SubmitButton,
     FormErrorSummary,
+    Controller,
+    useForm,
     zodResolver
 } from './kit';
-export type { FieldRenderProps } from './kit';
+export type { FieldRenderProps, Resolver } from './kit';
 export type { KitTone, ToastAction } from './kit';

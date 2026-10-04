@@ -10,5 +10,6 @@ export { Popover } from './Popover';
 export { Tooltip } from './Tooltip';
 export { LoadingState, ErrorState, ForbiddenState, OfflineBanner, RefreshMarker } from './states';
 export { Form, Field, FieldError, SubmitButton, FormErrorSummary } from './form';
-export type { FieldRenderProps } from './form';
+export { Controller, useForm } from './form';
+export type { FieldRenderProps, Resolver } from './form';
 export { zodResolver } from './zod-resolver';

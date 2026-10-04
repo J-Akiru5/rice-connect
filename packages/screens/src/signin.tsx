@@ -1,24 +1,29 @@
 'use client';
-import { useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useId, useState, type ReactNode } from 'react';
 import {
     ACCOUNTS,
     ApplicationLogo,
     Checkbox,
+    Controller,
     DemoChip,
+    Field,
+    Form,
     Icon,
     InputError,
-    InputLabel,
     LanguageSwitcher,
     PrimaryButton,
     SecondaryButton,
+    SubmitButton,
     TeamFooter,
     TextInput,
     ThemeToggle,
     ZLink,
     auth,
     tx,
+    useForm,
     useI18n,
-    useZoneNav
+    useZoneNav,
+    type Resolver
 } from '@rc/ui';
 import type { SessionRole } from '@rc/store';
 import { useDemoState } from '@rc/store/react';
@@ -29,10 +34,10 @@ import { VEHICLES } from '@rc/domain/seed';
 
 /* Sign In / Sign Up, one pair per app (prototype addition, docs/DECISIONS.md M23): /login + /signup (coordinator),
    /buyer/login + /buyer/signup, /driver/login + /driver/signup, /farmer/login + /farmer/signup, /admin/login.
-   Split layout: brand panel left (desktop), form right. Production-shaped: labelled fields, autocomplete hints,
-   inline errors, focus on the first invalid field, loading state, server-error slot. The form talks only to the
-   AuthAdapter (`auth` from @rc/ui), which is the mock today: nothing typed is kept, and it signs in as the app's
-   one demo identity. */
+   Split layout: brand panel left (desktop), form right. Built on the form kit (D-03): labelled fields, inline
+   errors from the domain checks (i18n keys), focus on the first invalid field, locked submit while pending.
+   The form talks only to the AuthAdapter (`auth` from @rc/ui), which is the mock today: nothing typed is kept,
+   and it signs in as the app's one demo identity. */
 export type AuthMode = 'signin' | 'signup';
 type Field = {
     name: string;
@@ -41,6 +46,16 @@ type Field = {
     autoComplete?: string;
     options?: { value: string; label: string }[];
     hint?: string;
+};
+
+type AuthFormValues = {
+    identifier: string;
+    password: string;
+    name?: string;
+    buyerType?: string;
+    vehicle?: string;
+    barangay?: string;
+    consent?: boolean;
 };
 
 /* The extra sign-up fields for each app (besides the identifier, password and consent). */
@@ -81,6 +96,33 @@ function profileFields(role: SessionRole, t: (k: string) => string): Field[] {
     }
 }
 
+/** The domain checks (tested in @rc/domain/auth-form) as an RHF resolver: messages are i18n keys. */
+function makeResolver(
+    fields: Field[],
+    signup: boolean,
+    account: (typeof ACCOUNTS)[SessionRole]
+): Resolver<AuthFormValues> {
+    return async (values) => {
+        const errors: Record<string, { type: string; message: string }> = {};
+        for (const f of fields) {
+            const x = values[f.name as keyof AuthFormValues];
+            const s = typeof x === 'string' ? x : '';
+            const key =
+                f.name === 'identifier'
+                    ? checkIdentifier(account.identifier, s)
+                    : f.name === 'password'
+                      ? checkPassword(s, signup)
+                      : checkRequired(s);
+            if (key) errors[f.name] = { type: 'validation', message: key };
+        }
+        if (signup) {
+            const key = checkConsent(values.consent === true);
+            if (key) errors.consent = { type: 'validation', message: key };
+        }
+        return Object.keys(errors).length > 0 ? { values: {}, errors: errors as never } : { values, errors: {} };
+    };
+}
+
 export function AuthScreen({ role, mode }: { role: SessionRole; mode: AuthMode }) {
     const { t } = useI18n();
     const nav = useZoneNav();
@@ -88,7 +130,8 @@ export function AuthScreen({ role, mode }: { role: SessionRole; mode: AuthMode }
     const signup = mode === 'signup' && a.signUp !== null;
     const current = useDemoState().session[role];
     const uid = useId();
-    const formRef = useRef<HTMLFormElement>(null);
+    const [showPw, setShowPw] = useState(false);
+    const [formError, setFormError] = useState<string | null>(null);
 
     const idField: Field =
         a.identifier === 'email'
@@ -109,128 +152,47 @@ export function AuthScreen({ role, mode }: { role: SessionRole; mode: AuthMode }
     };
     const fields = signup ? [...profileFields(role, t), idField, pwField] : [idField, pwField];
 
-    const [values, setValues] = useState<Record<string, string>>({});
-    const [consent, setConsent] = useState(false);
-    const [errors, setErrors] = useState<Record<string, string | null>>({});
-    const [submitted, setSubmitted] = useState(false);
-    const [busy, setBusy] = useState(false);
-    const [formError, setFormError] = useState<string | null>(null);
-    const [showPw, setShowPw] = useState(false);
+    const form = useForm<AuthFormValues>({
+        defaultValues: {
+            identifier: '',
+            password: '',
+            name: '',
+            buyerType: '',
+            vehicle: '',
+            barangay: '',
+            consent: false
+        },
+        resolver: makeResolver(fields, signup, a),
+        mode: 'onSubmit',
+        reValidateMode: 'onChange'
+    });
 
-    const check = (v: Record<string, string>, c: boolean) => {
-        const e: Record<string, string | null> = {};
-        for (const f of fields) {
-            const x = v[f.name] ?? '';
-            e[f.name] =
-                f.name === 'identifier'
-                    ? checkIdentifier(a.identifier, x)
-                    : f.name === 'password'
-                      ? checkPassword(x, signup)
-                      : checkRequired(x);
-        }
-        if (signup) e.consent = checkConsent(c);
-        return e;
-    };
-    const set = (name: string, v: string) => {
-        const next = { ...values, [name]: v };
-        setValues(next);
-        if (submitted) setErrors(check(next, consent));
-    };
-    const setC = (c: boolean) => {
-        setConsent(c);
-        if (submitted) setErrors(check(values, c));
-    };
-
-    const submit = async (ev: FormEvent) => {
-        ev.preventDefault();
-        setSubmitted(true);
+    const onValid = async (values: AuthFormValues) => {
         setFormError(null);
-        const e = check(values, consent);
-        setErrors(e);
-        const first = Object.keys(e).find((k) => e[k]);
-        if (first) {
-            formRef.current?.querySelector<HTMLElement>(`[name="${first}"]`)?.focus();
-            return;
-        }
-        setBusy(true);
-        const identifier =
-            a.identifier === 'mobile' ? toE164(values.identifier ?? '') : (values.identifier ?? '').trim();
-        const { identifier: _i, password: passwordRaw, name = '', ...profile } = values;
-        const password = passwordRaw ?? '';
+        const identifier = a.identifier === 'mobile' ? toE164(values.identifier) : values.identifier.trim();
+        const { identifier: _i, password, consent: _c, name = '', ...profile } = values;
         const res = signup
             ? await auth.signUp(role, { identifier, password, name: name.trim(), profile })
             : await auth.signIn(role, { identifier, password });
         if (!res.ok) {
-            setBusy(false);
             setFormError(t(`auth.err.${res.code}`));
             return;
         }
         nav(a.home);
     };
 
-    const input = (f: Field) => {
-        const id = `${uid}-${f.name}`;
-        const err = errors[f.name];
-        const describedBy = [f.hint && `${id}-hint`, err && `${id}-err`].filter(Boolean).join(' ') || undefined;
-        const common = {
-            id,
-            name: f.name,
-            value: values[f.name] ?? '',
-            'aria-invalid': err ? true : undefined,
-            'aria-describedby': describedBy,
-            required: true
-        };
-        return (
-            <div key={f.name} className="flex flex-col">
-                <div className="flex items-end justify-between gap-2">
-                    <InputLabel htmlFor={id}>{t(f.label)}</InputLabel>
-                    {f.kind === 'password' && (
-                        <button
-                            type="button"
-                            onClick={() => setShowPw((s) => !s)}
-                            aria-controls={id}
-                            aria-pressed={showPw}
-                            className="mb-1 inline-flex items-center gap-1.5 min-h-[40px] px-2 rounded-full text-[13px] font-extrabold uppercase tracking-[0.06em] text-[var(--text-accent)]"
-                        >
-                            <Icon name={showPw ? 'EyeOff' : 'Eye'} size={20} />
-                            {t(showPw ? 'auth.pw.hide' : 'auth.pw.show')}
-                        </button>
-                    )}
-                </div>
-                {f.kind === 'select' ? (
-                    <select {...common} onChange={(e) => set(f.name, e.target.value)} className="input-2026 !text-base">
-                        <option value="">{t('auth.select')}</option>
-                        {f.options!.map((o) => (
-                            <option key={o.value} value={o.value}>
-                                {o.label}
-                            </option>
-                        ))}
-                    </select>
-                ) : (
-                    <TextInput
-                        {...common}
-                        onChange={(e) => set(f.name, e.target.value)}
-                        autoComplete={f.autoComplete}
-                        type={f.kind === 'password' ? (showPw ? 'text' : 'password') : f.kind}
-                        inputMode={f.kind === 'tel' ? 'tel' : f.kind === 'email' ? 'email' : undefined}
-                        placeholder={
-                            f.kind === 'email' ? 'name@example.com' : f.kind === 'tel' ? '09XX XXX XXXX' : undefined
-                        }
-                        className="!text-base"
-                    />
-                )}
-                {f.hint && (
-                    <p
-                        id={`${id}-hint`}
-                        className="m-0 mt-2 text-[14px] leading-5 font-medium text-[var(--text-secondary)]"
-                    >
-                        {t(f.hint)}
-                    </p>
-                )}
-                <InputError id={`${id}-err`} message={err ? t(err) : undefined} />
-            </div>
-        );
-    };
+    const showPwButton = (
+        <button
+            type="button"
+            onClick={() => setShowPw((s) => !s)}
+            aria-controls="auth-password"
+            aria-pressed={showPw}
+            className="mb-1 inline-flex items-center gap-1.5 min-h-[40px] px-2 rounded-full text-[13px] font-extrabold uppercase tracking-[0.06em] text-[var(--text-accent)]"
+        >
+            <Icon name={showPw ? 'EyeOff' : 'Eye'} size={20} />
+            {t(showPw ? 'auth.pw.hide' : 'auth.pw.show')}
+        </button>
+    );
 
     const title = signup ? t('auth.signup.h', { app: t(a.name) }) : t('auth.signin.h');
     const sub = signup ? t(a.about) : t('auth.signin.sub', { app: t(a.name) });
@@ -299,11 +261,10 @@ export function AuthScreen({ role, mode }: { role: SessionRole; mode: AuthMode }
                                 </div>
                             </div>
                         ) : (
-                            <form
-                                ref={formRef}
-                                noValidate
-                                onSubmit={submit}
-                                aria-busy={busy}
+                            <Form
+                                form={form}
+                                onSubmit={onValid}
+                                busy={form.formState.isSubmitting}
                                 className="flex flex-col gap-5"
                             >
                                 {formError && (
@@ -315,40 +276,101 @@ export function AuthScreen({ role, mode }: { role: SessionRole; mode: AuthMode }
                                         {formError}
                                     </p>
                                 )}
-                                {fields.map(input)}
+                                {fields.map((f) => (
+                                    <Field
+                                        key={f.name}
+                                        name={f.name}
+                                        label={t(f.label)}
+                                        hint={f.hint ? t(f.hint) : undefined}
+                                        labelAside={f.kind === 'password' ? showPwButton : undefined}
+                                    >
+                                        {({ value, onChange, onBlur, name, invalid, describedBy }) =>
+                                            f.kind === 'select' ? (
+                                                <select
+                                                    id={`auth-${name}`}
+                                                    name={name}
+                                                    value={value}
+                                                    onChange={(e) => onChange(e.target.value)}
+                                                    onBlur={onBlur}
+                                                    aria-invalid={invalid}
+                                                    aria-describedby={describedBy}
+                                                    required
+                                                    className="input-2026 !text-base"
+                                                >
+                                                    <option value="">{t('auth.select')}</option>
+                                                    {f.options?.map((o) => (
+                                                        <option key={o.value} value={o.value}>
+                                                            {o.label}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            ) : (
+                                                <TextInput
+                                                    id={`auth-${name}`}
+                                                    name={name}
+                                                    value={value}
+                                                    onChange={(e) => onChange(e.target.value)}
+                                                    onBlur={onBlur}
+                                                    aria-invalid={invalid}
+                                                    aria-describedby={describedBy}
+                                                    required
+                                                    autoComplete={f.autoComplete}
+                                                    type={
+                                                        f.kind === 'password' ? (showPw ? 'text' : 'password') : f.kind
+                                                    }
+                                                    inputMode={
+                                                        f.kind === 'tel'
+                                                            ? 'tel'
+                                                            : f.kind === 'email'
+                                                              ? 'email'
+                                                              : undefined
+                                                    }
+                                                    placeholder={
+                                                        f.kind === 'email'
+                                                            ? 'name@example.com'
+                                                            : f.kind === 'tel'
+                                                              ? '09XX XXX XXXX'
+                                                              : undefined
+                                                    }
+                                                    className="!text-base"
+                                                />
+                                            )
+                                        }
+                                    </Field>
+                                ))}
                                 {signup && (
-                                    <div className="flex flex-col">
-                                        <Checkbox
-                                            name="consent"
-                                            checked={consent}
-                                            onCheckedChange={setC}
-                                            label={t('auth.consent')}
-                                            invalid={!!errors.consent}
-                                            describedBy={errors.consent ? `${uid}-consent-err` : undefined}
-                                        />
-                                        <InputError
-                                            id={`${uid}-consent-err`}
-                                            message={errors.consent ? t(errors.consent) : undefined}
-                                        />
-                                    </div>
+                                    <Controller
+                                        name="consent"
+                                        control={form.control}
+                                        render={({ field, fieldState }) => (
+                                            <div className="flex flex-col">
+                                                <Checkbox
+                                                    name="consent"
+                                                    checked={field.value === true}
+                                                    onCheckedChange={(c) => field.onChange(c)}
+                                                    label={t('auth.consent')}
+                                                    invalid={Boolean(fieldState.error)}
+                                                    describedBy={fieldState.error ? `${uid}-consent-err` : undefined}
+                                                />
+                                                <InputError
+                                                    id={`${uid}-consent-err`}
+                                                    message={
+                                                        fieldState.error?.message
+                                                            ? t(String(fieldState.error.message))
+                                                            : undefined
+                                                    }
+                                                />
+                                            </div>
+                                        )}
+                                    />
                                 )}
-                                <PrimaryButton
-                                    type="submit"
+                                <SubmitButton
                                     icon={signup ? 'Plus' : 'LogIn'}
-                                    disabled={busy}
                                     className="w-full justify-center"
-                                >
-                                    {t(
-                                        busy
-                                            ? signup
-                                                ? 'auth.busy.signup'
-                                                : 'auth.busy.signin'
-                                            : signup
-                                              ? 'auth.cta.signup'
-                                              : 'signin.cta'
-                                    )}
-                                </PrimaryButton>
-                            </form>
+                                    label={t(signup ? 'auth.cta.signup' : 'signin.cta')}
+                                    pendingLabel={t(signup ? 'auth.busy.signup' : 'auth.busy.signin')}
+                                />
+                            </Form>
                         )}
                         <SwitchLine role={role} signup={signup} />
                         <p className="m-0 flex items-start gap-2 text-[14px] leading-5 font-medium text-[var(--text-secondary)]">

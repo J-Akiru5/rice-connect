@@ -13,6 +13,9 @@ import PrimaryButton from '../Components/PrimaryButton';
 import InputError from '../Components/InputError';
 import { cx } from './cx';
 
+export { Controller, useForm } from 'react-hook-form';
+export type { Resolver } from 'react-hook-form';
+
 /** RHF + Zod form kit: labels, hints, aria-describedby wiring, focus on the first invalid field,
     a submit button that locks while pending (double-submit protection) and an error summary. */
 
@@ -20,10 +23,12 @@ export function Form<T extends FieldValues>({
     form,
     onSubmit,
     children,
+    busy = false,
     className
 }: PropsWithChildren<{
     form: UseFormReturn<T>;
     onSubmit: (values: T) => void | Promise<void>;
+    busy?: boolean;
     className?: string;
 }>) {
     const focusField = (name: string) => document.querySelector<HTMLElement>(`[name="${name}"]`)?.focus();
@@ -31,6 +36,7 @@ export function Form<T extends FieldValues>({
         <FormProvider {...form}>
             <form
                 noValidate
+                aria-busy={busy}
                 className={className}
                 onSubmit={async (e) => {
                     e.preventDefault();
@@ -59,12 +65,14 @@ export function Field({
     name,
     label,
     hint,
+    labelAside,
     children,
     className
 }: {
     name: string;
     label: string;
     hint?: string;
+    labelAside?: ReactNode;
     children: (field: FieldRenderProps) => ReactNode;
     className?: string;
 }) {
@@ -82,7 +90,10 @@ export function Field({
                 const describedBy = [error ? errId : null, hint ? hintId : null].filter(Boolean).join(' ') || undefined;
                 return (
                     <label className={cx('flex flex-col gap-1.5 min-w-0', className)}>
-                        <span className="text-[13px] font-extrabold uppercase tracking-[0.06em]">{label}</span>
+                        <span className="flex items-end justify-between gap-2">
+                            <span className="text-[13px] font-extrabold uppercase tracking-[0.06em]">{label}</span>
+                            {labelAside}
+                        </span>
                         {hint && (
                             <span id={hintId} className="text-[13px] font-semibold text-[var(--text-secondary)]">
                                 {hint}
@@ -113,11 +124,21 @@ export function FieldError({ name }: { name: string }) {
     return <p className="m-0 text-[13px] font-bold text-[var(--danger-ink)]">{t(String(error))}</p>;
 }
 
-export function SubmitButton({ label, pendingLabel }: { label: string; pendingLabel: string }) {
+export function SubmitButton({
+    label,
+    pendingLabel,
+    icon,
+    className
+}: {
+    label: string;
+    pendingLabel: string;
+    icon?: string;
+    className?: string;
+}) {
     const { control } = useFormContext();
     const { isSubmitting } = useFormState({ control });
     return (
-        <PrimaryButton type="submit" disabled={isSubmitting} aria-busy={isSubmitting}>
+        <PrimaryButton type="submit" icon={icon} disabled={isSubmitting} aria-busy={isSubmitting} className={className}>
             {isSubmitting ? pendingLabel : label}
         </PrimaryButton>
     );
