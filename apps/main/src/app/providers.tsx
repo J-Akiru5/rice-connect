@@ -1,6 +1,6 @@
 'use client';
 import { PropsWithChildren } from 'react';
-import { I18nProvider, ZoneProvider, setAssets } from '@rc/ui';
+import { EnvironmentRibbon, I18nProvider, ZoneProvider, setAssets } from '@rc/ui';
 
 /* No basePath: public files are at the root. */
 setAssets({
@@ -14,7 +14,10 @@ setAssets({
 export function Providers({ children }: PropsWithChildren) {
   return (
     <ZoneProvider zone="main">
-      <I18nProvider>{children}</I18nProvider>
+      <I18nProvider>
+        <EnvironmentRibbon />
+        {children}
+      </I18nProvider>
     </ZoneProvider>
   );
 }

@@ -14,6 +14,7 @@ export { default as DeliveryStatusStepper } from './Components/DeliveryStatusSte
 export { default as Icon, ICON_PATHS } from './Components/Icon';
 export { default as AppShell, PhoneShell, TeamFooter, AccountButton } from './Components/AppShell';
 export { default as ThemeToggle } from './Components/ThemeToggle';
+export { default as EnvironmentRibbon } from './Components/EnvironmentRibbon';
 export { default as PhoneStage } from './Components/PhoneStage';
 export { default as Pagination } from './Components/Pagination';
 export {
