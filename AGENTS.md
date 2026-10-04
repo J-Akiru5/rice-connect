@@ -11,7 +11,7 @@ RiceConnect helps a farmer cluster in Dingle, Iloilo plan harvests, dry palay, h
 - **Money** in integer centavos, shown as ₱ with 2 decimals. Units always shown (kg, ₱/kg, t, sacks). Dates in UTC on the wire, shown in Asia/Manila.
 - **Numbers:** never invent figures. Assumptions go in `src/data/overrides.json` and `docs/NUMBERS.md`, labelled "assumed", and are shown as assumed in the UI.
 - **Scope:** no feature without a ticket. If unsure, ask.
-- **Browsers:** Playwright runs only in GitHub Actions. Agent sessions never run browsers or download them.
+- **Browsers:** Playwright E2E runs in GitHub Actions on every PR. Agent sessions may also run Playwright browsers locally for visual checks (owner decision M37); never commit browsers or test artifacts.
 
 ## Architecture rules
 
