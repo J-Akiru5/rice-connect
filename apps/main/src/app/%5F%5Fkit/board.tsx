@@ -1,6 +1,20 @@
 'use client';
 import { useState } from 'react';
-import { AlertDialog, Dialog, Menu, MenuItem, MenuSeparator, PrimaryButton, SecondaryButton, useI18n } from '@rc/ui';
+import {
+  AlertDialog,
+  Checkbox,
+  Dialog,
+  Menu,
+  MenuItem,
+  MenuSeparator,
+  PrimaryButton,
+  RadioGroup,
+  SecondaryButton,
+  Select,
+  Switch,
+  Tabs,
+  useI18n
+} from '@rc/ui';
 
 /* Development board for the UI kit (K-01). Every wrapper gets a section here as it lands. */
 export function KitBoard() {
@@ -9,6 +23,11 @@ export function KitBoard() {
   const [hard, setHard] = useState(false);
   const [alert, setAlert] = useState(false);
   const [done, setDone] = useState('');
+  const [checked, setChecked] = useState(false);
+  const [on, setOn] = useState(false);
+  const [vehicle, setVehicle] = useState('truck-a');
+  const [week, setWeek] = useState<string | undefined>(undefined);
+  const [tab, setTab] = useState('w1');
   return (
     <main className="mx-auto max-w-[1200px] p-6 flex flex-col gap-6">
       <h1 className="text-[24px] font-extrabold">{t('kit.title')}</h1>
@@ -62,6 +81,44 @@ export function KitBoard() {
             <MenuItem disabled>Disabled action</MenuItem>
           </Menu>
         </div>
+      </section>
+
+      <section className="glass-panel rounded-[1.5rem] p-4 flex flex-col gap-4">
+        <h2 className="text-[18px] font-extrabold">Controls</h2>
+        <Checkbox checked={checked} onCheckedChange={setChecked} label="Add to cluster" hint="44px target on phone" />
+        <Switch checked={on} onCheckedChange={setOn} label="Only open slots" />
+        <RadioGroup
+          value={vehicle}
+          onValueChange={setVehicle}
+          label="Vehicle"
+          options={[
+            { value: 'truck-a', label: 'Truck A' },
+            { value: 'truck-b', label: 'Truck B' }
+          ]}
+        />
+        <div className="max-w-[240px]">
+          <Select
+            value={week}
+            onValueChange={setWeek}
+            label="Week"
+            placeholder="Pick a week"
+            options={[
+              { value: 'w1', label: 'Week 1' },
+              { value: 'w2', label: 'Week 2' },
+              { value: 'w3', label: 'Week 3' }
+            ]}
+          />
+        </div>
+        <Tabs
+          value={tab}
+          onValueChange={setTab}
+          label="Weeks"
+          items={[
+            { value: 'w1', label: 'W1' },
+            { value: 'w2', label: 'W2' },
+            { value: 'w3', label: 'W3' }
+          ]}
+        />
       </section>
 
       <section className="glass-panel rounded-[1.5rem] p-4 flex flex-col gap-3">

@@ -318,19 +318,14 @@ export function AuthScreen({ role, mode }: { role: SessionRole; mode: AuthMode }
                                 {fields.map(input)}
                                 {signup && (
                                     <div className="flex flex-col">
-                                        <label className="flex items-start gap-3 min-h-[44px] cursor-pointer">
-                                            <Checkbox
-                                                name="consent"
-                                                checked={consent}
-                                                onChange={(e) => setC(e.target.checked)}
-                                                aria-invalid={errors.consent ? true : undefined}
-                                                aria-describedby={errors.consent ? `${uid}-consent-err` : undefined}
-                                                className="shrink-0 mt-0.5"
-                                            />
-                                            <span className="text-[14px] leading-5 font-semibold">
-                                                {t('auth.consent')}
-                                            </span>
-                                        </label>
+                                        <Checkbox
+                                            name="consent"
+                                            checked={consent}
+                                            onCheckedChange={setC}
+                                            label={t('auth.consent')}
+                                            invalid={!!errors.consent}
+                                            describedBy={errors.consent ? `${uid}-consent-err` : undefined}
+                                        />
                                         <InputError
                                             id={`${uid}-consent-err`}
                                             message={errors.consent ? t(errors.consent) : undefined}
