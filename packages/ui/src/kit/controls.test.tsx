@@ -74,7 +74,7 @@ describe('Select', () => {
     it('opens from the keyboard and selects an option', async () => {
         const onPick = vi.fn();
         function Harness() {
-            const [value, setValue] = useState<string | undefined>(undefined);
+            const [value, setValue] = useState('');
             return (
                 <Select
                     value={value}

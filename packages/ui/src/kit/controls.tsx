@@ -128,7 +128,7 @@ export function Select<T extends string>({
     disabled = false,
     className
 }: {
-    value?: T;
+    value: T;
     onValueChange: (value: T) => void;
     label: string;
     options: { value: T; label: string }[];

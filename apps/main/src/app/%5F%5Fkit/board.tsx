@@ -13,12 +13,16 @@ import {
   Select,
   Switch,
   Tabs,
+  Tooltip,
+  Popover,
+  useToast,
   useI18n
 } from '@rc/ui';
 
 /* Development board for the UI kit (K-01). Every wrapper gets a section here as it lands. */
 export function KitBoard() {
   const { t } = useI18n();
+  const { show } = useToast();
   const [glass, setGlass] = useState(false);
   const [hard, setHard] = useState(false);
   const [alert, setAlert] = useState(false);
@@ -26,7 +30,7 @@ export function KitBoard() {
   const [checked, setChecked] = useState(false);
   const [on, setOn] = useState(false);
   const [vehicle, setVehicle] = useState('truck-a');
-  const [week, setWeek] = useState<string | undefined>(undefined);
+  const [week, setWeek] = useState('');
   const [tab, setTab] = useState('w1');
   return (
     <main className="mx-auto max-w-[1200px] p-6 flex flex-col gap-6">
@@ -119,6 +123,25 @@ export function KitBoard() {
             { value: 'w3', label: 'W3' }
           ]}
         />
+      </section>
+
+      <section className="glass-panel rounded-[1.5rem] p-4 flex flex-col gap-3">
+        <h2 className="text-[18px] font-extrabold">Toast, Popover, Tooltip</h2>
+        <div className="flex flex-wrap gap-2">
+          <SecondaryButton
+            onClick={() =>
+              show('Haul H-07 marked Delivered', { label: 'Undo', onClick: () => setDone('Haul undone.') })
+            }
+          >
+            Fire toast with Undo
+          </SecondaryButton>
+          <Popover trigger={<SecondaryButton>Open popover</SecondaryButton>}>
+            <p className="m-0 text-[15px] font-semibold">Popover body. Escape closes it.</p>
+          </Popover>
+          <Tooltip label="Sample tooltip">
+            <SecondaryButton>Hover or focus me</SecondaryButton>
+          </Tooltip>
+        </div>
       </section>
 
       <section className="glass-panel rounded-[1.5rem] p-4 flex flex-col gap-3">

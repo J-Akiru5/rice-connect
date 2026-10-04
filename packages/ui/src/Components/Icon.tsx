@@ -24,6 +24,7 @@ export const ICON_PATHS: Record<string, string> = {
     Van: '<path d="M13 6v5a1 1 0 0 0 1 1h6.102a1 1 0 0 1 .712.298l.898.91a1 1 0 0 1 .288.702V17a1 1 0 0 1-1 1h-3" /> <path d="M5 18H3a1 1 0 0 1-1-1V8a2 2 0 0 1 2-2h12c1.1 0 2.1.8 2.4 1.8l1.176 4.2" /> <path d="M9 18h5" /> <circle cx="16" cy="18" r="2" /> <circle cx="7" cy="18" r="2" />',
     Search: '<path d="m21 21-4.34-4.34" /> <circle cx="11" cy="11" r="8" />',
     Filter: '<path d="M10 5H3" /> <path d="M12 19H3" /> <path d="M14 3v4" /> <path d="M16 17v4" /> <path d="M21 12h-9" /> <path d="M21 19h-5" /> <path d="M21 5h-7" /> <path d="M8 10v4" /> <path d="M8 12H3" />',
+    TaskUndo: '<path d="M9 14 4 9l5-5" /> <path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11" />',
     Check: '<path d="M20 6 9 17l-5-5" />',
     X: '<path d="M18 6 6 18" /> <path d="m6 6 12 12" />',
     CircleCheck: '<circle cx="12" cy="12" r="10" /> <path d="m16 9-5.5 5.5L8 12" />',

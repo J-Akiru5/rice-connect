@@ -46,5 +46,17 @@ export type { Zone } from './lib/zone';
 export { ACCOUNTS, auth } from './lib/account';
 export type { Account } from './lib/account';
 export { cx, Dialog, AlertDialog, Menu, MenuItem, MenuSeparator } from './kit';
-export { Checkbox, RadioGroup, Select, Switch, Tabs, TabPanel, UrlTabs } from './kit';
-export type { KitTone } from './kit';
+export {
+    Checkbox,
+    RadioGroup,
+    Select,
+    Switch,
+    Tabs,
+    TabPanel,
+    UrlTabs,
+    ToastProvider,
+    useToast,
+    Popover,
+    Tooltip
+} from './kit';
+export type { KitTone, ToastAction } from './kit';

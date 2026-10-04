@@ -32,6 +32,7 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     ],
     'action.cancel': ['Cancel', 'Kanselahin', 'Kanselahon'],
     'action.confirm': ['Confirm', 'Kumpirmahin', 'Kumpirmahon'],
+    'action.close': ['Close', 'Isara', 'Isara'],
     'phone.net': ['4G', '4G', '4G'],
     'sms.chars': ['chars', 'mga karakter', 'mga karakter'],
     'slip.item': ['Item', 'Aytem', 'Butang'],

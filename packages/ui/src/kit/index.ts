@@ -4,3 +4,7 @@ export { Dialog } from './Dialog';
 export { AlertDialog } from './AlertDialog';
 export { Menu, MenuItem, MenuSeparator } from './Menu';
 export { Checkbox, RadioGroup, Select, Switch, Tabs, TabPanel, UrlTabs } from './controls';
+export { ToastProvider, useToast } from './Toast';
+export type { ToastAction } from './Toast';
+export { Popover } from './Popover';
+export { Tooltip } from './Tooltip';
