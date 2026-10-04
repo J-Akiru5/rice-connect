@@ -33,9 +33,19 @@ This repo is a **prototype** for a ~78 s demo video and slide screenshots. It is
 ## Monorepo
 
 - pnpm + Turborepo. `packages/`: `config` (tsconfig, eslint, tailwind preset, Next CLI wrapper), `ui` (design-system components, app.css, tokens), `domain` (seed, money, settlement, match, assign, buyers, pagination + tests), `i18n` (I18nProvider, STRINGS), `store` (DataAdapter + LocalAdapter: localStorage + BroadcastChannel).
-- Apps (Next.js multi-zones on ONE origin): `marketing` (gateway, `/`, `/launch`, rewrites + legacy redirects; zone domains in `apps/marketing/zones.mjs`), `coordinator` (`/coordinator`), `buyer` (`/buyer`), `driver` (`/driver`), `farmer` (`/farmer`). `apps/web` is the whole prototype as one app (fallback). `packages/screens` holds every screen.
-- Links: write the original URLs and use `ZLink` / `useZoneNav` from `@rc/ui`; cross-zone links become full page loads on the same origin. Shared runtime state goes through `@rc/store` only.
-- App routes are noindex (X-Robots-Tag); the marketing site is indexable. Every app route shows the DemoChip and the footer.
+- Four apps (Next.js multi-zones on ONE origin):
+  - `main`: public site (`/`, `/launch`) and the coordinator (`/coordinator/*`) in one app, no basePath. It is the origin users visit (Vercel project `rice-connect`). It rewrites `/buyer`, `/driver` and `/farmer` to their apps and redirects the legacy URLs.
+  - `buyer` (`/buyer`), `driver` (`/driver`), `farmer` (`/farmer`): own apps with a basePath. Their bare domain `/` redirects to the same page on the main origin.
+  - App domains are in `packages/config/zones.mjs`. `packages/screens` holds every screen. Don't add apps without asking.
+- Links: write the original URLs and use `ZLink` / `useZoneNav` from `@rc/ui`; links across apps become full page loads on the same origin. Shared runtime state goes through `@rc/store` only.
+- App routes (`/coordinator/*`, `/buyer`, `/driver`, `/farmer`) are noindex (X-Robots-Tag); the public site is indexable. Every app route shows the DemoChip and the footer.
+
+## Branches and deploys
+
+- Three long-lived branches: `main` (production), `staging` (the only preview), `develop` (integration).
+- Work on a feature branch from `develop`, then open a PR into `develop`. Promote with PRs only: `develop` → `staging` → `main`. Never push straight to `staging` or `main`.
+- Vercel builds `main` and `staging` only (`git.deploymentEnabled` in each `apps/*/vercel.json`). Other branches are checked by GitHub Actions CI (`.github/workflows/ci.yml`: lint, build, test, guard checks) on every PR and on pushes to `develop`.
+- Check the `staging` preview before opening the `staging` → `main` PR.
 
 ## Workflow
 

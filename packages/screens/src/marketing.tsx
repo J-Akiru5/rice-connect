@@ -5,7 +5,7 @@ import { resetDemoState } from '@rc/store/react';
 import { FARMS, TOTALS } from '@rc/domain/seed';
 import { BARANGAYS, MUNICIPALITY } from '@rc/domain/params';
 
-/* Public marketing site (apps/marketing "/" and "/launch"; derived, not in canvas). Built only from the design system:
+/* Public marketing site (apps/main "/" and "/launch"; derived, not in canvas). Built only from the design system:
    glass panels, tokens, line icons + a word. Every claim carries a label: Model (how the cluster is designed to work),
    Simulated (numbers from the prototype's seeded data), Assumed (placeholders in docs/NUMBERS.md). No form, no backend. */
 export const CONTACT_EMAIL = 'team@example.com'; // placeholder: replace with the team's address before sharing
