@@ -1,5 +1,5 @@
 import { parseSmsReply } from '@rc/domain/sms-reply';
-import type { DemoState, HaulStatus } from './types';
+import type { DemoState, HaulStatus, SessionRole } from './types';
 
 /* Pure state transitions shared by the apps (tested in actions.test.ts). */
 export const DEFAULT_HAUL: HaulStatus = 'assigned';
@@ -19,3 +19,11 @@ export function farmerReply(text: string, ids: { farm: string; slot: string; hau
     };
 }
 export const addFarm = (id: string) => (s: DemoState): DemoState => (s.farmsAdded.includes(id) ? s : { ...s, farmsAdded: [...s.farmsAdded, id] });
+
+/** Simulated sign-in: records which demo identity is signed in to an app. Nothing is checked; nothing leaves the browser. */
+export const signIn = (role: SessionRole, id: string) => (s: DemoState): DemoState => ({ ...s, session: { ...s.session, [role]: id } });
+export const signOut = (role: SessionRole) => (s: DemoState): DemoState => {
+    const session = { ...s.session };
+    delete session[role];
+    return { ...s, session };
+};

@@ -14,9 +14,9 @@ pnpm + Turborepo. Four apps, served on one origin through Next.js multi-zones.
 
 | Path | What | Port (local) | URL |
 |---|---|---|---|
-| `apps/main` | Public site (`/`, `/launch`, `/login` simulated sign-in), the **super admin** (`/admin`) **and** the coordinator app: Home, Farm Profile, Plan, Market, Dry, Logistics (Haul), Orders/Pay, `/demo`. The origin users visit; rewrites `/buyer`, `/driver`, `/farmer` and redirects the old URLs | 3000 | `/`, `/launch`, `/login`, `/admin/...`, `/coordinator/...` |
-| `apps/buyer` | Supply map, orders, commitments (basePath `/buyer`) | 3002 | `/buyer`, `/buyer/orders` |
-| `apps/driver` | Haul job (basePath `/driver`) | 3003 | `/driver` |
+| `apps/main` | Public site (`/`, `/launch`), the **super admin** (`/admin`, sign-in `/admin/login`) **and** the coordinator app (sign-in `/login`): Home, Farm Profile, Plan, Market, Dry, Logistics (Haul), Orders/Pay, `/demo`. The origin users visit; rewrites `/buyer`, `/driver`, `/farmer` and redirects the old URLs | 3000 | `/`, `/launch`, `/login`, `/admin/login`, `/admin/...`, `/coordinator/...` |
+| `apps/buyer` | Supply map, orders, commitments, own sign-in (basePath `/buyer`) | 3002 | `/buyer/login`, `/buyer`, `/buyer/orders` |
+| `apps/driver` | Haul job, own sign-in (basePath `/driver`) | 3003 | `/driver/login`, `/driver` |
 | `apps/farmer` | SMS inbox simulator with replies, slip viewer, no login (basePath `/farmer`) | 3004 | `/farmer`, `/farmer/slip` |
 | `packages/ui` | Design-system components, `app.css`, tokens (`design/tokens.json` → `src/styles/tokens.css`), `ZLink` | | |
 | `packages/domain` | Seed, money, settlement, match, assign, buyers, SMS reply parser, pagination + tests | | |

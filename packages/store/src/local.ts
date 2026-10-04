@@ -52,7 +52,7 @@ export class LocalAdapter implements DataAdapter {
     update = (fn: (s: DemoState) => DemoState) => this.set(fn(this.state), true);
     reset = () => {
         try { this.storage?.removeItem(LEGACY.orders); this.storage?.removeItem(LEGACY.commitments); } catch { /* blocked */ }
-        this.set(emptyState(), true);
+        this.set({ ...emptyState(), session: this.state.session }, true); // resetting the demo data keeps everyone signed in
     };
     /** Apply a state that arrived from another tab via the 'storage' event. */
     receive = (raw: string | null) => { const next = parse(raw) ?? (raw === null ? emptyState() : null); if (next) this.set(next, false); };
