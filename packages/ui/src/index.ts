@@ -23,5 +23,5 @@ export type { Lang } from '@rc/i18n';
 export { setAssets, ASSETS } from './lib/assets';
 export { ZoneProvider, ZLink, useZone, useZoneNav, resolveZone, gatewayPath, zoneHref, appOf } from './lib/zone';
 export type { Zone } from './lib/zone';
-export { ACCOUNTS } from './lib/account';
+export { ACCOUNTS, auth } from './lib/account';
 export type { Account } from './lib/account';

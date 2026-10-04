@@ -22,7 +22,7 @@ export const zoneOrigins = () => (process.env.RC_LOCAL === '1' ? LOCAL : PRODUCT
     - "/" opens the app's own page on the same host, so it works on production and on staging previews alike
       (before: "/" went to the main production origin, which 404s while production still runs an older build);
     - paths that belong to another app (/coordinator, /admin, /login, other zones, ...) go to the main origin. */
-const OTHER_PATHS = ['coordinator', 'admin', 'login', 'launch', 'buyer', 'driver', 'farmer'];
+const OTHER_PATHS = ['coordinator', 'admin', 'login', 'signup', 'launch', 'buyer', 'driver', 'farmer'];
 export const zoneRedirects = (zone) => [
   { source: '/', destination: `/${zone}`, basePath: false, permanent: false },
   ...OTHER_PATHS.filter((p) => p !== zone).flatMap((p) => [

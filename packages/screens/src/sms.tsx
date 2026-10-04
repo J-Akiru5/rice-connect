@@ -67,7 +67,7 @@ export function SmsScreen({ reply = false }: { reply?: boolean }) {
     );
     const last = SMS[SMS.length - 1];
     return (
-        <AppShell title="sms.title" active="sms">
+        <AppShell role="farmer" title="sms.title" active="sms">
             {/* Wide content: a desktop chat (derived, not in canvas). Conversation list left, the thread right. */}
             <div className="cq-wide-only glass-panel rounded-[1.5rem] overflow-hidden grid grid-cols-[minmax(240px,300px)_minmax(0,1fr)] min-h-[620px]">
                 <nav aria-label={t('sms.conversations')} className="border-r border-[color:var(--glass-border-strong)] flex flex-col">

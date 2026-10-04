@@ -85,7 +85,7 @@ export function MarketingShell({ children }: { children: React.ReactNode }) {
 function SiteFooter() {
     const { t } = useI18n();
     const cols: { h: string; links: [string, string][] }[] = [
-        { h: 'mk.foot.prototype', links: [[ACCOUNTS.coordinator.signIn, 'role.name.coordinator'], [ACCOUNTS.buyer.signIn, 'role.name.buyer'], [ACCOUNTS.driver.signIn, 'role.name.driver'], ['/farmer', 'mk.role.farmer.h'], [ACCOUNTS.admin.signIn, 'role.name.admin']] },
+        { h: 'mk.foot.prototype', links: [[ACCOUNTS.coordinator.signIn, 'role.name.coordinator'], [ACCOUNTS.buyer.signIn, 'role.name.buyer'], [ACCOUNTS.driver.signIn, 'role.name.driver'], [ACCOUNTS.farmer.signIn, 'mk.role.farmer.h'], [ACCOUNTS.admin.signIn, 'role.name.admin']] },
         { h: 'mk.foot.project', links: [['/#how', 'mk.nav.how'], ['/#status', 'mk.nav.status'], ['/#faq', 'mk.nav.faq'], ['/demo', 'mk.launch.demo.h']] },
         { h: 'mk.foot.contact', links: [[`mailto:${CONTACT_EMAIL}`, 'mk.contact'], ['/launch', 'mk.open'], ['/login', 'mk.login']] },
     ];
@@ -162,7 +162,7 @@ const STEPS = [
 const DOMAINS = [{ icon: 'Farm', k: 'supply' }, { icon: 'Market', k: 'demand' }, { icon: 'Logistics', k: 'logistics' }, { icon: 'Pay', k: 'payment' }];
 const ROLES = [
     { icon: 'User', k: 'coordinator', href: ACCOUNTS.coordinator.signIn }, { icon: 'Store', k: 'buyer', href: ACCOUNTS.buyer.signIn },
-    { icon: 'Truck', k: 'driver', href: ACCOUNTS.driver.signIn }, { icon: 'Sms', k: 'farmer', href: '/sms' },
+    { icon: 'Truck', k: 'driver', href: ACCOUNTS.driver.signIn }, { icon: 'Sms', k: 'farmer', href: ACCOUNTS.farmer.signIn },
 ];
 const FAQ = ['live', 'data', 'app', 'price', 'privacy', 'lang'];
 
@@ -289,8 +289,7 @@ const APPS = [
     { k: 'coordinator', icon: 'User', href: ACCOUNTS.coordinator.signIn, h: 'mk.role.coordinator.h', p: 'mk.launch.coordinator' },
     { k: 'buyer', icon: 'Store', href: ACCOUNTS.buyer.signIn, h: 'mk.role.buyer.h', p: 'mk.launch.buyer' },
     { k: 'driver', icon: 'Truck', href: ACCOUNTS.driver.signIn, h: 'mk.role.driver.h', p: 'mk.launch.driver' },
-    /* The farmer has no app sign-in: the farmer only uses SMS. */
-    { k: 'farmer', icon: 'Sms', href: '/sms', h: 'mk.role.farmer.h', p: 'mk.launch.farmer' },
+    { k: 'farmer', icon: 'Sms', href: ACCOUNTS.farmer.signIn, h: 'mk.role.farmer.h', p: 'mk.launch.farmer' },
     { k: 'admin', icon: 'Shield', href: ACCOUNTS.admin.signIn, h: 'login.admin.h', p: 'login.admin.p' },
 ];
 /** /launch: the four apps, the 78 s demo and "Reset demo data" (clears the shared store in this browser, all tabs). */
