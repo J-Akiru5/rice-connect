@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@fontsource/plus-jakarta-sans": "5.3.0",
+    "@rc/data": "workspace:*",
     "@rc/domain": "workspace:*",
     "@rc/i18n": "workspace:*",
     "@rc/store": "workspace:*",

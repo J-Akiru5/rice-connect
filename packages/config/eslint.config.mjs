@@ -55,7 +55,8 @@ const BOUNDARIES = {
     store: ['@rc/ui', '@rc/screens', '@rc/data', '@rc/config', 'next', 'next/*'],
     i18n: ['@rc/domain', '@rc/store', '@rc/ui', '@rc/screens', '@rc/data', '@rc/config', 'next', 'next/*'],
     ui: ['@rc/screens', '@rc/data', '@rc/config'],
-    screens: ['@rc/config', 'next/link']
+    screens: ['@rc/config', 'next/link'],
+    data: ['@rc/ui', '@rc/screens', '@rc/i18n', '@rc/config']
 };
 
 /* Storage is allowed in @rc/store, @rc/i18n and the theme module (@rc/ui); dialogs in @rc/ui. */
@@ -64,7 +65,8 @@ const LAYER_RULES = {
     store: { storage: false, syntax: false },
     i18n: { storage: false, syntax: false },
     ui: { storage: false, syntax: false },
-    screens: { storage: true, syntax: true }
+    screens: { storage: true, syntax: true },
+    data: { storage: true, syntax: true }
 };
 
 export function packageConfig(name) {
@@ -97,7 +99,7 @@ export default [
             'no-restricted-globals': ['error', ...CONFIRM_ALERT_PROMPT],
             'no-restricted-properties': ['error', ...STORAGE_PROPERTIES],
             'no-restricted-syntax': ['error', ...LINK_SELECTORS],
-            ...boundaryRules(['@rc/store', '@rc/data', 'next/link'])
+            ...boundaryRules(['@rc/store', 'next/link'])
         }
     },
     { ignores: APP_IGNORES }
