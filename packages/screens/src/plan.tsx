@@ -137,7 +137,7 @@ export function PlanScreen({ list }: { list?: ListState }) {
                                             >
                                                 <dt className="text-[13px] font-extrabold">{WEEKS[wi]}</dt>
                                                 <dd
-                                                    className={`relative h-11 rounded-xl overflow-hidden bg-[rgba(2,70,53,.08)] ${hl ? 'outline outline-[3px] outline-[color:var(--brand-gold)]' : ''}`}
+                                                    className={`relative h-11 rounded-xl overflow-hidden rc-bg-highlight ${hl ? 'outline outline-[3px] outline-[color:var(--brand-gold)]' : ''}`}
                                                 >
                                                     <span
                                                         className="absolute inset-y-0 left-0 bg-[var(--fill-strong)] opacity-90"

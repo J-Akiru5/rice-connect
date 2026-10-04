@@ -38,7 +38,7 @@ export default function Modal({
             onClick={(e) => {
                 if (e.target === ref.current && closeable) onClose();
             }}
-            className={`glass-panel rounded-[2rem] p-0 w-[calc(100%-2rem)] ${maxWidthClass} backdrop:bg-[rgba(2,44,34,.55)] backdrop:backdrop-blur-sm`}
+            className={`glass-panel rounded-[2rem] p-0 w-[calc(100%-2rem)] ${maxWidthClass} rc-scrim backdrop:backdrop-blur-sm`}
         >
             {show && children}
         </dialog>

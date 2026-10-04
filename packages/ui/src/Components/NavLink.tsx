@@ -20,7 +20,7 @@ export default function NavLink({
                 'relative flex items-center min-h-[44px] px-5 py-3 rounded-[1.5rem] text-[13px] font-extrabold uppercase tracking-[0.08em] transition-all duration-500 motion-reduce:transition-none overflow-hidden group ' +
                 (active
                     ? 'bg-[var(--fill-strong)] text-[var(--on-fill-strong)] shadow-[var(--shadow-nav-active)]'
-                    : 'text-[var(--ink)] hover:bg-[rgba(5,150,105,.1)]') +
+                    : 'text-[var(--ink)] rc-hover-accent') +
                 ' ' +
                 className
             }

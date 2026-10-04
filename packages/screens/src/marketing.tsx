@@ -94,7 +94,7 @@ export function MarketingShell({ children }: { children: React.ReactNode }) {
                             <a
                                 key={h}
                                 href={h}
-                                className="min-h-[40px] inline-flex items-center px-3 rounded-full text-[13px] font-extrabold uppercase tracking-[0.06em] whitespace-nowrap hover:bg-[rgba(5,150,105,.1)]"
+                                className="min-h-[40px] inline-flex items-center px-3 rounded-full text-[13px] font-extrabold uppercase tracking-[0.06em] whitespace-nowrap rc-hover-accent"
                             >
                                 {t(k)}
                             </a>
@@ -105,7 +105,7 @@ export function MarketingShell({ children }: { children: React.ReactNode }) {
                     <ThemeToggle className="hidden md:inline-flex whitespace-nowrap" />
                     <ZLink
                         href="/login"
-                        className="hidden lg:inline-flex items-center gap-2 min-h-[40px] px-4 rounded-full text-[13px] font-extrabold uppercase tracking-[0.06em] whitespace-nowrap hover:bg-[rgba(5,150,105,.1)]"
+                        className="hidden lg:inline-flex items-center gap-2 min-h-[40px] px-4 rounded-full text-[13px] font-extrabold uppercase tracking-[0.06em] whitespace-nowrap rc-hover-accent"
                     >
                         <Icon name="LogIn" size={20} />
                         <span>{t('mk.login')}</span>
@@ -139,7 +139,7 @@ export function MarketingShell({ children }: { children: React.ReactNode }) {
                                     key={h}
                                     href={h}
                                     onClick={() => setMenu(false)}
-                                    className="min-h-[44px] inline-flex items-center px-3 rounded-xl text-[15px] font-extrabold hover:bg-[rgba(5,150,105,.1)]"
+                                    className="min-h-[44px] inline-flex items-center px-3 rounded-xl text-[15px] font-extrabold rc-hover-accent"
                                 >
                                     {t(k)}
                                 </a>
@@ -302,7 +302,7 @@ function HarvestTracker() {
                     );
                 })}
             </ul>
-            <div className="flex items-center justify-between gap-3 flex-wrap px-5 py-3 border-t border-[color:var(--glass-border-strong)] bg-[rgba(5,150,105,.05)]">
+            <div className="flex items-center justify-between gap-3 flex-wrap px-5 py-3 border-t border-[color:var(--glass-border-strong)] rc-bg-accent-faint">
                 <span className="text-[13px] font-semibold text-[var(--text-secondary)]">{t('mk.tracker.foot')}</span>
                 <ZLink
                     href="/plan"

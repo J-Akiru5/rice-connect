@@ -278,7 +278,7 @@ export function CommitmentCard({
             </div>
             <div className="mt-3">
                 <div
-                    className="h-3 rounded-full bg-[rgba(2,44,34,.12)] overflow-hidden"
+                    className="h-3 rounded-full rc-bg-track overflow-hidden"
                     role="progressbar"
                     aria-valuenow={pct}
                     aria-valuemin={0}
@@ -429,7 +429,7 @@ export function HarvestCalendar({
                                         className="py-2 px-2 border-t border-[color:var(--glass-border-strong)] align-middle min-w-[120px]"
                                     >
                                         <div
-                                            className={`relative h-11 rounded-xl overflow-hidden bg-[rgba(2,70,53,.08)] ${hl ? 'outline outline-[3px] outline-[color:var(--brand-gold)]' : ''}`}
+                                            className={`relative h-11 rounded-xl overflow-hidden rc-bg-highlight ${hl ? 'outline outline-[3px] outline-[color:var(--brand-gold)]' : ''}`}
                                         >
                                             <div
                                                 className="absolute inset-y-0 left-0 bg-[var(--fill-strong)]"
@@ -512,7 +512,7 @@ export function SlotTimeline({
                     return (
                         <section key={d.day} className="min-w-0" aria-label={d.day}>
                             <h4 className="text-[13px] font-extrabold uppercase tracking-[0.08em]">{d.day}</h4>
-                            <div className="mt-2 h-2.5 rounded-full bg-[rgba(2,44,34,.12)] overflow-hidden">
+                            <div className="mt-2 h-2.5 rounded-full rc-bg-track overflow-hidden">
                                 <div className="h-full bg-[var(--fill-strong)]" style={{ width: pct + '%' }} />
                             </div>
                             <div className="mt-1 text-[12px] font-semibold text-[var(--text-secondary)] tabular">
@@ -522,7 +522,7 @@ export function SlotTimeline({
                                 {d.slots.map((s) => (
                                     <li
                                         key={s.id}
-                                        className={`rounded-xl px-3 py-2 ${s.hero ? 'bg-[var(--fill-strong)] text-[var(--on-fill-strong)]' : 'bg-[rgba(2,70,53,.08)] text-[var(--ink)]'}`}
+                                        className={`rounded-xl px-3 py-2 ${s.hero ? 'bg-[var(--fill-strong)] text-[var(--on-fill-strong)]' : 'rc-bg-highlight text-[var(--ink)]'}`}
                                     >
                                         <div className="text-[14px] font-extrabold tabular">
                                             {s.lot} · {s.sacks} {t('unit.sacks')}
@@ -1011,7 +1011,7 @@ export function LanguageSwitcher({
                                     setLang(l.id as Lang);
                                     setOpen(false);
                                 }}
-                                className={`flex items-center gap-3 min-h-[44px] px-3 rounded-xl text-left text-[15px] font-bold ${lang === l.id ? 'bg-[var(--fill-strong)] text-[var(--on-fill-strong)]' : 'text-[var(--ink)] hover:bg-[rgba(5,150,105,.1)]'}`}
+                                className={`flex items-center gap-3 min-h-[44px] px-3 rounded-xl text-left text-[15px] font-bold ${lang === l.id ? 'bg-[var(--fill-strong)] text-[var(--on-fill-strong)]' : 'text-[var(--ink)] rc-hover-accent'}`}
                             >
                                 <span className="w-9 text-[13px] font-extrabold tracking-[0.06em]">{l.short}</span>
                                 <span className="flex-1 min-w-0 break-words">{l.name}</span>

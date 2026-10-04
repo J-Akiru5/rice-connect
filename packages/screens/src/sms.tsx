@@ -143,7 +143,7 @@ export function SmsScreen({ reply = false }: { reply?: boolean }) {
                             <a
                                 href="#sms-thread"
                                 aria-current="true"
-                                className="flex items-start gap-3 px-4 py-3 min-h-[64px] bg-[rgba(2,70,53,.08)] border-l-4 border-[color:var(--fill-strong)]"
+                                className="flex items-start gap-3 px-4 py-3 min-h-[64px] rc-bg-highlight border-l-4 border-[color:var(--fill-strong)]"
                             >
                                 <span className="shrink-0 w-11 h-11 rounded-full flex items-center justify-center bg-[var(--fill-strong)] text-[var(--on-fill-strong)]">
                                     <Icon name="User" size={20} />

@@ -152,7 +152,7 @@ export function DemoPlayer({ rec, flip, startBeat }: { rec: boolean; flip: boole
                             {mmss(time)} / {mmss(TOTAL)}
                         </span>
                     </div>
-                    <div className="h-2 rounded-full bg-[rgba(2,44,34,.12)] overflow-hidden" aria-hidden>
+                    <div className="h-2 rounded-full rc-bg-track overflow-hidden" aria-hidden>
                         <div className="h-full bg-[var(--fill-strong)]" style={{ width: `${(time / TOTAL) * 100}%` }} />
                     </div>
                     <div className="flex flex-wrap items-center gap-2">

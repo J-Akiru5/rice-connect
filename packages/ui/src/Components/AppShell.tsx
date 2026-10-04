@@ -74,7 +74,7 @@ export function AccountButton({ role }: { role: Role }) {
     const nav = useZoneNav();
     const signedIn = useDemoState().session[role];
     const cls =
-        'inline-flex items-center gap-2 min-h-[44px] md:min-h-[40px] px-3 md:px-4 rounded-full border-2 border-[color:var(--text-muted)] text-[13px] font-extrabold uppercase tracking-[0.06em] whitespace-nowrap hover:bg-[rgba(5,150,105,.1)]';
+        'inline-flex items-center gap-2 min-h-[44px] md:min-h-[40px] px-3 md:px-4 rounded-full border-2 border-[color:var(--text-muted)] text-[13px] font-extrabold uppercase tracking-[0.06em] whitespace-nowrap rc-hover-accent';
     if (!signedIn)
         return (
             <Link href={ACCOUNTS[role].signIn} className={cls}>
@@ -177,7 +177,7 @@ export default function AppShell({
                             key={n.key}
                             href={n.href}
                             aria-current={isActive(n, active) ? 'page' : undefined}
-                            className={`flex flex-col items-center justify-center gap-1 min-h-[64px] px-1 py-2 rounded-2xl text-center text-[12px] leading-4 font-extrabold break-words ${isActive(n, active) ? 'bg-[var(--fill-strong)] text-[var(--on-fill-strong)]' : 'text-[var(--ink)] hover:bg-[rgba(5,150,105,.1)]'}`}
+                            className={`flex flex-col items-center justify-center gap-1 min-h-[64px] px-1 py-2 rounded-2xl text-center text-[12px] leading-4 font-extrabold break-words ${isActive(n, active) ? 'bg-[var(--fill-strong)] text-[var(--on-fill-strong)]' : 'text-[var(--ink)] rc-hover-accent'}`}
                         >
                             <Icon name={n.icon} size={20} />
                             {t('nav.' + n.key)}

@@ -35,7 +35,7 @@ export default function Pagination({
     const base =
         'inline-flex items-center justify-center gap-1.5 min-h-[44px] min-w-[44px] px-3 rounded-full text-[14px] font-extrabold tabular';
     const off = `${base} border-2 border-[color:var(--text-muted)] opacity-40 cursor-not-allowed`;
-    const on = `${base} border-2 border-[color:var(--text-muted)] text-[var(--ink)] hover:bg-[rgba(5,150,105,.1)]`;
+    const on = `${base} border-2 border-[color:var(--text-muted)] text-[var(--ink)] rc-hover-accent`;
     const prev = (word: boolean) =>
         cur > 1 ? (
             <Link href={hrefFor(cur - 1)} className={on} rel="prev">

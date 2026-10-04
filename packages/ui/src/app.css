@@ -189,3 +189,25 @@
     -webkit-text-stroke: 2px var(--text-muted);
     opacity: 0.22;
 }
+
+/* Shared alpha values (M35): token + color-mix, never a colour literal. */
+@layer utilities {
+    .rc-hover-accent:hover {
+        background-color: color-mix(in srgb, var(--emerald-600) 10%, transparent);
+    }
+    .rc-hover-accent-soft:hover {
+        background-color: color-mix(in srgb, var(--emerald-600) 6%, transparent);
+    }
+    .rc-bg-accent-faint {
+        background-color: color-mix(in srgb, var(--emerald-600) 5%, transparent);
+    }
+    .rc-bg-highlight {
+        background-color: color-mix(in srgb, var(--brand-green) 8%, transparent);
+    }
+    .rc-bg-track {
+        background-color: color-mix(in srgb, var(--emerald-950) 12%, transparent);
+    }
+    .rc-scrim::backdrop {
+        background-color: color-mix(in srgb, var(--emerald-950) 55%, transparent);
+    }
+}

@@ -32,7 +32,7 @@ function FarmCard({ farm }: { farm: Farm }) {
             <ZLink
                 href={`/farm/${farm.id}`}
                 aria-label={t('farm.open', { id: farm.id })}
-                className="flex items-center gap-3 min-h-[64px] px-4 py-3 border-b border-[color:var(--glass-border-strong)] last:border-0 hover:bg-[rgba(5,150,105,.06)]"
+                className="flex items-center gap-3 min-h-[64px] px-4 py-3 border-b border-[color:var(--glass-border-strong)] last:border-0 rc-hover-accent-soft"
             >
                 <span className="min-w-0 flex-1">
                     <span className="block text-[16px] leading-6 font-extrabold tabular">
@@ -218,7 +218,7 @@ export function FarmListScreen({
                                                 return (
                                                     <tr
                                                         key={f.id}
-                                                        className={`border-t border-[color:var(--glass-border-strong)] text-[14px] font-bold align-top ${on ? 'bg-[rgba(2,70,53,.08)]' : ''}`}
+                                                        className={`border-t border-[color:var(--glass-border-strong)] text-[14px] font-bold align-top ${on ? 'rc-bg-highlight' : ''}`}
                                                     >
                                                         <th scope="row" className="py-1.5 pr-3">
                                                             <ZLink

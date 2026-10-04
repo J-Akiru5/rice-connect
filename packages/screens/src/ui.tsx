@@ -69,7 +69,7 @@ export function ResponsiveTable<T>({
                         {rows.map((r) => (
                             <tr
                                 key={rowKey(r)}
-                                className={`border-t border-[color:var(--glass-border-strong)] text-[15px] font-bold align-top ${highlight?.(r) ? 'bg-[rgba(2,70,53,.08)]' : ''}`}
+                                className={`border-t border-[color:var(--glass-border-strong)] text-[15px] font-bold align-top ${highlight?.(r) ? 'rc-bg-highlight' : ''}`}
                             >
                                 <th scope="row" className="py-2.5 pr-3 font-extrabold break-words">
                                     {head.cell(r)}
