@@ -38,6 +38,7 @@ import {
     type RiceOrder
 } from '@rc/domain/buyers';
 import { autoMatch } from '@rc/domain/match';
+import { isWeek, type Week } from '@rc/domain/schemas';
 import { peso } from '@rc/domain/money';
 import { BuyerTypePicker } from './buyer-type';
 import { SectionPill, Note, ResponsiveTable } from './ui';
@@ -128,7 +129,7 @@ export function TraceChain({ head, rice }: { head: string; rice: boolean }) {
 function RiceOrders({ type }: { type: BuyerType }) {
     const { t } = useI18n();
     const [sacks, setSacks] = useState('4');
-    const [week, setWeek] = useState('W3');
+    const [week, setWeek] = useState<Week>('W3');
     const [error, setError] = useState('');
     const orders: RiceOrder[] = useDemoState().riceOrders;
     const mine = orders.filter((o) => o.type === type);
@@ -167,7 +168,13 @@ function RiceOrders({ type }: { type: BuyerType }) {
                         </label>
                         <label>
                             <span className={labelCls}>{t('orders.week')}</span>
-                            <select value={week} onChange={(e) => setWeek(e.target.value)} className={fieldCls}>
+                            <select
+                                value={week}
+                                onChange={(e) => {
+                                    if (isWeek(e.target.value)) setWeek(e.target.value);
+                                }}
+                                className={fieldCls}
+                            >
                                 {WEEKS.map((w) => (
                                     <option key={w}>{w}</option>
                                 ))}

@@ -7,19 +7,10 @@ import { staticListState, type ListState } from './list-state';
 import { ModuleShell } from './shell';
 import { useDemoState, updateDemoState } from '@rc/store/react';
 import { addFarm } from '@rc/store';
-import {
-    BARANGAYS,
-    FARMS,
-    TOTALS,
-    KG_PER_SACK,
-    lotOfFarm,
-    farmById,
-    type Farm,
-    type FarmStatus
-} from '@rc/domain/seed';
+import { BARANGAYS, FARMS, TOTALS, KG_PER_SACK, lotOfFarm, farmById, type Farm } from '@rc/domain/seed';
 
 export type FarmState = 'default' | 'empty' | 'error' | 'success';
-const STATUSES: FarmStatus[] = ['registered', 'verified', 'cluster'];
+const STATUSES: Farm['status'][] = ['registered', 'verified', 'cluster'];
 const cap = 'text-[12px] leading-4 font-extrabold uppercase tracking-[0.1em] text-[var(--text-muted)]';
 const selectCls =
     'min-h-[44px] px-4 rounded-[2rem] bg-[var(--glass-fill-strong)] text-[var(--ink)] border-2 border-[color:var(--text-muted)] font-bold text-[16px] w-full';

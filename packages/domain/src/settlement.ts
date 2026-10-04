@@ -1,17 +1,7 @@
 import { PRICE } from './params';
-import { pct, type Centavos } from './money';
-
-export interface Settlement {
-    kg: number;
-    gross: Centavos;
-    drying: Centavos;
-    margin: Centavos;
-    net: Centavos;
-    advance: Centavos;
-    balance: Centavos;
-    buyerFee: Centavos;
-    rates: { quoted: Centavos; drying: Centavos; margin: Centavos; net: Centavos; buyerFee: Centavos };
-}
+import { pct } from './money';
+import type { Settlement } from './schemas';
+export type { Settlement } from './schemas';
 
 /** Per kg: quoted − drying − coordination margin = net. Advance = 80% of net within 24 h; balance when the buyer pays.
     Buyer sourcing fee = 3% of quoted, paid by the buyer, never deducted from the farmer. */

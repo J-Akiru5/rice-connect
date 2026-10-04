@@ -25,6 +25,8 @@ import { settle } from './settlement';
 import { pesoAscii, rate } from './money';
 import { autoMatch, forecastKg, type MatchLot } from './match';
 import { autoAssign, assignDryerSlots, type Driver, type Vehicle } from './assign';
+import { DriverSchema, VehicleSchema, type Commitment, type Farm, type Lot, type Slot } from './schemas';
+export type { Commitment, Farm, Lot, Slot } from './schemas';
 
 export { BARANGAYS, WEEKS };
 export const VARIETIES = ['NSIC Rc 222', 'NSIC Rc 216', 'NSIC Rc 160'] as const; // from the design's lib/demo.ts
@@ -38,24 +40,6 @@ export const DRIED_KG_PER_HA = Math.floor(
 const driedKgFor = (areaTenths: number) => Math.round((areaTenths * DRIED_KG_PER_HA) / 10);
 
 /* ---------- farms ---------- */
-export type FarmStatus = 'registered' | 'verified' | 'cluster';
-export interface Farm {
-    id: string;
-    name: string;
-    mobile: string;
-    barangay: string;
-    areaHa: number;
-    variety: string;
-    plantingWeek: string;
-    status: FarmStatus;
-    harvestWeek: string;
-    tonnes: number;
-    areaTenths: number;
-    harvestDay: number;
-    harvestLabel: string;
-    driedKg: number;
-}
-
 const rng = mulberry32(SEED);
 interface Draw {
     raw: number;
@@ -121,8 +105,8 @@ export const FARMS: Farm[] = draws.map((d, i) => {
     const week = isHero ? WEEKS.indexOf(overrides.hero.harvestWeek as (typeof WEEKS)[number]) : d.week;
     const harvestDay = week * 7 + d.day;
     const driedKg = driedKgFor(areaTenths);
-    const status: FarmStatus = isHero
-        ? (overrides.hero.pinStatus as FarmStatus)
+    const status: Farm['status'] = isHero
+        ? (overrides.hero.pinStatus as Farm['status'])
         : n % 9 === 0
           ? 'registered'
           : n % 4 === 0
@@ -151,20 +135,6 @@ export const HERO_FARM: Farm = heroFarm;
 export const farmById = (id: string) => FARMS.find((f) => f.id === id);
 
 /* ---------- lots ---------- */
-export interface Lot {
-    id: string;
-    farm: string;
-    sacks: number;
-    kgPerSack: number;
-    wetKg: number;
-    driedKg: number;
-    grade: string;
-    mc: string;
-    week: string;
-    dayIndex: number;
-    mcPct: number;
-    actual: boolean;
-}
 const GRADE = overrides.forecastGrade;
 const MC = overrides.forecastMcPct;
 /** One forecast lot per farm. L-03 is the hero lot (weighed: 5,000 kg); the rest are numbered by harvest date. */
@@ -218,20 +188,6 @@ export const TOTALS = {
 export const WEEK_KG = WEEKS.map((w) => FARMS.filter((f) => f.harvestWeek === w).reduce((s, f) => s + f.driedKg, 0));
 
 /* ---------- commitments + auto-match ---------- */
-export interface Commitment {
-    id: string;
-    buyer: string;
-    tonnes: number;
-    grade: string;
-    mc: string;
-    price: number;
-    week: string;
-    filled: number;
-    status: string;
-    window: string[];
-    mcPct: number;
-    assumed: string[];
-}
 /** C-02 has no grade, MC or price in the brief: those come from overrides.json and are flagged as assumed. */
 const BRIEF_C = COMMITMENTS_BRIEF.map((c) => {
     const given = c as { grade?: string; mcPct?: number; price?: number };
@@ -240,12 +196,12 @@ const BRIEF_C = COMMITMENTS_BRIEF.map((c) => {
         given.grade === undefined && 'grade',
         given.mcPct === undefined && 'mc',
         given.price === undefined && 'price'
-    ].filter(Boolean) as string[];
+    ].filter(Boolean) as Commitment['assumed'];
     return {
         id: c.id,
         buyer: c.buyer,
         tonnes: c.tonnes,
-        window: [...c.window] as string[],
+        window: [...c.window] as Commitment['window'],
         grade: given.grade ?? a.grade,
         mcPct: given.mcPct ?? a.mcPct,
         price: given.price ?? a.priceCentavosPerKg,
@@ -285,17 +241,6 @@ export const DRYER_SLOTS = assignDryerSlots(
     LOTS.map((l) => ({ id: l.id, dayIndex: l.dayIndex, driedKg: l.driedKg })),
     overrides.dryerKgPerDay
 );
-export interface Slot {
-    id: string;
-    dryer: string;
-    day: string;
-    time: string;
-    sacks: number;
-    capacityPerDay: number;
-    lot: string;
-    kg: number;
-    dayIndex: number;
-}
 export const SLOTS: Slot[] = DRYER_SLOTS.map((s) => ({
     id: s.id,
     dryer: DRYER.name,
@@ -313,12 +258,14 @@ export const dryerKgOnDay = (dayIndex: number) =>
     SLOTS.filter((s) => s.dayIndex === dayIndex).reduce((a, s) => a + s.kg, 0);
 
 /* ---------- haul ---------- */
-export const VEHICLES: Vehicle[] = overrides.vehicles;
-export const DRIVERS: Driver[] = overrides.drivers.map((d) => ({
-    ...d,
-    name: `Driver ${d.id}`,
-    distanceKm: Math.round((0.5 + rng() * 9.5) * 10) / 10 // seeded, drawn after the farms
-}));
+export const VEHICLES: Vehicle[] = overrides.vehicles.map((v) => VehicleSchema.parse(v));
+export const DRIVERS: Driver[] = overrides.drivers.map((d) =>
+    DriverSchema.parse({
+        ...d,
+        name: `Driver ${d.id}`,
+        distanceKm: Math.round((0.5 + rng() * 9.5) * 10) / 10 // seeded, drawn after the farms
+    })
+);
 const legKm: [number, number] = [Math.round((1 + rng() * 9) * 10) / 10, Math.round((1 + rng() * 9) * 10) / 10]; // farm→dryer, dryer→buyer
 const heroBuyer = COMMITMENTS.find((c) => c.id === HERO.commitment)!.buyer;
 const heroDriver = autoAssign(HERO_LOT.sacks, DRIVERS, VEHICLES);

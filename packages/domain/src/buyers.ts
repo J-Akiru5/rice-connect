@@ -4,8 +4,9 @@
 import overrides from './overrides.json';
 import { BARANGAYS, WEEKS, FARMS, LOTS, MATCHES, COMMITMENTS, HERO_LOT, type Lot } from './seed';
 import type { Centavos } from './money';
+import type { BuyerType, RiceOrder, Week } from './schemas';
+export type { BuyerType, RiceOrder } from './schemas';
 
-export type BuyerType = 'miller' | 'retailer' | 'market' | 'restaurant';
 export const BUYER_TYPES: BuyerType[] = ['miller', 'retailer', 'market', 'restaurant'];
 export const isBuyerType = (v: unknown): v is BuyerType =>
     typeof v === 'string' && (BUYER_TYPES as string[]).includes(v);
@@ -42,19 +43,11 @@ export const RICE_AVAILABLE_KG = milledKg(PARTNER_PALAY_KG);
 /** The milled lot made from the hero palay lot L-03 (what a rice order traces back to). */
 export const HERO_RICE_LOT = { id: 'M' + HERO_LOT.id, fromLot: HERO_LOT.id, kg: milledKg(HERO_LOT.driedKg) };
 
-export interface RiceOrder {
-    id: string;
-    type: BuyerType;
-    kg: number;
-    sacks: number;
-    total: Centavos;
-    week: string;
-}
 /** A new milled-rice order: whole sacks, priced at the assumed rate. Rejects zero, partial sacks and more than is available. */
 export function makeRiceOrder(
     type: BuyerType,
     sacks: number,
-    week: string,
+    week: Week,
     seq: number,
     availableKg = RICE_AVAILABLE_KG
 ): RiceOrder {

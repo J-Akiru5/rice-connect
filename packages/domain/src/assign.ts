@@ -1,18 +1,6 @@
 /* Driver auto-assignment and dryer slot assignment. Pure functions; seed.ts feeds them. */
-export interface Vehicle {
-    id: string;
-    icon: string;
-    capacity: number;
-    price: number;
-}
-export interface Driver {
-    id: string;
-    name: string;
-    vehicle: string;
-    plate: string;
-    available: boolean;
-    distanceKm: number;
-}
+import type { Driver, Vehicle } from './schemas';
+export type { Driver, Vehicle } from './schemas';
 
 /** Nearest available driver whose vehicle carries all the sacks in one trip; tie-break: lowest price per trip, then id.
     Returns null when nobody qualifies (the Haul error state). The coordinator may override with any driver. */

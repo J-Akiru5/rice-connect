@@ -8,7 +8,7 @@ class MemStorage {
     setItem = (k: string, v: string) => void this.m.set(k, v);
     removeItem = (k: string) => void this.m.delete(k);
 }
-const order = { id: 'R-001', type: 'restaurant' as const, kg: 100, sacks: 4, total: 480000, week: 'W3' };
+const order = { id: 'R-001', type: 'restaurant' as const, kg: 100, sacks: 4, total: 480000, week: 'W3' as const };
 const open: { close(): void }[] = [];
 const channel = (name: string) => {
     const c = new BroadcastChannel(name);

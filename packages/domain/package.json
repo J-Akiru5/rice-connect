@@ -12,7 +12,9 @@
         "test": "vitest run",
         "build": "echo source package"
     },
-    "dependencies": {},
+    "dependencies": {
+        "zod": "4.6.5"
+    },
     "devDependencies": {
         "@rc/config": "workspace:*",
         "typescript": "5.6.3",

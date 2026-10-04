@@ -15,6 +15,6 @@ export {
     PLAN,
     SMS
 } from '@rc/domain/seed';
-export type { Farm, FarmStatus } from '@rc/domain/seed';
+export type { Farm } from '@rc/domain/seed';
 export { RATES as PRICE } from '@rc/domain/seed';
 export { peso, rate } from '@rc/domain/money';
