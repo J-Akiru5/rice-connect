@@ -6,78 +6,60 @@ Every screen carries the **PROTOTYPE · SIMULATED DATA** chip: farms, people, pr
 Team Syntaxure Labs · ISUFST
 
 - Design system: "RiceConnect · Enactus 2026" (Claude Design). Its components live in `src/components/riceconnect/`.
-- No database, no auth, no environment variables, no network calls at runtime, no analytics. All data comes from `src/data/seed.ts` (seeded, deterministic).
+- No database, no auth, no environment variables (except `RC_LOCAL` for local runs), no analytics. All data comes from `packages/domain/src/seed.ts` (seeded, deterministic). Only the buyer map loads tiles at runtime.
+
+## Monorepo
+
+pnpm + Turborepo. One app per user domain, served on one origin through Next.js multi-zones.
+
+| Path | What | Port (local) | URL on the gateway |
+|---|---|---|---|
+| `apps/marketing` | Public site and **gateway**: owns `/` and `/launch`, rewrites the zones, redirects the old URLs | 3000 | `/`, `/launch` |
+| `apps/coordinator` | Home, Farm Profile, Plan, Market, Dry, Logistics (Haul), Orders/Pay, `/demo` (basePath `/coordinator`) | 3001 | `/coordinator/...` |
+| `apps/buyer` | Supply map, orders, commitments (basePath `/buyer`) | 3002 | `/buyer`, `/buyer/orders` |
+| `apps/driver` | Haul job (basePath `/driver`) | 3003 | `/driver` |
+| `apps/farmer` | SMS inbox simulator with replies, slip viewer, no login (basePath `/farmer`) | 3004 | `/farmer`, `/farmer/slip` |
+| `apps/web` | The whole prototype as ONE app (multi-zone fallback; old URLs) | 3000 | — |
+| `packages/ui` | Design-system components, `app.css`, tokens (`design/tokens.json` → `src/styles/tokens.css`) | | |
+| `packages/domain` | Seed, money, settlement, match, assign, buyers, SMS reply parser, pagination + tests | | |
+| `packages/i18n` | I18nProvider, STRINGS (EN; TL/HIL drafts) | | |
+| `packages/store` | `DataAdapter` + `LocalAdapter` (localStorage + BroadcastChannel) + actions + tests | | |
+| `packages/screens` | Every screen, shared by the apps, `/demo` and `apps/web` | | |
+| `packages/config` | tsconfig, eslint, Tailwind preset, Next CLI wrapper (telemetry off) | | |
+
+Same origin matters: the apps share `localStorage` and `BroadcastChannel`, so a buyer order placed in `/buyer/orders` appears on `/coordinator/home` in another tab, and a farmer's "1 OK" / "2 Move" in `/farmer` updates the dryer slot and haul in the coordinator app.
 
 ## Run
 
-Node 18.18+ (tested on Node 22).
+Node 18.18+ and pnpm 10 (`corepack enable` or `npm i -g pnpm`).
 
 ```bash
-npm install
-npm run dev        # http://localhost:3000 (opens /farm)
+pnpm install
+pnpm demo:local     # builds every app with RC_LOCAL=1 and starts the 4 zones + the gateway; open http://localhost:3000
+pnpm dev            # dev servers for every app (open the gateway at :3000; zones at 3001-3004)
+pnpm build && pnpm lint && pnpm test
 ```
 
-## Build and check
-
-```bash
-npm run lint
-npm run build      # also regenerates src/styles/tokens.css from design/tokens.json
-npm test           # vitest: settlement fixture, 120.0 ha, matching, dryer capacity, driver assignment, SMS, demo timeline
-npm start          # serve the production build
-```
+`pnpm demo:local` works with the network off (verified in an isolated network namespace); only the buyer map's tiles need internet, and the page shows a notice and the table without them. Old URLs (`/farm`, `/sms`, `/haul/driver`, `/demo`, …) redirect to their new homes. "Reset demo data" is on `/launch`.
 
 Guard checks (both must print nothing):
 
 ```bash
-rg -i "rice-field|rc-photo|photo-scrim" src public
-rg "#[0-9a-fA-F]{3,8}" src --glob '!**/tokens*' --glob '!**/app.css'
+rg -i "rice-field|rc-photo|photo-scrim" apps packages --glob '!**/node_modules/**' --glob '!**/.next/**' --glob '!**/tokens*'
+rg "#[0-9a-fA-F]{3,8}" apps packages --glob '!**/node_modules/**' --glob '!**/.next/**' --glob '!**/tokens*' --glob '!**/app.css' --glob '!**/*.svg'
 ```
 
-## Deploy on Vercel
+## Deploy
 
-1. Push this repository to GitHub.
-2. In Vercel: **Add New… → Project → Import** the repository.
-3. Framework preset: **Next.js** (detected). Build command `npm run build`, output default. No environment variables.
-4. Deploy. Every route is prerendered as static HTML; `/` redirects to `/farm`.
+One Vercel project per app (Root Directory `apps/<name>`); the marketing project is the public entry. Step-by-step, verification and rollback: `docs/CUTOVER.md`. Zone domains are hard-coded in `apps/marketing/zones.mjs` (no env vars; `RC_LOCAL=1` only for local).
 
-## Routes
+## The demo (`/demo` → `/coordinator/demo`)
 
-| Route | Screen | Size |
-|---|---|---|
-| `/farm`, `/farm/[id]` | Farm list (100 farms; table + detail panel when wide, cards when narrow; filters, pagination) and profile | all |
-| `/plan` | Harvest calendar W1–W4, dried tonnes per barangay per week | desktop |
-| `/market` | Commitment board: search, filters (grade, volume, window), auto-match | desktop |
-| `/dry` | Dryer capacity per day and slots by harvest week | desktop |
-| `/haul`, `/haul/driver` | Haul request with auto-assigned driver and override (two columns when wide); the driver's job card | all |
-| `/pay`, `/pay/L-03` | Lots to settle; lot record, settlement, A6 slip (Print Slip prints only the slip) | desktop |
-| `/sms` (`?all=1`) | The three SMS on the farmer's phone (all three languages) | all |
-| `/buyer`, `/buyer/orders` | Buyer portal: supply by barangay on a MapLibre map of Dingle, Iloilo (OpenFreeMap tiles) + table, order milled rice or post a palay commitment, trace an order to the farm. `?type=miller\|retailer\|market\|restaurant` | all |
-| `/demo` | The guided 78 s sequence | both |
-
-State boards from the design: add `?state=empty|error|success` (see `docs/BOARDS.md`).
-
-**Responsive:** one layout for every width (<768 mobile, 768–1199 tablet, ≥1200 desktop); the same URLs work everywhere. The phone frame appears only on `/sms` (the farmer's phone), inside `/demo`, and on Farm/Haul with `?frame=phone` or `?rec=1`. Lists over 12 rows are paginated with the state in the URL (`?page=&size=&q=&status=&barangay=`, `/dry?week=`). Hand checks: `docs/RESPONSIVE-CHECKLIST.md`.
-
-## The demo (`/demo`)
-
-Beats: Farm 0–6 s · Plan 6–16 · Market 16–28 · Dry 28–40 · Haul 40–52 · Pay 52–64 · SMS 64–72 · End card 72–78.
-One lot flows through all of it: **Farm F-014 → Lot L-03 → Haul H-07 → Dryer slot → Slip S-0303**.
-
-- Keys: **← / →** step between beats, **Space** pauses, **R** restarts.
-- `?rec=1` hides the demo controls (for screen recording). The app's own chip, switcher and footer stay.
-- `?flip=1` switches the language EN → TL → HIL at 64 / 67 / 70 s.
-- `?beat=N` (1–8) starts at beat N, for example `/demo?rec=1&beat=8` for the end card.
-- Record at 1920×1080: `/demo?rec=1&flip=1`.
+Beats: Farm 0–6 s · Plan 6–16 · Market 16–28 · Dry 28–40 · Haul 40–52 · Pay 52–64 · SMS 64–72 · End card 72–78. Keys: ← / → step, Space pauses, R restarts. `?rec=1` hides the controls, `?flip=1` switches EN → TL → HIL at 64 / 67 / 70 s, `?beat=N` starts at beat N.
 
 ## Screenshots
 
-```bash
-npm run build
-npm run shots                      # needs Playwright's Chromium: npx playwright install chromium
-npm run shots -- --executable=/path/to/chromium   # or point at any Chromium
-```
-
-PNGs land in `exports/<light|dark>/<1920x1080|390x844>/`. (`exports/` is git-ignored.)
+`apps/web/shots.mjs` (Playwright, written but not run here): `pnpm --filter @rc/web build && pnpm --filter @rc/web shots`.
 
 ## Language
 

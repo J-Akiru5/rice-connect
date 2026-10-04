@@ -1,0 +1,24 @@
+{
+  "name": "@rc/config",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./tsconfig.base.json": "./tsconfig.base.json",
+    "./tailwind": "./tailwind.preset.ts",
+    "./eslint": "./eslint.json",
+    "./next.mjs": "./next.mjs"
+  },
+  "scripts": {
+    "lint": "node -e \"JSON.parse(require('fs').readFileSync('eslint.json','utf8'))\"",
+    "test": "echo no tests",
+    "build": "echo nothing to build"
+  },
+  "dependencies": {
+    "eslint-config-next": "14.2.35"
+  },
+  "peerDependencies": {
+    "eslint": "8.57.1",
+    "tailwindcss": "3.4.19"
+  },
+  "type": "module"
+}
