@@ -10,7 +10,6 @@ import {
   Menu,
   MenuItem,
   MenuSeparator,
-  OfflineBanner,
   PrimaryButton,
   RadioGroup,
   RefreshMarker,
