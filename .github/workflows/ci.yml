@@ -37,3 +37,22 @@ jobs:
             echo "Colour literals found: use tokens (or color-mix from tokens in app.css)"; exit 1; fi
           if git grep -niE "rice-field|rc-photo|photo-scrim" -- apps packages ':!**/tokens*'; then
             echo "The rice-field photo is retired"; exit 1; fi
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      RC_LOCAL: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build:local
+      # The browser is downloaded inside the job only; agent sessions never download it.
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm e2e
