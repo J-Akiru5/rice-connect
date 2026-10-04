@@ -13,6 +13,7 @@ import {
 import Icon from './Icon';
 import { useI18n, LANGS, Lang, tx } from '@rc/i18n';
 import { peso, rate, PRICE, SMS } from '../lib/demo';
+import { isDemo } from '../lib/mode';
 
 /* ================================================================
    Enactus 2026 additions. Glass for everything except Haul, which
@@ -23,6 +24,7 @@ import { peso, rate, PRICE, SMS } from '../lib/demo';
 /* ---------- DemoChip ---------- */
 export function DemoChip({ className = '', ...props }: HTMLAttributes<HTMLSpanElement>) {
     const { t } = useI18n();
+    if (!isDemo) return null;
     return (
         <span
             {...props}

@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
+import { isDemo } from '@rc/ui/mode';
 
-/* Super admin pages: a prototype tool, not for search engines (the X-Robots-Tag header says the same). */
+/* Super admin pages: an internal tool, not for search engines (the X-Robots-Tag header says the same). */
 export const metadata: Metadata = {
-  title: 'RiceConnect · Super Admin (prototype)',
+  title: `RiceConnect · Super Admin${isDemo ? ' (prototype)' : ''}`,
   robots: { index: false, follow: false }
 };
 

@@ -21,6 +21,6 @@
       "persistent": true
     }
   },
-  "globalEnv": ["RC_LOCAL"],
+  "globalEnv": ["RC_LOCAL", "NEXT_PUBLIC_RC_MODE", "NEXT_PUBLIC_VERCEL_ENV"],
   "globalPassThroughEnv": ["NEXT_TELEMETRY_DISABLED"]
 }

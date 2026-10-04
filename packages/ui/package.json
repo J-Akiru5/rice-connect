@@ -9,7 +9,8 @@
         "./app.css": "./src/app.css",
         "./tokens.css": "./src/styles/tokens.css",
         "./tokens.json": "./design/tokens.json",
-        "./theme": "./src/lib/theme.ts"
+        "./theme": "./src/lib/theme.ts",
+        "./mode": "./src/lib/mode.ts"
     },
     "scripts": {
         "lint": "eslint . && tsc --noEmit -p .",

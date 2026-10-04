@@ -1,11 +1,14 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { THEME_BOOT } from '@rc/ui/theme';
+import { isDemo } from '@rc/ui/mode';
 import { Providers } from './providers';
 
 export const metadata: Metadata = {
-  title: 'RiceConnect · Driver (prototype)',
-  description: 'RiceConnect Enactus 2026 prototype by Team Syntaxure Labs (ISUFST). Simulated data only.',
+  title: `RiceConnect · Driver${isDemo ? ' (prototype)' : ''}`,
+  description: isDemo
+    ? 'RiceConnect Enactus 2026 prototype by Team Syntaxure Labs (ISUFST). Simulated data only.'
+    : 'RiceConnect by Team Syntaxure Labs (ISUFST).',
   robots: { index: false, follow: false },
   icons: { icon: '/driver/brand/riceconnect-mark.svg' }
 };
