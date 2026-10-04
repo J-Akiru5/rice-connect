@@ -9,7 +9,7 @@
 | `riceconnect-driver` | `apps/driver` | `/driver` | https://riceconnect-driver.vercel.app |
 | `riceconnect-farmer` | `apps/farmer` | `/farmer/*` | https://riceconnect-farmer.vercel.app |
 
-Users only visit `rice-connect-opal.vercel.app`. The other three domains are origins for its rewrites; their bare `/` redirects back to the main origin. Retired: `riceconnect-site` and `riceconnect-coordinator`. Their Root Directories no longer exist, so their builds fail until they are deleted in the Vercel dashboard.
+Users only visit `rice-connect-opal.vercel.app`. The other three domains are origins for its rewrites; their bare `/` redirects back to the main origin. Retired: `riceconnect-site` and `riceconnect-coordinator`. Until the owner deletes them in the Vercel dashboard, both skip every build (Ignored Build Step `exit 0`).
 
 Vercel Authentication covers **previews only**. Production must stay public, or the rewrites to buyer, driver and farmer get a login page.
 
