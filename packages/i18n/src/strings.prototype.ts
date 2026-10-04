@@ -64,6 +64,7 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
         'Mag-sign in gamit ang husto nga account para magpadayon.'
     ],
     'state.forbidden.signIn': ['Sign In', 'Mag-sign In', 'Mag-sign In'],
+    'state.home': ['Go to Home', 'Pumunta sa Home', 'Kadto sa Home'],
     'zod.invalidType': ['Enter a valid value', 'Maglagay ng tamang halaga', 'Magbutang sang husto nga bili'],
     'zod.tooSmall': ['Value is too small', 'Masyadong maliit', 'Gamay ra gid'],
     'zod.tooBig': ['Value is too large', 'Masyadong malaki', 'Dako ra gid'],
