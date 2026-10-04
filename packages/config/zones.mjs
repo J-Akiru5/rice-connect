@@ -17,8 +17,16 @@ export const LOCAL = {
 };
 export const zoneOrigins = () => (process.env.RC_LOCAL === '1' ? LOCAL : PRODUCTION);
 
-/** For a zone app (buyer, driver, farmer): its own domain's "/" sends visitors to the same page on the main
-    origin, where state is shared. Without it the bare domain is a 404 (the app lives under its basePath). */
-export const rootToMain = (zone) => ({
-  source: '/', destination: `${zoneOrigins().main}/${zone}`, basePath: false, permanent: false,
-});
+/** Redirects for a zone app (buyer, driver, farmer) when someone opens the app's own domain directly
+    (e.g. a Vercel "Visit" or preview link) instead of going through the main origin:
+    - "/" opens the app's own page on the same host, so it works on production and on staging previews alike
+      (before: "/" went to the main production origin, which 404s while production still runs an older build);
+    - paths that belong to another app (/coordinator, /admin, /login, other zones, ...) go to the main origin. */
+const OTHER_PATHS = ['coordinator', 'admin', 'login', 'launch', 'buyer', 'driver', 'farmer'];
+export const zoneRedirects = (zone) => [
+  { source: '/', destination: `/${zone}`, basePath: false, permanent: false },
+  ...OTHER_PATHS.filter((p) => p !== zone).flatMap((p) => [
+    { source: `/${p}`, destination: `${zoneOrigins().main}/${p}`, basePath: false, permanent: false },
+    { source: `/${p}/:path*`, destination: `${zoneOrigins().main}/${p}/:path*`, basePath: false, permanent: false },
+  ]),
+];

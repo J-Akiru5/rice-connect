@@ -1,6 +1,6 @@
 /* Zone "farmer": served under /farmer on the gateway origin (apps/main rewrites /farmer/* here).
    App routes are not for search engines. */
-import { rootToMain } from '@rc/config/zones.mjs';
+import { zoneRedirects } from '@rc/config/zones.mjs';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -9,7 +9,7 @@ const nextConfig = {
   basePath: '/farmer',
   transpilePackages: ['@rc/ui', '@rc/domain', '@rc/i18n', '@rc/store', '@rc/screens'],
   async redirects() {
-    return [rootToMain('farmer')];
+    return zoneRedirects('farmer');
   },
   async headers() {
     return [{ source: '/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] }];
