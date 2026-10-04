@@ -5,27 +5,25 @@ Every screen carries the **PROTOTYPE · SIMULATED DATA** chip: farms, people, pr
 
 Team Syntaxure Labs · ISUFST
 
-- Design system: "RiceConnect · Enactus 2026" (Claude Design). Its components live in `src/components/riceconnect/`.
+- Design system: "RiceConnect · Enactus 2026" (Claude Design). Its components live in `packages/ui`.
 - No database, no auth, no environment variables (except `RC_LOCAL` for local runs), no analytics. All data comes from `packages/domain/src/seed.ts` (seeded, deterministic). Only the buyer map loads tiles at runtime.
 
 ## Monorepo
 
-pnpm + Turborepo. One app per user domain, served on one origin through Next.js multi-zones.
+pnpm + Turborepo. Four apps, served on one origin through Next.js multi-zones.
 
-| Path | What | Port (local) | URL on the gateway |
+| Path | What | Port (local) | URL |
 |---|---|---|---|
-| `apps/marketing` | Public site and **gateway**: owns `/` and `/launch`, rewrites the zones, redirects the old URLs | 3000 | `/`, `/launch` |
-| `apps/coordinator` | Home, Farm Profile, Plan, Market, Dry, Logistics (Haul), Orders/Pay, `/demo` (basePath `/coordinator`) | 3001 | `/coordinator/...` |
+| `apps/main` | Public site (`/`, `/launch`) **and** the coordinator app: Home, Farm Profile, Plan, Market, Dry, Logistics (Haul), Orders/Pay, `/demo`. The origin users visit; rewrites `/buyer`, `/driver`, `/farmer` and redirects the old URLs | 3000 | `/`, `/launch`, `/coordinator/...` |
 | `apps/buyer` | Supply map, orders, commitments (basePath `/buyer`) | 3002 | `/buyer`, `/buyer/orders` |
 | `apps/driver` | Haul job (basePath `/driver`) | 3003 | `/driver` |
 | `apps/farmer` | SMS inbox simulator with replies, slip viewer, no login (basePath `/farmer`) | 3004 | `/farmer`, `/farmer/slip` |
-| `apps/web` | The whole prototype as ONE app (multi-zone fallback; old URLs) | 3000 | — |
-| `packages/ui` | Design-system components, `app.css`, tokens (`design/tokens.json` → `src/styles/tokens.css`) | | |
+| `packages/ui` | Design-system components, `app.css`, tokens (`design/tokens.json` → `src/styles/tokens.css`), `ZLink` | | |
 | `packages/domain` | Seed, money, settlement, match, assign, buyers, SMS reply parser, pagination + tests | | |
 | `packages/i18n` | I18nProvider, STRINGS (EN; TL/HIL drafts) | | |
 | `packages/store` | `DataAdapter` + `LocalAdapter` (localStorage + BroadcastChannel) + actions + tests | | |
-| `packages/screens` | Every screen, shared by the apps, `/demo` and `apps/web` | | |
-| `packages/config` | tsconfig, eslint, Tailwind preset, Next CLI wrapper (telemetry off) | | |
+| `packages/screens` | Every screen, shared by the apps and `/demo` | | |
+| `packages/config` | tsconfig, eslint, Tailwind preset, Next CLI wrapper (telemetry off), app domains (`zones.mjs`) | | |
 
 Same origin matters: the apps share `localStorage` and `BroadcastChannel`, so a buyer order placed in `/buyer/orders` appears on `/coordinator/home` in another tab, and a farmer's "1 OK" / "2 Move" in `/farmer` updates the dryer slot and haul in the coordinator app.
 
@@ -35,8 +33,8 @@ Node 18.18+ and pnpm 10 (`corepack enable` or `npm i -g pnpm`).
 
 ```bash
 pnpm install
-pnpm demo:local     # builds every app with RC_LOCAL=1 and starts the 4 zones + the gateway; open http://localhost:3000
-pnpm dev            # dev servers for every app (open the gateway at :3000; zones at 3001-3004)
+pnpm demo:local     # builds every app with RC_LOCAL=1 and starts all four; open http://localhost:3000
+pnpm dev            # dev servers for every app (open the main app at :3000; buyer, driver, farmer at 3002-3004)
 pnpm build && pnpm lint && pnpm test
 ```
 
@@ -49,9 +47,11 @@ rg -i "rice-field|rc-photo|photo-scrim" apps packages --glob '!**/node_modules/*
 rg "#[0-9a-fA-F]{3,8}" apps packages --glob '!**/node_modules/**' --glob '!**/.next/**' --glob '!**/tokens*' --glob '!**/app.css' --glob '!**/*.svg'
 ```
 
-## Deploy
+## Branches and deploy
 
-One Vercel project per app (Root Directory `apps/<name>`); the marketing project is the public entry. Step-by-step, verification and rollback: `docs/CUTOVER.md`. Zone domains are hard-coded in `apps/marketing/zones.mjs` (no env vars; `RC_LOCAL=1` only for local).
+- `main` = production, `staging` = the only preview, `develop` = integration. Feature branches → PR into `develop` → PR `develop` → `staging` → check the preview → PR `staging` → `main`.
+- Vercel builds `main` and `staging` only (`apps/*/vercel.json`). GitHub Actions CI (lint, build, test, guard checks) runs on every PR and on pushes to `develop`.
+- Vercel projects (Root Directory): `rice-connect` → `apps/main` (production https://rice-connect-opal.vercel.app), `riceconnect-buyer` → `apps/buyer`, `riceconnect-driver` → `apps/driver`, `riceconnect-farmer` → `apps/farmer`. Domains are hard-coded in `packages/config/zones.mjs` (no env vars; `RC_LOCAL=1` only for local). Details and rollback: `docs/CUTOVER.md`.
 
 ## The demo (`/demo` → `/coordinator/demo`)
 
@@ -59,7 +59,7 @@ Beats: Farm 0–6 s · Plan 6–16 · Market 16–28 · Dry 28–40 · Haul 40�
 
 ## Screenshots
 
-`apps/web/shots.mjs` (Playwright, written but not run here): `pnpm --filter @rc/web build && pnpm --filter @rc/web shots`.
+`apps/main/shots.mjs` (Playwright, written but not run here): start `pnpm demo:local`, then `pnpm --filter @rc/main shots` in a second terminal.
 
 ## Language
 

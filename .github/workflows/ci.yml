@@ -1,0 +1,38 @@
+# Checks every pull request (into develop, staging or main) and every push to develop.
+# Vercel only builds main and staging (apps/*/vercel.json); this is the free safety net for everything else.
+name: CI
+
+on:
+  pull_request:
+    branches: [develop, staging, main]
+  push:
+    branches: [develop]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm build
+      - run: pnpm test
+      - name: Guard checks (colors only from tokens, no rice-field photo)
+        run: |
+          if git grep -nE "#[0-9a-fA-F]{3,8}" -- apps packages ':!**/tokens*' ':!**/app.css' ':!**/*.svg'; then
+            echo "Raw hex colors found: use tokens"; exit 1; fi
+          if git grep -niE "rice-field|rc-photo|photo-scrim" -- apps packages ':!**/tokens*'; then
+            echo "The rice-field photo is retired"; exit 1; fi
