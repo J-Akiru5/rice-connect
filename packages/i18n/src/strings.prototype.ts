@@ -64,6 +64,30 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
         'Mag-sign in gamit ang husto nga account para magpadayon.'
     ],
     'state.forbidden.signIn': ['Sign In', 'Mag-sign In', 'Mag-sign In'],
+    'zod.invalidType': ['Enter a valid value', 'Maglagay ng tamang halaga', 'Magbutang sang husto nga bili'],
+    'zod.tooSmall': ['Value is too small', 'Masyadong maliit', 'Gamay ra gid'],
+    'zod.tooBig': ['Value is too large', 'Masyadong malaki', 'Dako ra gid'],
+    'zod.invalidFormat': ['Check the format', 'Suriin ang format', 'Tsek ang pormat'],
+    'zod.invalidValue': [
+        'Choose one of the allowed options',
+        'Pumili sa mga pinapayagang opsyon',
+        'Pili sa mga ginatugot nga opsyon'
+    ],
+    'zod.notMultipleOf': ['Use a whole number', 'Gumamit ng buong numero', 'Gamita ang bilog nga numero'],
+    'zod.unrecognizedKeys': [
+        'An extra field is not allowed',
+        'May dagdag na field na hindi pinapayagan',
+        'May sobra nga field nga indi ginatugot'
+    ],
+    'zod.invalidUnion': ['Enter a valid value', 'Maglagay ng tamang halaga', 'Magbutang sang husto nga bili'],
+    'zod.invalidKey': [
+        'A field name is not allowed',
+        'May hindi pinapayagang pangalan ng field',
+        'May indi ginatugot nga ngalan sang field'
+    ],
+    'zod.invalidElement': ['One item is invalid', 'May maling item', 'May sayop nga item'],
+    'zod.custom': ['Enter a valid value', 'Maglagay ng tamang halaga', 'Magbutang sang husto nga bili'],
+    'zod.invalid': ['Enter a valid value', 'Maglagay ng tamang halaga', 'Magbutang sang husto nga bili'],
     'phone.net': ['4G', '4G', '4G'],
     'sms.chars': ['chars', 'mga karakter', 'mga karakter'],
     'slip.item': ['Item', 'Aytem', 'Butang'],

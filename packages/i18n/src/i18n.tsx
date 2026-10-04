@@ -1,5 +1,6 @@
 'use client';
 import { PROTOTYPE_STRINGS } from './strings.prototype';
+import { installZodErrorMap } from './zod-error-map';
 import {
     createContext,
     PropsWithChildren,
@@ -292,6 +293,7 @@ const isLang = (v: unknown): v is Lang => v === 'en' || v === 'tl' || v === 'hil
 export function I18nProvider({ lang: initial = 'en', children }: PropsWithChildren<{ lang?: Lang }>) {
     const [lang, setLangState] = useState<Lang>(initial);
     useEffect(() => {
+        installZodErrorMap();
         try {
             const v = window.localStorage.getItem(STORE);
             if (isLang(v)) setLangState(v);

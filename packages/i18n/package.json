@@ -8,16 +8,18 @@
     },
     "scripts": {
         "lint": "eslint . && tsc --noEmit -p .",
-        "test": "echo no tests",
+        "test": "vitest run",
         "build": "echo source package"
     },
     "dependencies": {
-        "react": "19.3.0"
+        "react": "19.3.0",
+        "zod": "4.6.5"
     },
     "devDependencies": {
         "@rc/config": "workspace:*",
         "typescript": "5.6.3",
         "@types/react": "19.3.0",
-        "eslint": "9.39.5"
+        "eslint": "9.39.5",
+        "vitest": "2.1.9"
     }
 }
