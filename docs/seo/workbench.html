@@ -1,0 +1,539 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RiceConnect SEO Workbench · docs/seo/workbench.html</title>
+  <style>
+    :root {
+      --bg: #0b0f0e;
+      --surface: rgba(255,255,255,0.06);
+      --surface-strong: rgba(255,255,255,0.10);
+      --border: rgba(255,255,255,0.12);
+      --brand-green: #1a6b45;
+      --brand-gold: #d4a017;
+      --gray-50: #f8f9fa;
+      --gray-400: #9ca3af;
+      --gray-900: #111827;
+      --red: #ef4444;
+      --amber: #f59e0b;
+      --green: #22c55e;
+      --font: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: var(--bg); color: var(--gray-50); font-family: var(--font); font-size: 14px; line-height: 1.6; }
+    body { max-width: 900px; margin: 0 auto; padding: 24px 16px 64px; }
+
+    /* Header */
+    .site-header { border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 32px; }
+    .site-header h1 { font-size: 18px; font-weight: 700; color: var(--brand-gold); letter-spacing: -0.02em; }
+    .site-header p { font-size: 12px; color: var(--gray-400); margin-top: 4px; }
+    .header-meta { display: flex; gap: 16px; align-items: center; margin-top: 8px; flex-wrap: wrap; }
+    .badge { background: var(--brand-green); color: #fff; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 3px; text-transform: uppercase; }
+    .clear-all { margin-left: auto; background: var(--surface); border: 1px solid var(--border); color: var(--gray-50); padding: 6px 16px; border-radius: 6px; cursor: pointer; font-size: 12px; font-family: var(--font); }
+    .clear-all:hover { background: var(--surface-strong); }
+
+    /* Panel */
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 16px; overflow: hidden; }
+    .panel-header { display: flex; align-items: center; gap: 10px; padding: 14px 16px; cursor: pointer; user-select: none; }
+    .panel-header:hover { background: var(--surface-strong); }
+    .panel-num { background: var(--brand-green); color: #fff; font-size: 10px; font-weight: 700; width: 20px; height: 20px; border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .panel-title { font-size: 14px; font-weight: 600; flex: 1; }
+    .panel-chevron { color: var(--gray-400); font-size: 12px; transition: transform 0.2s; }
+    .panel.open .panel-chevron { transform: rotate(180deg); }
+    .panel-body { padding: 16px; border-top: 1px solid var(--border); display: none; }
+    .panel.open .panel-body { display: block; }
+
+    /* Form elements */
+    label { display: block; font-size: 12px; font-weight: 600; color: var(--gray-400); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em; }
+    textarea, input[type=text], input[type=url] {
+      width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: var(--gray-50);
+      padding: 10px 12px; border-radius: 6px; font-family: 'Consolas', 'Courier New', monospace; font-size: 12px;
+      line-height: 1.5; resize: vertical; outline: none;
+    }
+    textarea:focus, input:focus { border-color: var(--brand-green); }
+    textarea { min-height: 120px; }
+    button.action { background: var(--brand-green); color: #fff; border: none; padding: 8px 20px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; font-family: var(--font); margin-top: 10px; }
+    button.action:hover { opacity: 0.9; }
+
+    /* Results */
+    .result { margin-top: 14px; }
+    .result-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+    .result-table th { text-align: left; color: var(--gray-400); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; padding: 6px 10px; border-bottom: 1px solid var(--border); }
+    .result-table td { padding: 7px 10px; border-bottom: 1px solid rgba(255,255,255,0.04); word-break: break-all; }
+    .result-table tr:last-child td { border-bottom: none; }
+    .chip { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .chip-ok { background: rgba(34,197,94,0.2); color: var(--green); }
+    .chip-fail { background: rgba(239,68,68,0.2); color: var(--red); }
+    .chip-warn { background: rgba(245,158,11,0.2); color: var(--amber); }
+    .msg { font-size: 12px; margin-top: 6px; padding: 8px 12px; border-radius: 6px; }
+    .msg-ok { background: rgba(34,197,94,0.1); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+    .msg-fail { background: rgba(239,68,68,0.1); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+    .msg-warn { background: rgba(245,158,11,0.1); color: var(--amber); border: 1px solid rgba(245,158,11,0.2); }
+    pre.json { background: rgba(0,0,0,0.4); padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 11px; line-height: 1.5; margin-top: 8px; white-space: pre-wrap; word-break: break-all; }
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 600px) { .row-2 { grid-template-columns: 1fr; } }
+
+    /* OG Card */
+    .og-card { margin-top: 12px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); max-width: 480px; }
+    .og-card-image { width: 100%; aspect-ratio: 1200/630; background: var(--brand-green); display: flex; align-items: center; justify-content: center; color: var(--gray-400); font-size: 12px; overflow: hidden; }
+    .og-card-image img { width: 100%; height: 100%; object-fit: cover; }
+    .og-card-body { padding: 12px; background: var(--surface-strong); }
+    .og-card-domain { font-size: 11px; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.06em; }
+    .og-card-title { font-size: 14px; font-weight: 700; margin-top: 2px; }
+    .og-card-desc { font-size: 12px; color: var(--gray-400); margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+    /* Stat row */
+    .stat-row { display: flex; gap: 16px; margin-top: 8px; flex-wrap: wrap; }
+    .stat { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 6px; padding: 8px 14px; }
+    .stat-label { font-size: 10px; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.06em; }
+    .stat-value { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+    /* Footer */
+    .site-footer { text-align: center; color: var(--gray-400); font-size: 11px; margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <h1>RiceConnect SEO Workbench</h1>
+  <p>docs/seo/workbench.html · Opens from file:// · No network required for panels 1, 3, 4, 5, 6</p>
+  <div class="header-meta">
+    <span class="badge">Step 1 · SEO-02</span>
+    <span style="font-size:12px;color:var(--gray-400)">5 Oct 2026</span>
+    <button class="clear-all" onclick="clearAll()">Clear all panels</button>
+  </div>
+</header>
+
+<!-- PANEL 1: hreflang validator -->
+<div class="panel open" id="p1">
+  <div class="panel-header" onclick="toggle('p1')">
+    <div class="panel-num">1</div>
+    <div class="panel-title">hreflang validator</div>
+    <div class="panel-chevron">▼</div>
+  </div>
+  <div class="panel-body">
+    <label for="hreflang-input">Paste &lt;head&gt; HTML</label>
+    <textarea id="hreflang-input" placeholder="<head>&#10;  <link rel=&quot;alternate&quot; hreflang=&quot;en&quot; href=&quot;...&quot; />&#10;  ...&#10;</head>" oninput="validateHreflang()"></textarea>
+    <div class="result" id="hreflang-result"></div>
+  </div>
+</div>
+
+<!-- PANEL 2: OG preview -->
+<div class="panel" id="p2">
+  <div class="panel-header" onclick="toggle('p2')">
+    <div class="panel-num">2</div>
+    <div class="panel-title">OG preview card</div>
+    <div class="panel-chevron">▼</div>
+  </div>
+  <div class="panel-body">
+    <p style="font-size:12px;color:var(--gray-400);margin-bottom:12px">Paste &lt;head&gt; HTML to auto-parse, or fill fields manually.</p>
+    <label for="og-head">Paste &lt;head&gt; HTML (optional)</label>
+    <textarea id="og-head" rows="4" placeholder="<head>&#10;  <meta property=&quot;og:title&quot; content=&quot;...&quot; />&#10;  ...&#10;</head>" oninput="parseOgHead()"></textarea>
+    <div class="row-2" style="margin-top:12px">
+      <div>
+        <label for="og-title">og:title</label>
+        <input type="text" id="og-title" placeholder="RiceConnect — Dingle, Iloilo" oninput="renderOg()" />
+      </div>
+      <div>
+        <label for="og-domain">Domain</label>
+        <input type="text" id="og-domain" placeholder="riceconnect.syntaxure.dev" oninput="renderOg()" />
+      </div>
+    </div>
+    <div style="margin-top:10px">
+      <label for="og-desc">og:description</label>
+      <input type="text" id="og-desc" placeholder="Harvest coordination for rice farmers in Dingle, Iloilo." oninput="renderOg()" />
+    </div>
+    <div style="margin-top:10px">
+      <label for="og-image">og:image URL</label>
+      <input type="url" id="og-image" placeholder="https://riceconnect.syntaxure.dev/api/og?page=home&lang=en" oninput="renderOg()" />
+    </div>
+    <div class="result" id="og-result"></div>
+  </div>
+</div>
+
+<!-- PANEL 3: Sitemap linter -->
+<div class="panel" id="p3">
+  <div class="panel-header" onclick="toggle('p3')">
+    <div class="panel-num">3</div>
+    <div class="panel-title">Sitemap linter</div>
+    <div class="panel-chevron">▼</div>
+  </div>
+  <div class="panel-body">
+    <label for="sitemap-input">Paste sitemap.xml</label>
+    <textarea id="sitemap-input" placeholder="&lt;?xml version=&quot;1.0&quot;?&gt;&#10;&lt;urlset xmlns=&quot;http://www.sitemaps.org/schemas/sitemap/0.9&quot;&gt;&#10;  &lt;url&gt;&lt;loc&gt;https://riceconnect.syntaxure.dev/&lt;/loc&gt;&lt;/url&gt;&#10;  ...&#10;&lt;/urlset&gt;" oninput="lintSitemap()"></textarea>
+    <div class="result" id="sitemap-result"></div>
+  </div>
+</div>
+
+<!-- PANEL 4: robots.txt viewer -->
+<div class="panel" id="p4">
+  <div class="panel-header" onclick="toggle('p4')">
+    <div class="panel-num">4</div>
+    <div class="panel-title">robots.txt viewer</div>
+    <div class="panel-chevron">▼</div>
+  </div>
+  <div class="panel-body">
+    <label for="robots-input">Paste robots.txt content</label>
+    <textarea id="robots-input" placeholder="User-agent: *&#10;Allow: /&#10;Disallow: /coordinator/&#10;Sitemap: https://riceconnect.syntaxure.dev/sitemap.xml" oninput="parseRobots()"></textarea>
+    <div class="result" id="robots-result"></div>
+  </div>
+</div>
+
+<!-- PANEL 5: Schema viewer -->
+<div class="panel" id="p5">
+  <div class="panel-header" onclick="toggle('p5')">
+    <div class="panel-num">5</div>
+    <div class="panel-title">Schema viewer (JSON-LD)</div>
+    <div class="panel-chevron">▼</div>
+  </div>
+  <div class="panel-body">
+    <label for="schema-input">Paste page HTML</label>
+    <textarea id="schema-input" placeholder='&lt;script type="application/ld+json"&gt;{"@type":"Organization",...}&lt;/script&gt;' oninput="viewSchema()"></textarea>
+    <div class="result" id="schema-result"></div>
+  </div>
+</div>
+
+<!-- PANEL 6: llms.txt preview -->
+<div class="panel" id="p6">
+  <div class="panel-header" onclick="toggle('p6')">
+    <div class="panel-num">6</div>
+    <div class="panel-title">llms.txt preview</div>
+    <div class="panel-chevron">▼</div>
+  </div>
+  <div class="panel-body">
+    <label for="llms-input">Paste llms.txt content</label>
+    <textarea id="llms-input" placeholder="# RiceConnect&#10;&#10;RiceConnect is a harvest coordination platform..." oninput="previewLlms()"></textarea>
+    <div class="result" id="llms-result"></div>
+  </div>
+</div>
+
+<footer class="site-footer">Team Syntaxure Labs · ISUFST · RiceConnect SEO Workbench</footer>
+
+<script>
+// ─── UTILITIES ────────────────────────────────────────────────────────────────
+
+function toggle(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+function clearAll() {
+  ['hreflang-input','og-head','og-title','og-desc','og-image','og-domain',
+   'sitemap-input','robots-input','schema-input','llms-input'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  ['hreflang-result','og-result','sitemap-result','robots-result','schema-result','llms-result']
+    .forEach(id => { document.getElementById(id).innerHTML = ''; });
+}
+
+function chip(type, text) {
+  return `<span class="chip chip-${type}">${text}</span>`;
+}
+
+function msg(type, text) {
+  return `<div class="msg msg-${type}">${text}</div>`;
+}
+
+function parseHead(html) {
+  const parser = new DOMParser();
+  return parser.parseFromString(`<html><head>${html}</head><body></body></html>`, 'text/html');
+}
+
+// ─── PANEL 1: hreflang ────────────────────────────────────────────────────────
+
+function validateHreflang() {
+  const input = document.getElementById('hreflang-input').value.trim();
+  const out = document.getElementById('hreflang-result');
+  if (!input) { out.innerHTML = ''; return; }
+
+  const doc = parseHead(input);
+  const links = [...doc.querySelectorAll('link[rel="alternate"][hreflang]')];
+  const canonical = doc.querySelector('link[rel="canonical"]');
+
+  const EXPECTED = ['en', 'fil-PH', 'hil', 'x-default'];
+  const found = links.map(l => l.getAttribute('hreflang'));
+
+  let rows = links.map(l => `
+    <tr>
+      <td>${l.getAttribute('hreflang')}</td>
+      <td>${l.getAttribute('href') || '—'}</td>
+      <td>${EXPECTED.includes(l.getAttribute('hreflang')) ? chip('ok','expected') : chip('warn','unexpected')}</td>
+    </tr>`).join('');
+
+  const missing = EXPECTED.filter(e => !found.includes(e));
+  const extras  = found.filter(f => !EXPECTED.includes(f));
+
+  let html = `
+    <table class="result-table">
+      <thead><tr><th>hreflang</th><th>href</th><th>Status</th></tr></thead>
+      <tbody>${rows || '<tr><td colspan="3" style="color:var(--gray-400)">No hreflang tags found</td></tr>'}</tbody>
+    </table>`;
+
+  if (missing.length)
+    html += msg('fail', `Missing hreflang values: <strong>${missing.join(', ')}</strong>`);
+  if (extras.length)
+    html += msg('warn', `Unexpected hreflang values: <strong>${extras.join(', ')}</strong> — verify these are intentional`);
+  if (!canonical)
+    html += msg('warn', 'No &lt;link rel="canonical"&gt; found in the pasted head.');
+  if (!missing.length && !extras.length && links.length)
+    html += msg('ok', `All ${links.length} hreflang tags present. ${canonical ? '✓ Canonical found.' : ''}`);
+
+  out.innerHTML = html;
+}
+
+// ─── PANEL 2: OG preview ──────────────────────────────────────────────────────
+
+function parseOgHead() {
+  const head = document.getElementById('og-head').value;
+  if (!head.trim()) return;
+  const doc = parseHead(head);
+  const get = prop => {
+    const el = doc.querySelector(`meta[property="${prop}"]`);
+    return el ? el.getAttribute('content') : '';
+  };
+  const getName = name => {
+    const el = doc.querySelector(`meta[name="${name}"]`);
+    return el ? el.getAttribute('content') : '';
+  };
+  const canon = doc.querySelector('link[rel="canonical"]');
+
+  document.getElementById('og-title').value = get('og:title') || getName('title') || '';
+  document.getElementById('og-desc').value  = get('og:description') || getName('description') || '';
+  document.getElementById('og-image').value = get('og:image') || '';
+  if (canon) {
+    try {
+      document.getElementById('og-domain').value = new URL(canon.getAttribute('href')).hostname;
+    } catch(e) {}
+  }
+  renderOg();
+}
+
+function renderOg() {
+  const title  = document.getElementById('og-title').value || 'Page title';
+  const desc   = document.getElementById('og-desc').value  || 'Page description';
+  const image  = document.getElementById('og-image').value;
+  const domain = document.getElementById('og-domain').value || 'riceconnect.syntaxure.dev';
+  const out    = document.getElementById('og-result');
+
+  const imgHtml = image
+    ? `<img src="${image}" alt="OG image" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" /><div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;color:var(--gray-400);font-size:12px">Image failed to load</div>`
+    : `<span>No og:image URL entered</span>`;
+
+  out.innerHTML = `
+    <p style="font-size:11px;color:var(--gray-400);margin-bottom:8px">Preview (scaled to 480px wide)</p>
+    <div class="og-card">
+      <div class="og-card-image">${imgHtml}</div>
+      <div class="og-card-body">
+        <div class="og-card-domain">${domain}</div>
+        <div class="og-card-title">${title}</div>
+        <div class="og-card-desc">${desc}</div>
+      </div>
+    </div>
+    ${!image ? msg('warn', 'og:image is empty — add an image URL or paste &lt;head&gt; HTML above.') : ''}`;
+}
+
+// ─── PANEL 3: Sitemap ─────────────────────────────────────────────────────────
+
+const EXPECTED_SLUGS = [
+  '/', '/tl/', '/hil/',
+  '/how-it-works', '/tl/how-it-works', '/hil/how-it-works',
+  '/team', '/tl/team', '/hil/team',
+  '/for-cooperatives', '/tl/for-cooperatives', '/hil/for-cooperatives',
+  '/for-buyers', '/tl/for-buyers', '/hil/for-buyers',
+  '/evidence', '/tl/evidence', '/hil/evidence',
+  '/privacy'
+];
+
+const BANNED_PREFIXES = ['/coordinator', '/admin', '/buyer/', '/driver/', '/farmer/', '/api/'];
+
+function lintSitemap() {
+  const input = document.getElementById('sitemap-input').value.trim();
+  const out   = document.getElementById('sitemap-result');
+  if (!input) { out.innerHTML = ''; return; }
+
+  let doc;
+  try {
+    doc = new DOMParser().parseFromString(input, 'application/xml');
+    const err = doc.querySelector('parsererror');
+    if (err) throw new Error(err.textContent.slice(0, 120));
+  } catch(e) {
+    out.innerHTML = msg('fail', `XML parse error: ${e.message}`);
+    return;
+  }
+
+  const locs = [...doc.querySelectorAll('url > loc')].map(l => l.textContent.trim());
+  const BASE = 'https://riceconnect.syntaxure.dev';
+
+  const slugs = locs.map(u => {
+    try { return new URL(u).pathname; } catch { return u; }
+  });
+
+  const missing  = EXPECTED_SLUGS.filter(s => !slugs.includes(s));
+  const banned   = slugs.filter(s => BANNED_PREFIXES.some(b => s.startsWith(b)));
+  const dupes    = slugs.filter((s, i) => slugs.indexOf(s) !== i);
+
+  let html = '';
+
+  // Stats
+  html += `<div class="stat-row">
+    <div class="stat"><div class="stat-label">Total URLs</div><div class="stat-value">${locs.length}</div></div>
+    <div class="stat"><div class="stat-label">Expected</div><div class="stat-value">21</div></div>
+    <div class="stat"><div class="stat-label">Missing</div><div class="stat-value" style="color:${missing.length?'var(--red)':'var(--green)'}">${missing.length}</div></div>
+    <div class="stat"><div class="stat-label">Banned</div><div class="stat-value" style="color:${banned.length?'var(--amber)':'var(--green)'}">${banned.length}</div></div>
+  </div>`;
+
+  if (missing.length)
+    html += msg('fail', `Missing slugs: <strong>${missing.join(', ')}</strong>`);
+  if (banned.length)
+    html += msg('warn', `App-route URLs found (should not be in sitemap): <strong>${banned.join(', ')}</strong>`);
+  if (dupes.length)
+    html += msg('warn', `Duplicate URLs: <strong>${dupes.join(', ')}</strong>`);
+  if (!missing.length && !banned.length && !dupes.length)
+    html += msg('ok', `Sitemap looks good — ${locs.length} URLs, all expected slugs present.`);
+
+  out.innerHTML = html;
+}
+
+// ─── PANEL 4: robots.txt ──────────────────────────────────────────────────────
+
+function parseRobots() {
+  const input = document.getElementById('robots-input').value.trim();
+  const out   = document.getElementById('robots-result');
+  if (!input) { out.innerHTML = ''; return; }
+
+  const lines  = input.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
+  const groups = [];
+  let current  = null;
+
+  for (const line of lines) {
+    if (line.toLowerCase().startsWith('user-agent:')) {
+      const ua = line.split(':').slice(1).join(':').trim();
+      if (current && current.ua !== ua) {
+        groups.push(current);
+        current = null;
+      }
+      if (!current) current = { ua, rules: [], sitemap: null };
+    } else if (current && line.toLowerCase().startsWith('allow:')) {
+      current.rules.push({ type: 'Allow', path: line.split(':').slice(1).join(':').trim() });
+    } else if (current && line.toLowerCase().startsWith('disallow:')) {
+      current.rules.push({ type: 'Disallow', path: line.split(':').slice(1).join(':').trim() });
+    } else if (line.toLowerCase().startsWith('sitemap:')) {
+      if (current) current.sitemap = line.split(':').slice(1).join(':').trim();
+    }
+  }
+  if (current) groups.push(current);
+
+  const hasSitemap   = groups.some(g => g.sitemap);
+  const starGroup    = groups.find(g => g.ua === '*');
+  const fullBlock    = starGroup && starGroup.rules.some(r => r.type === 'Disallow' && r.path === '/');
+
+  let rows = groups.map(g => `
+    <tr>
+      <td><code>${g.ua}</code></td>
+      <td>${g.rules.map(r => `<span style="color:${r.type==='Allow'?'var(--green)':'var(--red)'}">${r.type}: ${r.path||'/'}</span>`).join('<br>') || '(no rules)'}</td>
+      <td>${g.sitemap ? `<code style="font-size:10px">${g.sitemap}</code>` : '—'}</td>
+    </tr>`).join('');
+
+  let html = `
+    <table class="result-table">
+      <thead><tr><th>User-agent</th><th>Rules</th><th>Sitemap</th></tr></thead>
+      <tbody>${rows || '<tr><td colspan="3">No groups parsed</td></tr>'}</tbody>
+    </table>`;
+
+  if (fullBlock)
+    html += msg('fail', '<strong>User-agent: * has Disallow: /</strong> — this blocks all crawlers. Production robots.txt should not have this.');
+  if (!hasSitemap)
+    html += msg('warn', 'No Sitemap: directive found. Add <code>Sitemap: https://riceconnect.syntaxure.dev/sitemap.xml</code>');
+  if (!fullBlock && hasSitemap)
+    html += msg('ok', 'robots.txt looks good for production.');
+
+  out.innerHTML = html;
+}
+
+// ─── PANEL 5: Schema viewer ───────────────────────────────────────────────────
+
+const EXPECTED_TYPES = ['Organization', 'WebSite', 'BreadcrumbList'];
+
+function viewSchema() {
+  const input = document.getElementById('schema-input').value.trim();
+  const out   = document.getElementById('schema-result');
+  if (!input) { out.innerHTML = ''; return; }
+
+  const doc = new DOMParser().parseFromString(input, 'text/html');
+  const scripts = [...doc.querySelectorAll('script[type="application/ld+json"]')];
+
+  if (!scripts.length) {
+    out.innerHTML = msg('warn', 'No <code>&lt;script type="application/ld+json"&gt;</code> blocks found.');
+    return;
+  }
+
+  let html = `<p style="font-size:12px;color:var(--gray-400);margin-bottom:8px">${scripts.length} schema block${scripts.length>1?'s':''} found</p>`;
+  const foundTypes = [];
+
+  scripts.forEach((s, i) => {
+    let parsed, typeStr = '?', err = null;
+    try {
+      parsed = JSON.parse(s.textContent);
+      typeStr = parsed['@type'] || '?';
+      foundTypes.push(typeStr);
+    } catch(e) { err = e.message; }
+
+    const isExpected = EXPECTED_TYPES.includes(typeStr);
+    html += `
+      <div style="margin-top:8px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <span style="font-size:11px;font-weight:700;color:var(--gray-400)">Block ${i+1}</span>
+          <span class="chip ${err?'chip-fail':isExpected?'chip-ok':'chip-warn'}">${err ? 'Parse error' : typeStr}</span>
+        </div>
+        ${err ? msg('fail', `JSON parse error: ${err}`) : `<pre class="json">${JSON.stringify(parsed, null, 2)}</pre>`}
+      </div>`;
+  });
+
+  const missing = EXPECTED_TYPES.filter(t => !foundTypes.includes(t));
+  if (missing.length)
+    html += msg('warn', `Expected schema types not found: <strong>${missing.join(', ')}</strong>`);
+
+  out.innerHTML = html;
+}
+
+// ─── PANEL 6: llms.txt ────────────────────────────────────────────────────────
+
+function mdToHtml(text) {
+  return text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/^# (.+)$/gm, '<h2 style="font-size:16px;font-weight:700;margin:12px 0 4px;color:var(--brand-gold)">$1</h2>')
+    .replace(/^## (.+)$/gm,'<h3 style="font-size:13px;font-weight:700;margin:10px 0 4px;color:var(--gray-50)">$1</h3>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\[(.+?)\]\((.+?)\)/g,'<a href="$2" style="color:var(--brand-gold)">$1</a>')
+    .replace(/^- (.+)$/gm,'<li style="margin-left:16px">$1</li>')
+    .replace(/\n/g,'<br>');
+}
+
+function previewLlms() {
+  const input = document.getElementById('llms-input').value;
+  const out   = document.getElementById('llms-result');
+  if (!input.trim()) { out.innerHTML = ''; return; }
+
+  const chars = input.length;
+  const lines = input.split('\n').length;
+  const over  = chars > 4000;
+
+  let html = `<div class="stat-row" style="margin-bottom:10px">
+    <div class="stat"><div class="stat-label">Characters</div><div class="stat-value" style="color:${over?'var(--amber)':'inherit'}">${chars.toLocaleString()}</div></div>
+    <div class="stat"><div class="stat-label">Lines</div><div class="stat-value">${lines}</div></div>
+  </div>`;
+
+  if (over)
+    html += msg('warn', `File exceeds 4,000 characters (${chars.toLocaleString()}). Consider trimming — large files may exceed LLM context budgets.`);
+
+  html += `<div style="background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:6px;padding:14px;margin-top:8px;line-height:1.7;font-size:13px">
+    ${mdToHtml(input)}
+  </div>`;
+
+  out.innerHTML = html;
+}
+</script>
+
+</body>
+</html>
