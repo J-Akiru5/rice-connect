@@ -129,9 +129,9 @@ export function BigStat({
 }
 
 /* ---------- Field row (internal) ---------- */
-function Field({ label, children }: PropsWithChildren<{ label: string }>) {
+function Field({ label, children, className = '' }: PropsWithChildren<{ label: string; className?: string }>) {
     return (
-        <div className="min-w-0 py-2.5 border-b border-[color:var(--glass-border-strong)] last:border-0">
+        <div className={'min-w-0 py-2.5 border-b border-[color:var(--glass-border-strong)] last:border-0 ' + className}>
             <dt className="text-[12px] leading-4 font-extrabold uppercase tracking-[0.1em] text-[var(--text-muted)]">
                 {label}
             </dt>
@@ -180,9 +180,9 @@ export function FarmProfileCard({
                 <Field label={t('farm.status')}>
                     {t(status === 'cluster' ? 'status.cluster' : 'status.' + status)}
                 </Field>
-                <div className="col-span-2">
-                    <Field label={t('farm.name')}>{farm.name}</Field>
-                </div>
+                <Field label={t('farm.name')} className="col-span-2">
+                    {farm.name}
+                </Field>
                 <Field label={t('farm.mobile')}>
                     <span className="tabular">{farm.mobile}</span>
                 </Field>
@@ -193,9 +193,9 @@ export function FarmProfileCard({
                     </span>
                 </Field>
                 <Field label={t('farm.variety')}>{farm.variety}</Field>
-                <div className="col-span-2">
-                    <Field label={t('farm.planting')}>{farm.plantingWeek}</Field>
-                </div>
+                <Field label={t('farm.planting')} className="col-span-2">
+                    {farm.plantingWeek}
+                </Field>
             </dl>
             {onAdd !== undefined && (
                 <div className="mt-4">
