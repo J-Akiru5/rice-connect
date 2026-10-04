@@ -256,7 +256,8 @@ export function PayLotScreen({ state = 'default' }: { state?: 'default' | 'error
                             {HERO_FARM.harvestWeek} · {HERO_FARM.harvestLabel}
                         </Rec>
                         <Rec k="pay.rec.weight">
-                            {HERO_LOT.driedKg.toLocaleString('en-US')} kg · {HERO_LOT.sacks} {t('unit.sacks')}
+                            {HERO_LOT.driedKg.toLocaleString('en-US')} {t('unit.kg')} · {HERO_LOT.sacks}{' '}
+                            {t('unit.sacks')}
                         </Rec>
                         <Rec k="pay.rec.quality">
                             {HERO_LOT.grade} · {HERO_LOT.mc}

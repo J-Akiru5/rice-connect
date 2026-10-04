@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { emptyState } from './types';
-import { farmerReply, haulStatus, setHaul, addFarm, signIn, signOut } from './actions';
+import { farmerReply, haulStatus, setHaul, addFarm, setBuyerType, signIn, signOut } from './actions';
 
 const ids = { farm: 'F-014', slot: 'D-58', haul: 'H-07' };
 describe('store actions', () => {
@@ -28,6 +28,9 @@ describe('store actions', () => {
         const s = farmerReply('2', ids)(farmerReply('1', ids)(emptyState()));
         expect(s.smsReplies.map((r) => r.id)).toEqual(['M-001', 'M-002']);
         expect(addFarm('F-014')(addFarm('F-014')(emptyState())).farmsAdded).toEqual(['F-014']);
+    });
+    it('remembers the buyer type choice in the demo state', () => {
+        expect(setBuyerType('miller')(emptyState()).buyerType).toBe('miller');
     });
     it('signs in and out of one app without touching the others', () => {
         const s = signIn('buyer', 'Buyer A (simulated)')(signIn('coordinator', 'Cluster 1')(emptyState()));

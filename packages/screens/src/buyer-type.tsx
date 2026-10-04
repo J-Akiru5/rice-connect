@@ -1,36 +1,24 @@
 'use client';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useI18n } from '@rc/ui';
-import { BUYER_TYPES, isBuyerType, buysPalay, type BuyerType } from '@rc/domain/buyers';
+import { useDemoState, updateDemoState } from '@rc/store/react';
+import { setBuyerType } from '@rc/store';
+import { BUYER_TYPES, buysPalay, isBuyerType, type BuyerType } from '@rc/domain/buyers';
 
-const KEY = 'rc-buyer-type';
 const DEFAULT: BuyerType = 'restaurant';
 
-/** Buyer type from ?type= (shareable), else the last choice in localStorage (try/catch), else Restaurant. */
+/** Buyer type from ?type= (shareable), else the last choice kept in the demo store, else Restaurant. */
 export function useBuyerType(): [BuyerType, (t: BuyerType) => void] {
     const sp = useSearchParams();
     const router = useRouter();
     const pathname = usePathname();
+    const stored = useDemoState().buyerType;
     const fromUrl = sp.get('type');
-    const [stored, setStored] = useState<BuyerType | null>(null);
-    useEffect(() => {
-        try {
-            const v = window.localStorage.getItem(KEY);
-            if (isBuyerType(v)) setStored(v);
-        } catch {
-            /* blocked */
-        }
-    }, []);
     const type = isBuyerType(fromUrl) ? fromUrl : (stored ?? DEFAULT);
     const set = useCallback(
         (t: BuyerType) => {
-            try {
-                window.localStorage.setItem(KEY, t);
-            } catch {
-                /* blocked */
-            }
-            setStored(t);
+            updateDemoState(setBuyerType(t));
             const next = new URLSearchParams(sp.toString());
             next.set('type', t);
             router.replace(`${pathname}?${next.toString()}`, { scroll: false });

@@ -1,4 +1,4 @@
-import type { RiceOrder } from '@rc/domain/buyers';
+import type { BuyerType, RiceOrder } from '@rc/domain/buyers';
 
 /** A palay commitment a miller posted in the buyer app (auto-matched against lots not yet committed). */
 export interface LocalCommitment {
@@ -33,6 +33,8 @@ export interface DemoState {
     smsReplies: SmsReply[];
     /** Farms added to the cluster in the coordinator app. */
     farmsAdded: string[];
+    /** Last buyer type chosen in the buyer app (the radio group); absent = the default (Restaurant). */
+    buyerType?: BuyerType;
     /** Simulated sign-in per app (no accounts, no passwords): the demo identity signed in to each app, absent = signed out. */
     session: Partial<Record<SessionRole, string>>;
 }

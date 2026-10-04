@@ -132,7 +132,7 @@ export function BuyerSupplyScreen({
                                                     i === week ? 'underline decoration-[3px] underline-offset-4' : ''
                                                 }
                                             >
-                                                {t1(r.v[i] ?? 0)} t
+                                                {t1(r.v[i] ?? 0)} {t('unit.t')}
                                             </span>
                                         )
                                     }))

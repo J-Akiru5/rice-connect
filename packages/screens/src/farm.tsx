@@ -1,5 +1,4 @@
 'use client';
-import Link from 'next/link';
 import { ZLink, useZoneNav } from '@rc/ui';
 import { useEffect, useMemo, useState } from 'react';
 import { EmptyState, FarmProfileCard, Icon, Pagination, SearchField, StatusChip, useI18n } from '@rc/ui';
@@ -37,7 +36,7 @@ function FarmCard({ farm }: { farm: Farm }) {
             >
                 <span className="min-w-0 flex-1">
                     <span className="block text-[16px] leading-6 font-extrabold tabular">
-                        {farm.id} · {farm.areaHa.toFixed(1)} ha
+                        {farm.id} · {farm.areaHa.toFixed(1)} {t('unit.ha')}
                     </span>
                     <span className="block text-[14px] leading-5 font-semibold text-[var(--text-secondary)] break-words">
                         {farm.barangay}
@@ -85,8 +84,8 @@ export function FarmDetail({
                     <div className="col-span-2">
                         <dt className={cap}>{t('farm.forecast')}</dt>
                         <dd className="text-[16px] font-bold">
-                            {farm.driedKg.toLocaleString('en-US')} kg · {Math.ceil(farm.driedKg / KG_PER_SACK)}{' '}
-                            {t('unit.sacks')}
+                            {farm.driedKg.toLocaleString('en-US')} {t('unit.kg')} ·{' '}
+                            {Math.ceil(farm.driedKg / KG_PER_SACK)} {t('unit.sacks')}
                         </dd>
                     </div>
                 </dl>
@@ -222,7 +221,7 @@ export function FarmListScreen({
                                                         className={`border-t border-[color:var(--glass-border-strong)] text-[14px] font-bold align-top ${on ? 'bg-[rgba(2,70,53,.08)]' : ''}`}
                                                     >
                                                         <th scope="row" className="py-1.5 pr-3">
-                                                            <Link
+                                                            <ZLink
                                                                 href={L.href({ farm: f.id, page: pg.page })}
                                                                 replace
                                                                 scroll={false}
@@ -230,12 +229,12 @@ export function FarmListScreen({
                                                                 className="inline-flex items-center min-h-[40px] font-extrabold text-[var(--text-accent)] underline underline-offset-4"
                                                             >
                                                                 {f.id}
-                                                            </Link>
+                                                            </ZLink>
                                                         </th>
                                                         <td className="py-2.5 pr-3 break-words">{f.name}</td>
                                                         <td className="py-2.5 pr-3 break-words">{f.barangay}</td>
                                                         <td className="py-2.5 pr-3 whitespace-nowrap">
-                                                            {f.areaHa.toFixed(1)} ha
+                                                            {f.areaHa.toFixed(1)} {t('unit.ha')}
                                                         </td>
                                                         <td className="py-2.5 pr-3 break-words">{f.variety}</td>
                                                         <td className="py-2.5 pr-3">{f.plantingWeek}</td>

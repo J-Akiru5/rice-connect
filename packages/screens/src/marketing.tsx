@@ -291,7 +291,7 @@ function HarvestTracker() {
                             </div>
                             <div className="flex flex-col items-end gap-1">
                                 <span className="text-[18px] font-extrabold whitespace-nowrap">
-                                    {(Math.round(l.driedKg / 100) / 10).toFixed(1)} t
+                                    {(Math.round(l.driedKg / 100) / 10).toFixed(1)} {t('unit.t')}
                                 </span>
                                 <StatusChip
                                     status={c ? 'matched' : 'open'}
@@ -407,7 +407,9 @@ export function MarketingPage() {
                 </div>
                 <div>
                     <div className="eyebrow">{t('plan.stat.area')}</div>
-                    <div className="text-[28px] font-extrabold">{ha} ha</div>
+                    <div className="text-[28px] font-extrabold">
+                        {ha} {t('unit.ha')}
+                    </div>
                 </div>
                 <div className="min-w-0">
                     <div className="eyebrow">{t('mk.hero.where')}</div>

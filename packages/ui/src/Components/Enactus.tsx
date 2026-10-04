@@ -195,7 +195,9 @@ export function FarmProfileCard({
                 </Field>
                 <Field label={t('farm.barangay')}>{farm.barangay}</Field>
                 <Field label={t('farm.area')}>
-                    <span className="tabular">{farm.areaHa.toFixed(1)} ha</span>
+                    <span className="tabular">
+                        {farm.areaHa.toFixed(1)} {t('unit.ha')}
+                    </span>
                 </Field>
                 <Field label={t('farm.variety')}>{farm.variety}</Field>
                 <div className="col-span-2">
@@ -263,11 +265,16 @@ export function CommitmentCard({
                 <StatusChip status={c.status} />
             </div>
             <div className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1 tabular">
-                <span className="text-[32px] leading-9 font-extrabold tracking-[-0.02em]">{c.tonnes.toFixed(1)} t</span>
+                <span className="text-[32px] leading-9 font-extrabold tracking-[-0.02em]">
+                    {c.tonnes.toFixed(1)} {t('unit.t')}
+                </span>
                 <span className="text-[15px] font-bold">
                     {c.grade} · {c.mc}
                 </span>
-                <span className="text-[15px] font-bold text-[var(--gold-ink)]">{peso(c.price)}/kg</span>
+                <span className="text-[15px] font-bold text-[var(--gold-ink)]">
+                    {peso(c.price)}
+                    {t('unit.perKg')}
+                </span>
             </div>
             <div className="mt-3">
                 <div
@@ -434,7 +441,7 @@ export function HarvestCalendar({
                                                     color: v / max > 0.45 ? 'var(--on-fill-strong)' : 'var(--ink)'
                                                 }}
                                             >
-                                                {v.toFixed(1)} t
+                                                {v.toFixed(1)} {t('unit.t')}
                                             </div>
                                         </div>
                                         {hl && (
@@ -446,7 +453,7 @@ export function HarvestCalendar({
                                 );
                             })}
                             <td className="py-2 pl-2 text-right text-[15px] font-extrabold border-t border-[color:var(--glass-border-strong)]">
-                                {(Math.round(r.weeks.reduce((a, b) => a + b, 0) * 10) / 10).toFixed(1)} t
+                                {(Math.round(r.weeks.reduce((a, b) => a + b, 0) * 10) / 10).toFixed(1)} {t('unit.t')}
                             </td>
                         </tr>
                     ))}
@@ -462,11 +469,11 @@ export function HarvestCalendar({
                                 key={i}
                                 className="pt-3 px-2 border-t-2 border-[color:var(--text-muted)] text-[15px] font-extrabold"
                             >
-                                {v.toFixed(1)} t
+                                {v.toFixed(1)} {t('unit.t')}
                             </td>
                         ))}
                         <td className="pt-3 pl-2 text-right border-t-2 border-[color:var(--text-muted)] text-[15px] font-extrabold">
-                            {totals.reduce((a, b) => a + b, 0).toFixed(1)} t
+                            {totals.reduce((a, b) => a + b, 0).toFixed(1)} {t('unit.t')}
                         </td>
                     </tr>
                 </tbody>
@@ -575,7 +582,7 @@ export function RouteLine({
             {km !== undefined && (
                 <div className="mt-3 pt-3 border-t-2 border-black flex items-center gap-2 text-[14px] font-extrabold text-black tabular">
                     <Icon name="Route" size={20} />
-                    {km.toFixed(1)} km · {t('route.note')}
+                    {km.toFixed(1)} {t('unit.km')} · {t('route.note')}
                 </div>
             )}
         </div>
@@ -696,7 +703,7 @@ export function HaulRequestCard({
                     </div>
                     <h3 className="text-[24px] leading-7 font-extrabold text-black tabular">{id}</h3>
                     <div className="text-[14px] font-bold text-[var(--gray-900)] tabular">
-                        Lot {lot} · {sacks} {t('unit.sacks')}
+                        {t('unit.lot')} {lot} · {sacks} {t('unit.sacks')}
                     </div>
                 </div>
                 <StatusChip status={status} hard />
@@ -796,14 +803,16 @@ export function SettlementSlip({
                 </div>
                 <div>
                     <dt className="font-semibold">{t('slip.weight')}</dt>
-                    <dd className="font-extrabold">{slip.kg.toLocaleString('en-PH')} kg</dd>
+                    <dd className="font-extrabold">
+                        {slip.kg.toLocaleString('en-PH')} {t('unit.kg')}
+                    </dd>
                 </div>
             </dl>
             <table className="w-full mt-2">
                 <thead>
                     <tr>
-                        <th className="sr-only">Item</th>
-                        <th className="text-right text-[12px] font-extrabold">₱/kg</th>
+                        <th className="sr-only">{t('slip.item')}</th>
+                        <th className="text-right text-[12px] font-extrabold">{t('unit.pesoPerKg')}</th>
                         <th className="text-right text-[12px] font-extrabold">{t('slip.amount')}</th>
                     </tr>
                 </thead>
@@ -845,6 +854,7 @@ export function PhoneFrame({
     dark = false,
     className = ''
 }: PropsWithChildren<{ time?: string; dark?: boolean; className?: string }>) {
+    const { t } = useI18n();
     return (
         <div
             className={`relative w-[390px] h-[844px] overflow-hidden rounded-[48px] border-[10px] border-[color:var(--black)] bg-[var(--canvas)] ${className}`}
@@ -857,7 +867,7 @@ export function PhoneFrame({
                     aria-hidden
                 />
                 <span className="flex items-center gap-1" aria-hidden>
-                    <Icon name="Phone" size={14} /> 4G
+                    <Icon name="Phone" size={14} /> {t('phone.net')}
                 </span>
             </div>
             <div className="absolute inset-0 pt-11 overflow-y-auto">{children}</div>
@@ -879,6 +889,7 @@ export function SmsBubble({
 }) {
     const gsm = /^[\x0A\x0D\x20-\x7E]*$/.test(text);
     const parts = gsm ? (text.length <= 160 ? '1 SMS' : `${Math.ceil(text.length / 153)} SMS`) : 'Unicode';
+    const { t } = useI18n();
     return (
         <figure
             className={
@@ -889,7 +900,7 @@ export function SmsBubble({
             <div className="px-4 pt-3 pb-2 text-[16px] leading-6 font-medium text-[var(--ink)]">{text}</div>
             <figcaption className="px-4 py-2 border-t border-[color:var(--glass-border-strong)] text-[12px] leading-4 font-semibold text-[var(--text-muted)] tabular">
                 {from}
-                {time ? ' · ' + time : ''} · {text.length} chars · {parts}
+                {time ? ' · ' + time : ''} · {text.length} {t('sms.chars')} · {parts}
             </figcaption>
         </figure>
     );

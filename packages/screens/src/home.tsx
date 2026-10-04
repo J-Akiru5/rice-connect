@@ -103,7 +103,9 @@ export function CoordinatorHomeScreen() {
                                     <span className="text-[14px] font-semibold break-words">
                                         {f.barangay} · {f.harvestLabel}
                                     </span>
-                                    <span className="text-[14px] font-bold whitespace-nowrap">{t1(f.driedKg)} t</span>
+                                    <span className="text-[14px] font-bold whitespace-nowrap">
+                                        {t1(f.driedKg)} {t('unit.t')}
+                                    </span>
                                 </li>
                             ))}
                         </ul>
@@ -114,7 +116,8 @@ export function CoordinatorHomeScreen() {
                             {waiting ? (
                                 <div className="flex flex-wrap items-center justify-between gap-3">
                                     <span className="text-[16px] font-extrabold tabular">
-                                        {HAUL.id} · Lot {HAUL.lot} · {HAUL.sacks} {t('unit.sacks')} · {HAUL.pickup}
+                                        {HAUL.id} · {t('unit.lot')} {HAUL.lot} · {HAUL.sacks} {t('unit.sacks')} ·{' '}
+                                        {HAUL.pickup}
                                     </span>
                                     <StatusChip status={hStatus} />
                                 </div>
@@ -162,7 +165,8 @@ export function CoordinatorHomeScreen() {
                                             className="flex flex-wrap items-center justify-between gap-2 tabular"
                                         >
                                             <span className="text-[15px] font-bold">
-                                                {c.id} · {t('buyer.type.miller')} · {c.tonnes} t · {c.window.join('-')}
+                                                {c.id} · {t('buyer.type.miller')} · {c.tonnes} {t('unit.t')} ·{' '}
+                                                {c.window.join('-')}
                                             </span>
                                             <StatusChip status="matched" />
                                         </li>

@@ -9,6 +9,16 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     'role.buyer': ['Buyer (simulated)', 'Mamimili (simulated)', 'Bumalakal (simulated)'],
     'role.driver': ['Driver (simulated)', 'Driver (simulated)', 'Driver (simulated)'],
     'unit.sacks': ['sacks', 'sako', 'sako'],
+    'unit.t': ['t', 't', 't'],
+    'unit.kg': ['kg', 'kg', 'kg'],
+    'unit.ha': ['ha', 'ha', 'ha'],
+    'unit.km': ['km', 'km', 'km'],
+    'unit.perKg': ['/kg', '/kg', '/kg'],
+    'unit.pesoPerKg': ['₱/kg', '₱/kg', '₱/kg'],
+    'unit.lot': ['Lot', 'Lot', 'Lot'],
+    'phone.net': ['4G', '4G', '4G'],
+    'sms.chars': ['chars', 'mga karakter', 'mga karakter'],
+    'slip.item': ['Item', 'Aytem', 'Butang'],
     // components
     'market.filled': ['Filled', 'Napunan', 'Napuno'],
     'market.filledof': [

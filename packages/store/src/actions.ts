@@ -1,4 +1,5 @@
 import { parseSmsReply } from '@rc/domain/sms-reply';
+import type { BuyerType } from '@rc/domain/buyers';
 import type { DemoState, HaulStatus, SessionRole } from './types';
 
 /* Pure state transitions shared by the apps (tested in actions.test.ts). */
@@ -35,6 +36,11 @@ export const addFarm =
     (id: string) =>
     (s: DemoState): DemoState =>
         s.farmsAdded.includes(id) ? s : { ...s, farmsAdded: [...s.farmsAdded, id] };
+
+/** Remember the buyer type chosen in the buyer app (the screens never touch storage directly). */
+export const setBuyerType =
+    (buyerType: BuyerType) =>
+    (s: DemoState): DemoState => ({ ...s, buyerType });
 
 /** Simulated sign-in: records which demo identity is signed in to an app. Nothing is checked; nothing leaves the browser. */
 export const signIn =

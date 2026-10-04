@@ -166,7 +166,7 @@ export function MarketScreen({ committed: forced }: { committed?: boolean }) {
                                     {t('pay.section.lot', { lot: HERO_LOT.id, farm: HERO_LOT.farm })}
                                 </div>
                                 <div className="mt-1 text-[24px] leading-7 font-extrabold tabular">
-                                    {t1(HERO_LOT.driedKg)} t
+                                    {t1(HERO_LOT.driedKg)} {t('unit.t')}
                                 </div>
                                 <div className="text-[15px] font-bold tabular">
                                     {t('market.lotline', {
@@ -181,7 +181,8 @@ export function MarketScreen({ committed: forced }: { committed?: boolean }) {
                         <div className="flex items-center gap-2 text-[15px] font-bold tabular">
                             <Icon name="ArrowRight" size={20} />
                             <span>
-                                {heroC.id} · {heroC.buyer} · {peso(heroC.price)}/kg
+                                {heroC.id} · {heroC.buyer} · {peso(heroC.price)}
+                                {t('unit.perKg')}
                             </span>
                         </div>
                         <Note>

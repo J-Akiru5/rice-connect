@@ -124,7 +124,8 @@ export function PlanScreen({ list }: { list?: ListState }) {
                             <li key={r.barangay} className="glass-panel rounded-[1.5rem] p-4">
                                 <div className="text-[16px] leading-6 font-extrabold break-words">{r.barangay}</div>
                                 <div className="text-[14px] font-semibold text-[var(--text-secondary)]">
-                                    {t('cal.farms', { n: r.farms })} · {r.weeks.reduce((a, b) => a + b, 0).toFixed(1)} t
+                                    {t('cal.farms', { n: r.farms })} · {r.weeks.reduce((a, b) => a + b, 0).toFixed(1)}{' '}
+                                    {t('unit.t')}
                                 </div>
                                 <dl className="mt-2 flex flex-col gap-2 tabular">
                                     {r.weeks.map((v, wi) => {
@@ -149,12 +150,13 @@ export function PlanScreen({ list }: { list?: ListState }) {
                                                                 v / max > 0.45 ? 'var(--on-fill-strong)' : 'var(--ink)'
                                                         }}
                                                     >
-                                                        {v.toFixed(1)} t
+                                                        {v.toFixed(1)} {t('unit.t')}
                                                     </span>
                                                 </dd>
                                                 {hl && (
                                                     <dd className="col-start-2 text-[13px] font-bold text-[var(--gold-ink)]">
-                                                        {HERO_FARM.id} · {HERO_LOT.id} · {t1(HERO_FARM.driedKg)} t
+                                                        {HERO_FARM.id} · {HERO_LOT.id} · {t1(HERO_FARM.driedKg)}{' '}
+                                                        {t('unit.t')}
                                                     </dd>
                                                 )}
                                             </div>

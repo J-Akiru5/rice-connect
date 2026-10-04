@@ -72,7 +72,7 @@ importers:
         version: 9.39.5(jiti@1.21.7)
       eslint-config-next:
         specifier: 16.3.8
-        version: 16.3.8(eslint@9.39.5(jiti@1.21.7))(typescript@5.6.3)
+        version: 16.3.8(@typescript-eslint/parser@8.71.0(eslint@9.39.5(jiti@1.21.7))(typescript@5.6.3))(eslint@9.39.5(jiti@1.21.7))(typescript@5.6.3)
       postcss:
         specifier: 8.4.49
         version: 8.4.49
@@ -136,7 +136,7 @@ importers:
         version: 9.39.5(jiti@1.21.7)
       eslint-config-next:
         specifier: 16.3.8
-        version: 16.3.8(@typescript-eslint/parser@8.71.0(eslint@9.39.5(jiti@1.21.7))(typescript@5.6.3))(eslint@9.39.5(jiti@1.21.7))(typescript@5.6.3)
+        version: 16.3.8(eslint@9.39.5(jiti@1.21.7))(typescript@5.6.3)
       postcss:
         specifier: 8.4.49
         version: 8.4.49
@@ -292,6 +292,10 @@ importers:
       tailwindcss:
         specifier: 3.4.19
         version: 3.4.19
+    devDependencies:
+      typescript:
+        specifier: 5.6.3
+        version: 5.6.3
 
   packages/domain:
     devDependencies:
