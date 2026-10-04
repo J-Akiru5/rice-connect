@@ -219,6 +219,8 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     'haul.overridden': ['Coordinator override', 'Pinalitan ng coordinator', 'Ginbaylo sang coordinator'],
     'haul.close': ['Close List', 'Isara ang Listahan', 'Isira ang Listahan'],
     'haul.delivered': ['Mark Delivered', 'Markahang Naihatid', 'Markahan nga Naihatod'],
+    'haul.notSent': ['Not sent yet', 'Hindi pa naipapadala', 'Wala pa napadala'],
+    'haul.saved': ['Status saved', 'Nai-save ang status', 'Na-save ang status'],
     'haul.declined': [
         'Job declined. The coordinator assigns the next nearest driver.',
         'Tinanggihan ang trabaho. Itatalaga ng coordinator ang susunod na pinakamalapit na driver.',

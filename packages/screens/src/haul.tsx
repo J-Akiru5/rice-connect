@@ -1,20 +1,25 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ZLink } from '@rc/ui';
 import {
     DeliveryStatusStepper,
     DriverCard,
     EmptyState,
+    ErrorState,
     HaulRequestCard,
     Icon,
+    LoadingState,
+    OfflineBanner,
     RouteLine,
     StatusChip,
     VehicleOption,
-    useI18n
+    useI18n,
+    useToast
 } from '@rc/ui';
 import { ModuleShell } from './shell';
 import { useDemoState, updateDemoState } from '@rc/store/react';
 import { haulStatus, setHaul } from '@rc/store';
+import { useHaulStatus, useSetHaulStatus } from '@rc/data';
 import { DRIVERS, DRYER, HAUL, HERO_LOT, KG_PER_SACK, SLOT, VEHICLES, vehicleOf } from '@rc/domain/seed';
 import { autoAssign, tripsFor, type Driver } from '@rc/domain/assign';
 import { peso } from '@rc/domain/money';
@@ -297,16 +302,56 @@ export function HaulCoordinatorScreen({
     );
 }
 
-/** /haul/driver — the driver's job card: Accept / Decline, then status updates (one column, max 720px when wide). */
+/** /haul/driver — the driver's job card: one forward action per step. Updates sent while offline are queued
+    in the card ("Not sent yet") and flushed when the connection returns, so nothing disappears. */
 export function HaulDriverScreen({ status: forced }: { status?: HaulStatus }) {
     const { t } = useI18n();
-    const own = haulStatus(useDemoState(), HAUL.id);
+    const toast = useToast();
+    const server = useHaulStatus(HAUL.id);
+    const mutation = useSetHaulStatus();
     const [declined, setDeclined] = useState(false);
-    const st = forced ?? own;
+    const [queued, setQueued] = useState<HaulStatus | null>(null);
+    const st: HaulStatus = forced ?? queued ?? server.data ?? 'assigned';
     const d = HAUL.driver!;
     const v = vehicleOf(d);
     const trips = tripsFor(HAUL.sacks, v);
-    const step = (to: HaulStatus) => () => updateDemoState(setHaul(HAUL.id, to));
+
+    async function apply(to: HaulStatus) {
+        const fresh = to !== queued;
+        if (fresh && ORDER.indexOf(to) <= ORDER.indexOf(st)) return;
+        if (typeof navigator !== 'undefined' && !navigator.onLine) {
+            setQueued(to);
+            return;
+        }
+        try {
+            await mutation.mutateAsync({ id: HAUL.id, status: to });
+            setQueued(null);
+            toast.show(t('haul.saved'));
+        } catch {
+            setQueued(to);
+        }
+    }
+
+    useEffect(() => {
+        if (!queued) return;
+        const flush = () => void apply(queued);
+        window.addEventListener('online', flush);
+        return () => window.removeEventListener('online', flush);
+    }, [queued]);
+
+    if (!forced && server.isPending)
+        return (
+            <ModuleShell role="driver" title="haul.driver.job" active="logistics">
+                <LoadingState rows={3} />
+            </ModuleShell>
+        );
+    if (!forced && server.isError)
+        return (
+            <ModuleShell role="driver" title="haul.driver.job" active="logistics">
+                <ErrorState onRetry={() => void server.refetch()} />
+            </ModuleShell>
+        );
+
     return (
         <ModuleShell role="driver" title="haul.driver.job" active="logistics">
             <div className="flex flex-col gap-4 max-w-[720px] mx-auto w-full">
@@ -320,6 +365,26 @@ export function HaulDriverScreen({ status: forced }: { status?: HaulStatus }) {
                         </Row>
                         <Row label={t('haul.vehicle')}>{d.plate}</Row>
                     </div>
+                    {queued && (
+                        <div
+                            role="status"
+                            className="hard-thin p-3 flex items-center justify-between gap-2 flex-wrap text-black"
+                        >
+                            <span className="flex items-center gap-2 text-[15px] font-bold">
+                                <Icon name="Clock" size={20} className="shrink-0" />
+                                {t('haul.notSent')}
+                            </span>
+                            <button
+                                type="button"
+                                onClick={() => void apply(queued)}
+                                className="hard-btn bg-white text-black !min-h-[44px] !px-3 !py-2"
+                            >
+                                <Icon name="Retry" size={20} />
+                                <span>{t('error.retry')}</span>
+                            </button>
+                        </div>
+                    )}
+                    {!forced && <OfflineBanner className="rounded-xl" />}
                     {declined ? (
                         <div className="hard-thin p-3 flex flex-col gap-2">
                             <p className="text-[16px] font-bold text-black flex items-start gap-2">
@@ -335,11 +400,12 @@ export function HaulDriverScreen({ status: forced }: { status?: HaulStatus }) {
                                 <span>{t('haul.undo')}</span>
                             </button>
                         </div>
-                    ) : st === 'assigned' ? (
+                    ) : queued ? null : st === 'assigned' ? (
                         <div className="flex flex-wrap gap-3">
                             <button
                                 type="button"
-                                onClick={step('accepted')}
+                                onClick={() => void apply('accepted')}
+                                disabled={mutation.isPending}
                                 className="hard-btn flex-[1_1_140px] bg-[var(--success)] text-black"
                             >
                                 <Icon name="Check" size={24} />
@@ -357,7 +423,8 @@ export function HaulDriverScreen({ status: forced }: { status?: HaulStatus }) {
                     ) : st === 'accepted' ? (
                         <button
                             type="button"
-                            onClick={step('pickedup')}
+                            onClick={() => void apply('pickedup')}
+                            disabled={mutation.isPending}
                             className="hard-btn w-full bg-[var(--warning)] text-black"
                         >
                             <Icon name="Sack" size={24} />
@@ -366,7 +433,8 @@ export function HaulDriverScreen({ status: forced }: { status?: HaulStatus }) {
                     ) : st === 'pickedup' ? (
                         <button
                             type="button"
-                            onClick={step('delivered')}
+                            onClick={() => void apply('delivered')}
+                            disabled={mutation.isPending}
                             className="hard-btn w-full bg-[var(--success)] text-black"
                         >
                             <Icon name="CircleCheck" size={24} />

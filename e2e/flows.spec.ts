@@ -22,6 +22,18 @@ test.describe('critical flows', () => {
     await expect(page.getByText('Delivered. Thank you!')).toBeVisible();
   });
 
+  test('driver: an offline step is queued as Not sent yet and flushed when back online', async ({ page, context }) => {
+    await page.goto('/driver');
+    await page.getByRole('button', { name: 'Accept Job' }).click();
+    await context.setOffline(true);
+    await page.getByRole('button', { name: 'Mark Picked Up' }).click();
+    await expect(page.getByText('Not sent yet', { exact: true })).toBeVisible();
+    await context.setOffline(false);
+    await expect(page.getByText('Not sent yet', { exact: true })).toHaveCount(0);
+    await page.getByRole('button', { name: 'Mark Delivered' }).click();
+    await expect(page.getByText('Delivered. Thank you!')).toBeVisible();
+  });
+
   test('buyer: place an order and the coordinator sees it', async ({ page }) => {
     await page.goto('/buyer/orders');
     await page.getByRole('button', { name: 'Place Order' }).click();
