@@ -4,6 +4,7 @@ export { DataProvider } from './provider';
 export {
     newIdempotencyKey,
     useAddFarm,
+    useCancelOrder,
     useCommitments,
     useCreateCommitment,
     useCreateOrder,

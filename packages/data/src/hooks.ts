@@ -107,6 +107,15 @@ export const useCreateOrder = () => {
     });
 };
 
+export const useCancelOrder = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ id, idempotencyKey = newIdempotencyKey() }: { id: string; idempotencyKey?: string }) =>
+            getRepos().orders.cancel(id, { idempotencyKey }),
+        onSuccess: () => qc.invalidateQueries({ queryKey: keys.orders.all })
+    });
+};
+
 export const useCreateCommitment = () => {
     const qc = useQueryClient();
     return useMutation({

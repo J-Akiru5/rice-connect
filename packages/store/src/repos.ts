@@ -79,6 +79,8 @@ export interface OrderRepo {
         input: { type: Parameters<typeof makeRiceOrder>[0]; sacks: number; week: Week },
         opts: WriteOpts
     ): Promise<ReturnType<typeof makeRiceOrder>>;
+    /** Cancels an order (idempotent); the buyer's Undo window calls this. */
+    cancel(id: string, opts: WriteOpts): Promise<void>;
 }
 export interface SettlementRepo {
     /** The slip for a weighed lot; forecast lots have no settlement yet (not_found). */
@@ -241,6 +243,13 @@ export function createMockRepos(adapter: DataAdapter): Repos {
                 } catch (e) {
                     throw new RepoError('validation', e instanceof Error ? e.message : 'order rejected');
                 }
+            });
+        },
+        async cancel(id, opts) {
+            return once(opts.idempotencyKey, () => {
+                if (!state().riceOrders.some((o) => o.id === id))
+                    throw new RepoError('not_found', `Order ${id} does not exist`, id);
+                adapter.update((s) => ({ ...s, riceOrders: s.riceOrders.filter((o) => o.id !== id) }));
             });
         }
     };

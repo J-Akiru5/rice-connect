@@ -7,13 +7,19 @@ import {
     AppShell,
     CommitmentCard,
     EmptyState,
+    ErrorState,
     Icon,
     InputError,
+    LoadingState,
     PrimaryButton,
     SecondaryButton,
     StatusChip,
-    useI18n
+    TabPanel,
+    Tabs,
+    useI18n,
+    useToast
 } from '@rc/ui';
+import { useCancelOrder, useCreateOrder, useOrders } from '@rc/data';
 import {
     COMMITMENTS,
     DRYER,
@@ -33,9 +39,7 @@ import {
     RICE_AVAILABLE_KG,
     UNCOMMITTED_LOTS,
     buysPalay,
-    makeRiceOrder,
-    type BuyerType,
-    type RiceOrder
+    type BuyerType
 } from '@rc/domain/buyers';
 import { autoMatch } from '@rc/domain/match';
 import { isWeek, type Week } from '@rc/domain/schemas';
@@ -95,7 +99,7 @@ export function TraceChain({ head, rice }: { head: string; rice: boolean }) {
         }
     ];
     return (
-        <section aria-label={t('trace.title')} className="glass-panel rounded-[1.5rem] p-5">
+        <section id="trace" aria-label={t('trace.title')} className="glass-panel rounded-[1.5rem] p-5">
             <h3 className="eyebrow">{t('trace.title')}</h3>
             <ol className="mt-3 flex flex-col gap-0">
                 {steps.map((s, i) => (
@@ -128,73 +132,151 @@ export function TraceChain({ head, rice }: { head: string; rice: boolean }) {
 
 function RiceOrders({ type }: { type: BuyerType }) {
     const { t } = useI18n();
-    const [sacks, setSacks] = useState('4');
+    const toast = useToast();
+    const ordersQuery = useOrders({ size: 100 });
+    const createOrder = useCreateOrder();
+    const cancelOrder = useCancelOrder();
+    const [step, setStep] = useState<'compose' | 'review'>('compose');
+    const [sacks, setSacks] = useState(4);
     const [week, setWeek] = useState<Week>('W3');
     const [error, setError] = useState('');
-    const orders: RiceOrder[] = useDemoState().riceOrders;
-    const mine = orders.filter((o) => o.type === type);
-    const used = orders.reduce((s, o) => s + o.kg, 0);
+    const all = ordersQuery.data?.rows ?? [];
+    const mine = all.filter((o) => o.type === type);
+    const used = all.reduce((s, o) => s + o.kg, 0);
     const available = Math.max(0, RICE_AVAILABLE_KG - used);
-    const n = Number(sacks);
-    const kg = Number.isInteger(n) && n > 0 ? n * MILLING.sackKg : 0;
-    const place = () => {
-        if (!Number.isInteger(n) || n < 1) return setError(t('orders.err.sacks'));
-        if (kg > available) return setError(t('orders.err.available', { kg: available.toLocaleString('en-US') }));
-        const o = makeRiceOrder(type, n, week, orders.length + 1, available);
-        updateDemoState((st) => ({ ...st, riceOrders: [o, ...st.riceOrders] }));
+    const maxSacks = Math.max(1, Math.floor(available / MILLING.sackKg));
+    const kg = sacks * MILLING.sackKg;
+    const total = kg * MILLING.price;
+    const totalLine = t('orders.total', {
+        kg: kg.toLocaleString('en-US'),
+        total: peso(total),
+        price: peso(MILLING.price)
+    });
+    const setCount = (next: number) => {
         setError('');
+        setSacks(Math.min(maxSacks, Math.max(1, next)));
     };
-    const clear = () => updateDemoState((st) => ({ ...st, riceOrders: st.riceOrders.filter((o) => o.type !== type) }));
+    const place = async () => {
+        if (kg > available) {
+            setError(t('orders.err.available', { kg: available.toLocaleString('en-US') }));
+            return;
+        }
+        try {
+            const order = await createOrder.mutateAsync({ type, sacks, week });
+            setStep('compose');
+            setSacks(4);
+            setError('');
+            toast.show(t('orders.placed', { id: order.id }), {
+                label: t('action.undo'),
+                onClick: () => {
+                    void cancelOrder.mutateAsync({ id: order.id }).then(() => toast.show(t('orders.cancelled')));
+                }
+            });
+        } catch {
+            setError(t('orders.err.available', { kg: available.toLocaleString('en-US') }));
+        }
+    };
+    const clear = () => {
+        for (const o of mine) void cancelOrder.mutateAsync({ id: o.id });
+    };
+    if (ordersQuery.isPending) return <LoadingState rows={3} />;
+    if (ordersQuery.isError) return <ErrorState onRetry={() => void ordersQuery.refetch()} />;
+    const stepButton =
+        'inline-flex items-center justify-center min-h-[44px] min-w-[44px] rounded-full border-2 border-[color:var(--text-muted)] text-[var(--ink)]';
     return (
         <div className="cq-two">
             <div className="flex flex-col gap-4">
                 <section aria-labelledby="ro-new" className="glass-panel rounded-[1.5rem] p-5 flex flex-col gap-4">
                     <h2 id="ro-new" className="eyebrow">
-                        {t('orders.new.rice')}
+                        {step === 'review' ? t('orders.summary') : t('orders.new.rice')}
                     </h2>
-                    <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(180px,100%),1fr))]">
-                        <label>
-                            <span className={labelCls}>{t('orders.sacks', { kg: MILLING.sackKg })}</span>
-                            <input
-                                type="number"
-                                inputMode="numeric"
-                                min={1}
-                                step={1}
-                                value={sacks}
-                                onChange={(e) => setSacks(e.target.value)}
-                                className={fieldCls}
-                                aria-invalid={!!error}
-                            />
-                        </label>
-                        <label>
-                            <span className={labelCls}>{t('orders.week')}</span>
-                            <select
-                                value={week}
-                                onChange={(e) => {
-                                    if (isWeek(e.target.value)) setWeek(e.target.value);
-                                }}
-                                className={fieldCls}
-                            >
-                                {WEEKS.map((w) => (
-                                    <option key={w}>{w}</option>
-                                ))}
-                            </select>
-                        </label>
-                    </div>
-                    <p className="m-0 text-[16px] font-extrabold tabular">
-                        {t('orders.total', {
-                            kg: kg.toLocaleString('en-US'),
-                            total: peso(kg * MILLING.price),
-                            price: peso(MILLING.price)
-                        })}
-                    </p>
-                    <p className="m-0 text-[14px] font-semibold text-[var(--text-secondary)] tabular">
-                        {t('orders.available', { kg: available.toLocaleString('en-US') })}
-                    </p>
-                    <InputError message={error} />
-                    <PrimaryButton icon="Check" onClick={place} className="self-start">
-                        {t('orders.place')}
-                    </PrimaryButton>
+                    {step === 'compose' ? (
+                        <>
+                            <div className="flex flex-col gap-2">
+                                <span className={labelCls}>{t('orders.sacks', { kg: MILLING.sackKg })}</span>
+                                <div className="flex items-center gap-3 flex-wrap">
+                                    <button
+                                        type="button"
+                                        aria-label={t('orders.less')}
+                                        onClick={() => setCount(sacks - 1)}
+                                        disabled={sacks <= 1}
+                                        className={stepButton}
+                                    >
+                                        <Icon name="Minus" size={20} />
+                                    </button>
+                                    <span className="text-[24px] leading-8 font-extrabold tabular min-w-[3ch] text-center">
+                                        {sacks}
+                                    </span>
+                                    <button
+                                        type="button"
+                                        aria-label={t('orders.more')}
+                                        onClick={() => setCount(sacks + 1)}
+                                        disabled={sacks >= maxSacks}
+                                        className={stepButton}
+                                    >
+                                        <Icon name="Plus" size={20} />
+                                    </button>
+                                    <span className="text-[15px] font-bold text-[var(--text-secondary)]">
+                                        {t('unit.sacks')}
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <span className={labelCls}>{t('orders.week')}</span>
+                                <Tabs
+                                    value={week}
+                                    onValueChange={(v) => {
+                                        if (isWeek(v)) setWeek(v);
+                                    }}
+                                    label={t('orders.week')}
+                                    items={WEEKS.map((w) => ({ value: w, label: w }))}
+                                >
+                                    {WEEKS.map((w) => (
+                                        <TabPanel key={w} value={w} className="sr-only">
+                                            {w}
+                                        </TabPanel>
+                                    ))}
+                                </Tabs>
+                            </div>
+                            <p className="m-0 text-[16px] font-extrabold tabular">{totalLine}</p>
+                            <p className="m-0 text-[14px] font-semibold text-[var(--text-secondary)] tabular">
+                                {t('orders.available', { kg: available.toLocaleString('en-US') })}
+                            </p>
+                            <InputError message={error} />
+                            <PrimaryButton icon="ArrowRight" onClick={() => setStep('review')} className="self-start">
+                                {t('orders.review')}
+                            </PrimaryButton>
+                        </>
+                    ) : (
+                        <>
+                            <div className="flex flex-col gap-2 tabular">
+                                <div className="flex justify-between gap-3 text-[15px] font-bold">
+                                    <span>{t('orders.week')}</span>
+                                    <span>{week}</span>
+                                </div>
+                                <div className="flex justify-between gap-3 text-[15px] font-bold">
+                                    <span>{t('buyer.type.' + type)}</span>
+                                    <span>
+                                        {sacks} {t('unit.sacks')}
+                                    </span>
+                                </div>
+                                <p className="m-0 mt-1 text-[18px] leading-7 font-extrabold">{totalLine}</p>
+                            </div>
+                            <InputError message={error} />
+                            <div className="flex flex-wrap gap-2">
+                                <SecondaryButton icon="ChevronLeft" onClick={() => setStep('compose')}>
+                                    {t('orders.back')}
+                                </SecondaryButton>
+                                <PrimaryButton
+                                    icon="Check"
+                                    disabled={createOrder.isPending}
+                                    onClick={() => void place()}
+                                >
+                                    {createOrder.isPending ? t('orders.placing') : t('orders.place')}
+                                </PrimaryButton>
+                            </div>
+                        </>
+                    )}
                 </section>
                 <section aria-labelledby="ro-mine" className="flex flex-col gap-3">
                     <div>
@@ -223,7 +305,16 @@ function RiceOrders({ type }: { type: BuyerType }) {
                                                 })}
                                             </div>
                                         </div>
-                                        <StatusChip status="requested" />
+                                        <div className="flex items-center gap-3 flex-wrap">
+                                            <StatusChip status="requested" />
+                                            <ZLink
+                                                href="#trace"
+                                                className="inline-flex items-center gap-2 min-h-[44px] px-4 rounded-full border-2 border-[color:var(--text-muted)] text-[13px] font-extrabold uppercase tracking-[0.06em]"
+                                            >
+                                                <Icon name="Search" size={20} />
+                                                <span>{t('trace.title')}</span>
+                                            </ZLink>
+                                        </div>
                                     </li>
                                 ))}
                             </ul>

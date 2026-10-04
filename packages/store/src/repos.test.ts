@@ -97,6 +97,16 @@ describe('order repository', () => {
             r.orders.create({ type: 'restaurant', sacks: 100000, week: 'W3' }, { idempotencyKey: 'k2' })
         ).rejects.toMatchObject({ code: 'validation' });
     });
+
+    it('cancels an order and reports a missing one as not_found', async () => {
+        const r = repos();
+        const order = await r.orders.create({ type: 'restaurant', sacks: 4, week: 'W3' }, { idempotencyKey: 'c1' });
+        await r.orders.cancel(order.id, { idempotencyKey: 'x1' });
+        expect((await r.orders.list()).total).toBe(0);
+        await expect(r.orders.cancel(order.id, { idempotencyKey: 'x2' })).rejects.toMatchObject({
+            code: 'not_found'
+        });
+    });
 });
 
 describe('settlement repository', () => {
