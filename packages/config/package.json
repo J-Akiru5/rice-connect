@@ -6,7 +6,8 @@
     "./tsconfig.base.json": "./tsconfig.base.json",
     "./tailwind": "./tailwind.preset.ts",
     "./eslint": "./eslint.json",
-    "./next.mjs": "./next.mjs"
+    "./next.mjs": "./next.mjs",
+    "./zones.mjs": "./zones.mjs"
   },
   "scripts": {
     "lint": "node -e \"JSON.parse(require('fs').readFileSync('eslint.json','utf8'))\"",

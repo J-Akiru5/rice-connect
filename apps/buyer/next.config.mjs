@@ -1,11 +1,16 @@
-/* Zone "buyer": served under /buyer on the gateway origin (apps/marketing rewrites /buyer/* here).
+/* Zone "buyer": served under /buyer on the gateway origin (apps/main rewrites /buyer/* here).
    App routes are not for search engines. */
+import { zoneRedirects } from '@rc/config/zones.mjs';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   basePath: '/buyer',
   transpilePackages: ['@rc/ui', '@rc/domain', '@rc/i18n', '@rc/store', '@rc/screens'],
+  async redirects() {
+    return zoneRedirects('buyer');
+  },
   async headers() {
     return [{ source: '/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] }];
   },
