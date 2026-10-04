@@ -416,6 +416,9 @@ importers:
 
   packages/screens:
     dependencies:
+      '@rc/data':
+        specifier: workspace:*
+        version: link:../data
       '@rc/domain':
         specifier: workspace:*
         version: link:../domain

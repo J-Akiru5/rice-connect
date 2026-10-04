@@ -497,6 +497,8 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     'orders.you': ['You (simulated)', 'Ikaw (simulated)', 'Ikaw (simulated)'],
     // farmer SMS replies (TL/HIL drafts: needs native review)
     'sms.reply.label': ['Reply to RiceConnect', 'Sumagot sa RiceConnect', 'Sabat sa RiceConnect'],
+    'sms.reply.quick': ['Quick replies', 'Mabilisang sagot', 'Madasig nga sabat'],
+    'sms.reply.sending': ['Sending', 'Ipinapadala', 'Ginapadala'],
     'sms.reply.quickOk': ['1 OK', '1 OK', '1 OK'],
     'sms.reply.quickMove': ['2 Move', '2 Ilipat', '2 Ibalhin'],
     'sms.reply.placeholder': [
