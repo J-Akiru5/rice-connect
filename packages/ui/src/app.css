@@ -213,4 +213,7 @@
     .rc-overlay {
         background-color: color-mix(in srgb, var(--emerald-950) 55%, transparent);
     }
+    .rc-menu-item[data-highlighted] {
+        background-color: color-mix(in srgb, var(--emerald-600) 10%, transparent);
+    }
 }

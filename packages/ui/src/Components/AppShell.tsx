@@ -327,7 +327,7 @@ export function PhoneShell({
                         <ApplicationLogo variant="mark" height={48} />
                     </Link>
                     <div className="flex items-center gap-2 flex-wrap justify-end">
-                        <LanguageSwitcher showDraftNote={false} />
+                        <LanguageSwitcher />
                         <ThemeToggle iconSize={24} />
                     </div>
                 </div>

@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { AlertDialog, Dialog, PrimaryButton, SecondaryButton, useI18n } from '@rc/ui';
+import { AlertDialog, Dialog, Menu, MenuItem, MenuSeparator, PrimaryButton, SecondaryButton, useI18n } from '@rc/ui';
 
 /* Development board for the UI kit (K-01). Every wrapper gets a section here as it lands. */
 export function KitBoard() {
@@ -42,6 +42,26 @@ export function KitBoard() {
         >
           <p className="m-0 text-[15px] font-semibold">The same wrapper with the hard logistics style.</p>
         </Dialog>
+      </section>
+
+      <section className="glass-panel rounded-[1.5rem] p-4 flex flex-col gap-3">
+        <h2 className="text-[18px] font-extrabold">Menu</h2>
+        <div className="flex flex-wrap gap-2">
+          <Menu trigger={<SecondaryButton>Glass menu</SecondaryButton>} align="start">
+            <MenuItem onSelect={() => setDone('First action picked')}>First action</MenuItem>
+            <MenuItem onSelect={() => setDone('Second action picked')}>Second action</MenuItem>
+            <MenuSeparator />
+            <MenuItem disabled>Disabled action</MenuItem>
+          </Menu>
+          <Menu
+            trigger={<SecondaryButton className="hard-thin !rounded-xl">Hard menu</SecondaryButton>}
+            align="start"
+            hard
+          >
+            <MenuItem onSelect={() => setDone('Hard action picked')}>Hard action</MenuItem>
+            <MenuItem disabled>Disabled action</MenuItem>
+          </Menu>
+        </div>
       </section>
 
       <section className="glass-panel rounded-[1.5rem] p-4 flex flex-col gap-3">

@@ -1,5 +1,8 @@
 /* jsdom does not implement the browser APIs Radix primitives use. */
-import { vi } from 'vitest';
+import { afterEach, vi } from 'vitest';
+import { cleanup } from '@testing-library/react';
+
+afterEach(cleanup);
 
 class ResizeObserverMock {
     observe() {}
