@@ -8,6 +8,9 @@ import ThemeToggle from './ThemeToggle';
 import Modal from './Modal';
 import { DemoChip, LanguageSwitcher } from './Enactus';
 import { useI18n, tx } from '@rc/i18n';
+import { signOut } from '@rc/store';
+import { useDemoState, updateDemoState } from '@rc/store/react';
+import { ACCOUNTS } from '../lib/account';
 
 /* Intentional addition: Karl's AuthenticatedLayout reduced to a reusable shell for the prototype.
    Glass sidebar + header over the flat terrace-contour ground (.rc-ground).
@@ -35,20 +38,25 @@ const TABS: Record<Role, string[]> = { coordinator: ['home', 'farms', 'logistics
 const ROLE_LABEL: Record<Role, string> = { coordinator: 'role.coordinator', buyer: 'role.buyer', driver: 'role.driver', admin: 'role.admin' };
 const isActive = (n: Item, active: string) => active === n.key || active === n.sub;
 
-const HOME: Record<Role, string> = { coordinator: '/home', buyer: '/buyer', driver: '/haul/driver', admin: '/admin' };
-/** "View as" (prototype addition): switches the demo between user groups. Navigation only, not access control. */
-export function RoleSwitcher({ role }: { role: Role }) {
+/** Sign Out (signed in) or Log In (signed out) for this app's own simulated sign-in (docs/DECISIONS.md M22). */
+export function AccountButton({ role }: { role: Role }) {
     const { t } = useI18n();
     const nav = useZoneNav();
+    const signedIn = useDemoState().session[role];
+    const cls = 'inline-flex items-center gap-2 min-h-[44px] md:min-h-[40px] px-3 md:px-4 rounded-full border-2 border-[color:var(--text-muted)] text-[13px] font-extrabold uppercase tracking-[0.06em] whitespace-nowrap hover:bg-[rgba(5,150,105,.1)]';
+    if (!signedIn) return <Link href={ACCOUNTS[role].signIn} className={cls}><Icon name="LogIn" size={20} /><span>{t('mk.login')}</span></Link>;
     return (
-        <label className="inline-flex items-center gap-2 text-[13px] font-extrabold uppercase tracking-[0.06em]">
-            <Icon name="Users" size={20} /><span className="sr-only md:not-sr-only">{t('role.view')}</span>
-            <select value={role} onChange={(e) => nav(HOME[e.target.value as Role])}
-                className="min-h-[44px] md:min-h-[40px] px-3 rounded-full bg-[var(--glass-fill-strong)] text-[var(--ink)] border-2 border-[color:var(--text-muted)] text-[14px] font-extrabold normal-case tracking-normal">
-                {(['coordinator', 'buyer', 'driver', 'admin'] as Role[]).map((r) => <option key={r} value={r}>{t('role.name.' + r)}</option>)}
-            </select>
-        </label>
+        <button type="button" className={cls} onClick={() => { updateDemoState(signOut(role)); nav(ACCOUNTS[role].signIn); }}>
+            <Icon name="LogOut" size={20} /><span>{t('signin.out')}</span>
+        </button>
     );
+}
+/** "Signed In: Cluster 1" (nothing when signed out). */
+function SignedInAs({ role, className = '' }: { role: Role; className?: string }) {
+    const { t } = useI18n();
+    const id = useDemoState().session[role];
+    if (!id) return null;
+    return <span className={'inline-flex items-center gap-1.5 text-[13px] font-semibold text-[var(--text-secondary)] break-words ' + className}><Icon name={ACCOUNTS[role].icon} size={18} className="shrink-0" />{t('signin.as', { who: tx(t, id) })}</span>;
 }
 
 export function TeamFooter({ className = '' }: { className?: string }) {
@@ -90,7 +98,10 @@ export default function AppShell({ role = 'coordinator', active = 'farms', title
                         </Link>
                     ))}
                 </nav>
-                <div className="hidden lg:flex mt-auto px-2 pt-4 text-[13px] font-semibold text-[var(--text-secondary)] items-center gap-2"><Icon name="User" size={18} />{t(ROLE_LABEL[role])}</div>
+                <div className="hidden lg:flex mt-auto px-2 pt-4 flex-col gap-2">
+                    <span className="text-[13px] font-semibold text-[var(--text-secondary)] inline-flex items-center gap-2"><Icon name="User" size={18} />{t(ROLE_LABEL[role])}</span>
+                    <SignedInAs role={role} />
+                </div>
             </aside>
             <div className="flex-1 min-w-0 flex flex-col min-h-screen">
                 <header className="glass-panel !rounded-none !shadow-none border-b border-[color:var(--glass-border)] px-4 md:px-6 lg:px-8 py-3 md:py-4 sticky top-0 z-30">
@@ -102,7 +113,8 @@ export default function AppShell({ role = 'coordinator', active = 'farms', title
                         </div>
                         <div className="flex-1 md:hidden" />
                         <DemoChip className="hidden md:inline-flex" />
-                        <RoleSwitcher role={role} />
+                        <SignedInAs role={role} className="hidden md:inline-flex lg:hidden" />
+                        <AccountButton role={role} />
                         <LanguageSwitcher />
                         <ThemeToggle iconSize={20} />
                         {actions}
@@ -111,6 +123,7 @@ export default function AppShell({ role = 'coordinator', active = 'farms', title
                         <div className="min-w-0">
                             {eyebrow && <div className="eyebrow break-words">{eyebrow}</div>}
                             <h1 className="text-[22px] leading-7 font-extrabold tracking-[-0.02em] uppercase break-words">{title}</h1>
+                            <SignedInAs role={role} className="mt-1" />
                         </div>
                         <DemoChip />
                     </div>

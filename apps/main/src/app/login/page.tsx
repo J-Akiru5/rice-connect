@@ -1,6 +1,6 @@
 'use client';
-import { LoginPage } from '@rc/screens/marketing';
+import { SignInScreen } from '@rc/screens/signin';
 
-export default function Login() {
-  return <LoginPage />;
+export default function CoordinatorLogin() {
+  return <SignInScreen role="coordinator" />;
 }

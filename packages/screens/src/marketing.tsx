@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { ApplicationLogo, DemoChip, Icon, LanguageSwitcher, SecondaryButton, StatusChip, ThemeToggle, ZLink, useI18n } from '@rc/ui';
+import { ACCOUNTS, ApplicationLogo, DemoChip, Icon, LanguageSwitcher, SecondaryButton, StatusChip, ThemeToggle, ZLink, useI18n } from '@rc/ui';
 import { resetDemoState } from '@rc/store/react';
 import overrides from '@rc/domain/overrides.json';
 import { FARMS, LOTS, TOTALS, WEEKS, commitmentOfLot, farmById } from '@rc/domain/seed';
@@ -85,7 +85,7 @@ export function MarketingShell({ children }: { children: React.ReactNode }) {
 function SiteFooter() {
     const { t } = useI18n();
     const cols: { h: string; links: [string, string][] }[] = [
-        { h: 'mk.foot.prototype', links: [['/coordinator/home', 'role.name.coordinator'], ['/buyer', 'role.name.buyer'], ['/driver', 'role.name.driver'], ['/farmer', 'mk.role.farmer.h'], ['/admin', 'role.name.admin']] },
+        { h: 'mk.foot.prototype', links: [[ACCOUNTS.coordinator.signIn, 'role.name.coordinator'], [ACCOUNTS.buyer.signIn, 'role.name.buyer'], [ACCOUNTS.driver.signIn, 'role.name.driver'], ['/farmer', 'mk.role.farmer.h'], [ACCOUNTS.admin.signIn, 'role.name.admin']] },
         { h: 'mk.foot.project', links: [['/#how', 'mk.nav.how'], ['/#status', 'mk.nav.status'], ['/#faq', 'mk.nav.faq'], ['/demo', 'mk.launch.demo.h']] },
         { h: 'mk.foot.contact', links: [[`mailto:${CONTACT_EMAIL}`, 'mk.contact'], ['/launch', 'mk.open'], ['/login', 'mk.login']] },
     ];
@@ -161,8 +161,8 @@ const STEPS = [
 ];
 const DOMAINS = [{ icon: 'Farm', k: 'supply' }, { icon: 'Market', k: 'demand' }, { icon: 'Logistics', k: 'logistics' }, { icon: 'Pay', k: 'payment' }];
 const ROLES = [
-    { icon: 'User', k: 'coordinator', href: '/home' }, { icon: 'Store', k: 'buyer', href: '/buyer' },
-    { icon: 'Truck', k: 'driver', href: '/haul/driver' }, { icon: 'Sms', k: 'farmer', href: '/sms' },
+    { icon: 'User', k: 'coordinator', href: ACCOUNTS.coordinator.signIn }, { icon: 'Store', k: 'buyer', href: ACCOUNTS.buyer.signIn },
+    { icon: 'Truck', k: 'driver', href: ACCOUNTS.driver.signIn }, { icon: 'Sms', k: 'farmer', href: '/sms' },
 ];
 const FAQ = ['live', 'data', 'app', 'price', 'privacy', 'lang'];
 
@@ -286,11 +286,12 @@ export function MarketingPage() {
 }
 
 const APPS = [
-    { k: 'coordinator', icon: 'User', href: '/home', h: 'mk.role.coordinator.h', p: 'mk.launch.coordinator' },
-    { k: 'buyer', icon: 'Store', href: '/buyer', h: 'mk.role.buyer.h', p: 'mk.launch.buyer' },
-    { k: 'driver', icon: 'Truck', href: '/haul/driver', h: 'mk.role.driver.h', p: 'mk.launch.driver' },
+    { k: 'coordinator', icon: 'User', href: ACCOUNTS.coordinator.signIn, h: 'mk.role.coordinator.h', p: 'mk.launch.coordinator' },
+    { k: 'buyer', icon: 'Store', href: ACCOUNTS.buyer.signIn, h: 'mk.role.buyer.h', p: 'mk.launch.buyer' },
+    { k: 'driver', icon: 'Truck', href: ACCOUNTS.driver.signIn, h: 'mk.role.driver.h', p: 'mk.launch.driver' },
+    /* The farmer has no app sign-in: the farmer only uses SMS. */
     { k: 'farmer', icon: 'Sms', href: '/sms', h: 'mk.role.farmer.h', p: 'mk.launch.farmer' },
-    { k: 'admin', icon: 'Shield', href: '/admin', h: 'login.admin.h', p: 'login.admin.p' },
+    { k: 'admin', icon: 'Shield', href: ACCOUNTS.admin.signIn, h: 'login.admin.h', p: 'login.admin.p' },
 ];
 /** /launch: the four apps, the 78 s demo and "Reset demo data" (clears the shared store in this browser, all tabs). */
 export function LaunchPage() {
@@ -337,38 +338,6 @@ export function LaunchPage() {
     );
 }
 /** /login (M19): simulated sign-in. No accounts, no passwords: choosing a role opens that person's app. */
-export function LoginPage() {
-    const { t } = useI18n();
-    return (
-        <MarketingShell>
-            <section aria-labelledby="login-h" className="py-10 md:py-16 flex justify-center">
-                <div className="glass-panel rounded-[2rem] p-6 md:p-8 w-full max-w-[880px] flex flex-col gap-6">
-                    <div className="flex flex-col gap-2">
-                        <div className="flex flex-wrap items-center gap-2"><span className="eyebrow">{t('login.eyebrow')}</span><DemoChip /></div>
-                        <h1 id="login-h" className="text-[30px] md:text-[40px] leading-tight font-extrabold tracking-[-0.03em]">{t('login.title')}</h1>
-                        <p className="m-0 text-[16px] leading-6 font-medium text-[var(--text-secondary)] max-w-[62ch]">{t('login.sub')}</p>
-                    </div>
-                    <ul className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr))]">
-                        {APPS.map((a) => (
-                            <li key={a.k}>
-                                <ZLink href={a.href} className="h-full glass-panel !shadow-none rounded-[1.25rem] p-4 flex items-start gap-3 border-2 border-transparent hover:border-[color:var(--text-accent)] transition-colors motion-reduce:transition-none">
-                                    <span className="icon-box shrink-0"><Icon name={a.icon} size={24} /></span>
-                                    <span className="min-w-0 flex flex-col gap-1">
-                                        <span className="text-[17px] font-extrabold">{t(a.h)}</span>
-                                        <span className="text-[14px] leading-5 font-medium text-[var(--text-secondary)]">{t(a.p)}</span>
-                                        <span className="mt-1 inline-flex items-center gap-1 text-[13px] font-extrabold uppercase tracking-[0.06em] text-[var(--text-accent)]"><Icon name="LogIn" size={18} />{t('login.as', { role: t(a.h) })}</span>
-                                    </span>
-                                </ZLink>
-                            </li>
-                        ))}
-                    </ul>
-                    <p className="m-0 flex items-start gap-2 text-[14px] leading-5 font-semibold text-[var(--text-secondary)]"><Icon name="Shield" size={20} className="shrink-0" />{t('login.note')}</p>
-                    <PrimaryButtonLink />
-                </div>
-            </section>
-        </MarketingShell>
-    );
-}
 function PrimaryButtonLink() {
     const { t } = useI18n();
     return <ZLink href="/" className="self-start inline-flex items-center gap-2 min-h-[44px] text-[14px] font-extrabold uppercase tracking-[0.06em] text-[var(--text-accent)]"><Icon name="ChevronLeft" size={20} />{t('mk.back')}</ZLink>;
