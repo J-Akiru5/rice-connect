@@ -14,6 +14,7 @@
 | P8 | End-to-end tests | **Playwright runs in GitHub Actions CI only**, never in agent sessions. |
 | P9 | Branch protection (earlier, M24) | Superseded by P3: still no reviewers, but CI is required. |
 | P10 | Sign-in (M23) | Mock Sign In and Sign Up per app (split layout), farmer by mobile number, pages open without signing in in demo mode. |
+| P11 | Release now (4 Oct, M31) | The owner checked sign-in on staging and **lifted the freeze**: everything on `staging` (sign-in/sign-up and the plan) goes to `main` now. Supersedes P2 and closes O1. |
 
 ### Library guardrails (owner's words, binding)
 
@@ -35,7 +36,7 @@ Without protection, one bad push reaches production and nothing stops it. *Fix (
 **C3. "A real pilot on Oct 6–7" was not feasible, and fast agents don't change that.**
 The bottleneck was never typing speed. It was the Data Privacy Act (consent records, privacy notice, secure storage, a person accountable for the data), SMS sender registration lead time, native review of Tagalog and Hiligaynon, and the risk of losing farmers' trust on the first contact. *Fix (accepted):* Oct 6–7 is a moderated usability test on the simulated prototype; the real pilot follows the Phase 4 gate.
 
-**C4. The production freeze should run through the contest on Oct 9, not end on Oct 8.**
+**C4. The production freeze should run through the contest on Oct 9, not end on Oct 8.** *(Overtaken by P11: the owner released on 4 Oct after checking sign-in. From here, any production change before Oct 9 should be a fix checked on staging first.)*
 `docs/UAT-KIT.html` lists the contest on **Oct 9**. Unfreezing `main` on Oct 8 means a deploy can land the day before the contest. *Recommendation:* keep `main` frozen until the end of Oct 9 and promote the first Phase 1 work on Oct 10. **Needs the owner's confirmation (open question O1).**
 
 **C5. The existing test kit tells testers to use a control that no longer exists.**
@@ -48,7 +49,7 @@ Multi-zones give independent deploys, which this team does not need, and they al
 
 | # | Question | Recommendation | Blocks |
 |---|---|---|---|
-| O1 | Keep `main` frozen through Oct 9 (contest day)? | Yes; first Phase 1 promotion on Oct 10. | Phase 1 promotions only. |
+| O1 | ~~Keep `main` frozen through Oct 9?~~ **Closed by P11** (released 4 Oct). | Until Oct 9, promote to `main` only fixes that were checked on staging. | — |
 | O2 | One app with route groups instead of four multi-zone apps? | Yes, early in Phase 1, before the UI kit work multiplies across four apps. See [03-architecture.md](03-architecture.md#d1-one-app-or-four). | Phase 1 ticket F-10. |
 | O3 | Formatter: Prettier or Biome (a new dependency)? | Prettier, run in CI with `--check`; it removes style debates from agent PRs. | Ticket F-06 (optional). |
 | O4 | Component tests: Testing Library + jsdom (new dependencies)? | Yes, for the UI kit wrappers only; screens are covered by Playwright. | Ticket Q-03. |

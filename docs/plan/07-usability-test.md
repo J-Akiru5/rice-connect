@@ -10,8 +10,8 @@ A moderated usability test on the **simulated prototype in production** (`main`,
 
 ## Setup
 
-- **Where:** production, `https://rice-connect-opal.vercel.app`. The owner first confirms it opens in a private window with no Vercel login.
-- **What is live there:** the per-app one-click simulated sign-in (`/login`, `/buyer/login`, `/driver/login`, `/admin/login`). The newer Sign In / Sign Up forms (M23) are only on staging; test them on the facilitator's laptop signed in to Vercel, as an optional extra.
+- **Where:** production, `https://rice-connect-opal.vercel.app` (Release 3). The owner first confirms it opens in a private window with no Vercel login.
+- **What is live there:** the mock Sign In and Sign Up forms per app (M23). Any well-formed email or mobile and password signs in as that app's demo account; tell participants to type made-up details, never their own.
 - **Devices:** the participant's own phone where possible (realistic), plus one facilitator Android phone and one laptop as backup. Private window for each participant so earlier sessions' data does not show.
 - **People:** a facilitator (reads tasks, does not help for one minute), a note-taker, the participant.
 - **Participants:** three to five per role if available; five users of one kind typically surface most of the serious problems (Nielsen's rule of thumb), and fewer still find the worst ones.
@@ -41,7 +41,7 @@ Read each task aloud, in the participant's language. Do not name the buttons. Ma
 
 | # | Task | Done when |
 |---|---|---|
-| D1 | "Sign in as the driver." Start at `/driver/login`. | Lands on the haul job. |
+| D1 | "Sign in as the driver." Start at `/driver/login`; give a made-up mobile such as 0900 000 0000. | Lands on the haul job. |
 | D2 | "Take this job." | Accepts. |
 | D3 | "You have picked up the sacks. Tell the app." | Marks Picked Up. |
 | D4 | "You have delivered. Tell the app." | Marks Delivered; stepper complete. |
@@ -51,7 +51,7 @@ Read each task aloud, in the participant's language. Do not name the buttons. Ma
 
 | # | Task | Done when |
 |---|---|---|
-| B1 | "Sign in as the buyer." Start at `/buyer/login`. | Lands on Cluster Supply. |
+| B1 | "Sign in as the buyer." Start at `/buyer/login`; give a made-up email such as test@example.com. | Lands on Cluster Supply. |
 | B2 | "You run a restaurant. How much rice can you get next week?" | Picks Restaurant; reads the weekly figure. |
 | B3 | "Order 4 sacks for week 3." | Order appears in My Orders with kg and ₱ total. |
 | B4 | "Try to order 0 sacks." | Sees a clear error; no order is created. |
@@ -61,7 +61,7 @@ Read each task aloud, in the participant's language. Do not name the buttons. Ma
 
 | # | Task | Done when |
 |---|---|---|
-| C1 | "Sign in as the coordinator." Start at `/login`. | Lands on Home. |
+| C1 | "Sign in as the coordinator." Start at `/login`; made-up email and password. | Lands on Home. |
 | C2 | "Which farms in Licu-an are verified?" | Uses the filters; list shows the result. |
 | C3 | "When does lot L-03 dry?" | Finds slot D-58. |
 | C4 | "Give the haul for L-03 to a different driver." | Driver changes; override shown. |
