@@ -10,7 +10,7 @@
         "./zones.mjs": "./zones.mjs"
     },
     "scripts": {
-        "lint": "node --check eslint.config.mjs",
+        "lint": "node --check eslint.config.mjs && node check-boundaries.mjs",
         "test": "echo no tests",
         "build": "echo nothing to build"
     },

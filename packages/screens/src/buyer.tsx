@@ -1,5 +1,5 @@
 'use client';
-import { ZLink, useZoneNav } from '@rc/ui';
+import { ZLink } from '@rc/ui';
 import { AppShell, BigStat, Icon, useI18n } from '@rc/ui';
 import { WEEKS } from '@rc/domain/seed';
 import {

@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Icon from './Icon';
 import { useI18n } from '@rc/i18n';
 
@@ -20,10 +20,14 @@ export function applyTheme(theme: Theme) {
     else document.documentElement.removeAttribute('data-theme');
 }
 
+const initialTheme = (): Theme =>
+    typeof document === 'undefined' || document.documentElement.getAttribute('data-theme') !== 'dark'
+        ? 'light'
+        : 'dark';
+
 export default function ThemeToggle({ className = '', iconSize = 20 }: { className?: string; iconSize?: number }) {
     const { t } = useI18n();
-    const [theme, setTheme] = useState<Theme>('light');
-    useEffect(() => setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'), []);
+    const [theme, setTheme] = useState<Theme>(initialTheme);
     const next: Theme = theme === 'dark' ? 'light' : 'dark';
     const toggle = () => {
         applyTheme(next);
@@ -38,6 +42,7 @@ export default function ThemeToggle({ className = '', iconSize = 20 }: { classNa
         <button
             type="button"
             onClick={toggle}
+            suppressHydrationWarning
             aria-pressed={theme === 'dark'}
             className={
                 'inline-flex items-center gap-2 min-h-[44px] md:min-h-[40px] px-4 rounded-full glass-panel !shadow-none text-[13px] font-extrabold uppercase tracking-[0.06em] ' +

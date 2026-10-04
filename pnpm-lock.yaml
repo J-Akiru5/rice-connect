@@ -72,7 +72,7 @@ importers:
         version: 9.39.5(jiti@1.21.7)
       eslint-config-next:
         specifier: 16.3.8
-        version: 16.3.8(@typescript-eslint/parser@8.71.0(eslint@9.39.5(jiti@1.21.7))(typescript@5.6.3))(eslint@9.39.5(jiti@1.21.7))(typescript@5.6.3)
+        version: 16.3.8(eslint@9.39.5(jiti@1.21.7))(typescript@5.6.3)
       postcss:
         specifier: 8.4.49
         version: 8.4.49
@@ -136,7 +136,7 @@ importers:
         version: 9.39.5(jiti@1.21.7)
       eslint-config-next:
         specifier: 16.3.8
-        version: 16.3.8(eslint@9.39.5(jiti@1.21.7))(typescript@5.6.3)
+        version: 16.3.8(@typescript-eslint/parser@8.71.0(eslint@9.39.5(jiti@1.21.7))(typescript@5.6.3))(eslint@9.39.5(jiti@1.21.7))(typescript@5.6.3)
       postcss:
         specifier: 8.4.49
         version: 8.4.49
@@ -301,6 +301,9 @@ importers:
       '@types/node':
         specifier: 20.17.10
         version: 20.17.10
+      eslint:
+        specifier: 9.39.5
+        version: 9.39.5(jiti@1.21.7)
       typescript:
         specifier: 5.6.3
         version: 5.6.3
@@ -320,6 +323,9 @@ importers:
       '@types/react':
         specifier: 19.3.0
         version: 19.3.0
+      eslint:
+        specifier: 9.39.5
+        version: 9.39.5(jiti@1.21.7)
       typescript:
         specifier: 5.6.3
         version: 5.6.3
@@ -363,6 +369,9 @@ importers:
       '@types/react-dom':
         specifier: 19.3.0
         version: 19.3.0(@types/react@19.3.0)
+      eslint:
+        specifier: 9.39.5
+        version: 9.39.5(jiti@1.21.7)
       typescript:
         specifier: 5.6.3
         version: 5.6.3
@@ -388,6 +397,9 @@ importers:
       '@types/react':
         specifier: 19.3.0
         version: 19.3.0
+      eslint:
+        specifier: 9.39.5
+        version: 9.39.5(jiti@1.21.7)
       typescript:
         specifier: 5.6.3
         version: 5.6.3
@@ -428,6 +440,9 @@ importers:
       '@types/react-dom':
         specifier: 19.3.0
         version: 19.3.0(@types/react@19.3.0)
+      eslint:
+        specifier: 9.39.5
+        version: 9.39.5(jiti@1.21.7)
       typescript:
         specifier: 5.6.3
         version: 5.6.3

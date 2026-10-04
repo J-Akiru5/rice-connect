@@ -497,7 +497,7 @@ export function SlotTimeline({
         <div className={'glass-panel rounded-[1.5rem] p-5 ' + className}>
             <div
                 className="grid gap-4 grid-cols-1 sm:[grid-template-columns:repeat(var(--n),minmax(0,1fr))]"
-                style={{ ['--n' as any]: days.length }}
+                style={{ '--n': days.length } as React.CSSProperties}
             >
                 {days.map((d) => {
                     const used = d.slots.reduce((s, x) => s + x.sacks, 0);
@@ -911,7 +911,7 @@ export function SmsThread({
     return (
         <div className={'flex flex-col gap-4 ' + className} lang={l === 'hil' ? 'hil' : l}>
             {SMS.filter((m) => !only || m.key === only).map((m) => (
-                <SmsBubble key={m.key} text={(m.text as any)[l]} time={m.time} />
+                <SmsBubble key={m.key} text={m.text[l]} time={m.time} />
             ))}
         </div>
     );

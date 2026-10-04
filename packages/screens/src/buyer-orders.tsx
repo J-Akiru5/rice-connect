@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import type { LocalCommitment } from '@rc/store';
 import { useDemoState, updateDemoState } from '@rc/store/react';
-import { ZLink, useZoneNav } from '@rc/ui';
+import { ZLink } from '@rc/ui';
 import {
     AppShell,
     CommitmentCard,

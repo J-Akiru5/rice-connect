@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { ZLink, useZoneNav } from '@rc/ui';
+import { ZLink } from '@rc/ui';
 import {
     DeliveryStatusStepper,
     DriverCard,

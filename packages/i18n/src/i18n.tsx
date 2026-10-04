@@ -1,6 +1,15 @@
 'use client';
 import { PROTOTYPE_STRINGS } from './strings.prototype';
-import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import {
+    createContext,
+    PropsWithChildren,
+    useCallback,
+    useContext,
+    useEffect,
+    useMemo,
+    useState,
+    type ReactNode
+} from 'react';
 
 export type Lang = 'en' | 'tl' | 'hil';
 export const LANGS: { id: Lang; short: string; name: string; draft: boolean }[] = [
@@ -307,7 +316,12 @@ export function I18nProvider({ lang: initial = 'en', children }: PropsWithChildr
 export const useI18n = () => useContext(Ctx);
 
 /** Translate when the value is a STRINGS key, else return it as written. */
-export const tx = (t: (k: string) => string, v: any) => (typeof v === 'string' && STRINGS[v] ? t(v) : v);
+export function tx(t: (k: string) => string, v: string): string;
+export function tx(t: (k: string) => string, v: string | undefined): string | undefined;
+export function tx(t: (k: string) => string, v: ReactNode): ReactNode;
+export function tx(t: (k: string) => string, v: ReactNode): ReactNode {
+    return typeof v === 'string' && STRINGS[v] ? t(v) : v;
+}
 /** Inline translated text: <T k="plan.section" />. */
 export function T({ k, vars }: { k: string; vars?: Record<string, string | number> }) {
     const { t } = useI18n();

@@ -7,7 +7,7 @@
         ".": "./src/index.ts"
     },
     "scripts": {
-        "lint": "tsc --noEmit -p .",
+        "lint": "eslint . && tsc --noEmit -p .",
         "test": "echo no tests",
         "build": "echo source package"
     },
@@ -17,6 +17,7 @@
     "devDependencies": {
         "@rc/config": "workspace:*",
         "typescript": "5.6.3",
-        "@types/react": "19.3.0"
+        "@types/react": "19.3.0",
+        "eslint": "9.39.5"
     }
 }

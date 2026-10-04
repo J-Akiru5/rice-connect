@@ -57,7 +57,6 @@ export function SupplyMap({ values, unit, label }: { values: number[]; unit: str
             map.current?.remove();
             map.current = null;
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     /* Marker contents follow the selected week and buyer type (no map reload). */
@@ -76,7 +75,6 @@ export function SupplyMap({ values, unit, label }: { values: number[]; unit: str
             el.setAttribute('aria-label', `${BARANGAYS[i]}: ${(values[i] ?? 0).toFixed(1)} ${unit}`);
         });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(setMarkers, [values.join('|'), unit]);
 
     return (

@@ -8,7 +8,7 @@
         "./overrides.json": "./src/overrides.json"
     },
     "scripts": {
-        "lint": "tsc --noEmit -p .",
+        "lint": "eslint . && tsc --noEmit -p .",
         "test": "vitest run",
         "build": "echo source package"
     },
@@ -17,6 +17,7 @@
         "@rc/config": "workspace:*",
         "typescript": "5.6.3",
         "vitest": "2.1.9",
-        "@types/node": "20.17.10"
+        "@types/node": "20.17.10",
+        "eslint": "9.39.5"
     }
 }
