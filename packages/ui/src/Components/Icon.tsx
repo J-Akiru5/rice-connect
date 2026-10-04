@@ -25,6 +25,8 @@ export const ICON_PATHS: Record<string, string> = {
     Search: '<path d="m21 21-4.34-4.34" /> <circle cx="11" cy="11" r="8" />',
     Filter: '<path d="M10 5H3" /> <path d="M12 19H3" /> <path d="M14 3v4" /> <path d="M16 17v4" /> <path d="M21 12h-9" /> <path d="M21 19h-5" /> <path d="M21 5h-7" /> <path d="M8 10v4" /> <path d="M8 12H3" />',
     TaskUndo: '<path d="M9 14 4 9l5-5" /> <path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11" />',
+    RefreshCw:
+        '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /> <path d="M21 3v5h-5" /> <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /> <path d="M8 16H3v5" />',
     Check: '<path d="M20 6 9 17l-5-5" />',
     X: '<path d="M18 6 6 18" /> <path d="m6 6 12 12" />',
     CircleCheck: '<circle cx="12" cy="12" r="10" /> <path d="m16 9-5.5 5.5L8 12" />',
@@ -71,6 +73,7 @@ export const ICON_PATHS: Record<string, string> = {
     ChevronLeft: '<path d="m15 18-6-6 6-6" />',
     Globe: '<circle cx="12" cy="12" r="10" /> <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" /> <path d="M2 12h20" />',
     LogIn: '<path d="m10 17 5-5-5-5" /> <path d="M15 12H3" /> <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />',
+    Lock: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2" /> <path d="M7 11V7a5 5 0 0 1 10 0v4" />',
     Menu: '<path d="M4 12h16" /> <path d="M4 18h16" /> <path d="M4 6h16" />',
     Activity:
         '<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2" />',

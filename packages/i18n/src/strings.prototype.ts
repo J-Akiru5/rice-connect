@@ -33,6 +33,37 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     'action.cancel': ['Cancel', 'Kanselahin', 'Kanselahon'],
     'action.confirm': ['Confirm', 'Kumpirmahin', 'Kumpirmahon'],
     'action.close': ['Close', 'Isara', 'Isara'],
+    'state.loading': ['Loading', 'Naglo-load', 'Ginakarga'],
+    'state.refresh': ['Updating', 'Nag-a-update', 'Gina-update'],
+    'state.offline': [
+        'You are offline. Changes are not sent yet.',
+        'Offline ka. Hindi pa naipapadala ang mga pagbabago.',
+        'Offline ka. Wala pa napadala ang mga pagbag-o.'
+    ],
+    'state.error.title': ['Something went wrong', 'May nangyaring mali', 'May natabo nga sayop'],
+    'state.error.body': [
+        'Try again. If it keeps failing, share the reference code with support.',
+        'Subukang muli. Kung paulit-ulit, ibahagi ang reference code sa support.',
+        'Sulayi liwat. Kon mapadayon, ihatag ang reference code sa support.'
+    ],
+    'state.error.reference': ['Reference {code}', 'Sanggunian {code}', 'Reperensya {code}'],
+    'state.notFound.title': ['This record no longer exists', 'Wala na ang record na ito', 'Wala na ang rekord nga ini'],
+    'state.notFound.body': [
+        'It may have been removed. Go back to the list.',
+        'Maaaring natanggal na ito. Bumalik sa listahan.',
+        'Mahimo nga gintangtang na. Balik sa listahan.'
+    ],
+    'state.forbidden.title': [
+        'This page is for {role}',
+        'Ang pahinang ito ay para sa {role}',
+        'Ini nga pahina para sa {role}'
+    ],
+    'state.forbidden.body': [
+        'Sign in with the right account to continue.',
+        'Mag-sign in gamit ang tamang account para magpatuloy.',
+        'Mag-sign in gamit ang husto nga account para magpadayon.'
+    ],
+    'state.forbidden.signIn': ['Sign In', 'Mag-sign In', 'Mag-sign In'],
     'phone.net': ['4G', '4G', '4G'],
     'sms.chars': ['chars', 'mga karakter', 'mga karakter'],
     'slip.item': ['Item', 'Aytem', 'Butang'],

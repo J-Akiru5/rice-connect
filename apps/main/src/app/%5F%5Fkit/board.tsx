@@ -4,11 +4,16 @@ import {
   AlertDialog,
   Checkbox,
   Dialog,
+  ErrorState,
+  ForbiddenState,
+  LoadingState,
   Menu,
   MenuItem,
   MenuSeparator,
+  OfflineBanner,
   PrimaryButton,
   RadioGroup,
+  RefreshMarker,
   SecondaryButton,
   Select,
   Switch,
@@ -123,6 +128,15 @@ export function KitBoard() {
             { value: 'w3', label: 'W3' }
           ]}
         />
+      </section>
+
+      <section className="glass-panel rounded-[1.5rem] p-4 flex flex-col gap-3">
+        <h2 className="text-[18px] font-extrabold">States</h2>
+        <LoadingState rows={2} />
+        <ErrorState reference="RC-500" onRetry={() => setDone('Retried.')} />
+        <ErrorState variant="notFound" />
+        <ForbiddenState role="coordinators" onSignIn={() => setDone('Sign in.')} />
+        <RefreshMarker />
       </section>
 
       <section className="glass-panel rounded-[1.5rem] p-4 flex flex-col gap-3">
