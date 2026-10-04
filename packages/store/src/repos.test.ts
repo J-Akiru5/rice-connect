@@ -117,6 +117,16 @@ describe('settlement repository', () => {
         expect(slip.net).toBe(SLIP.net);
         await expect(r.settlements.get('L-01')).rejects.toMatchObject({ code: 'not_found' });
     });
+
+    it('marks the weighed lot paid once and refuses a second key', async () => {
+        const r = repos();
+        expect(await r.settlements.paidAt(HERO_LOT.id)).toBeNull();
+        const at = await r.settlements.markPaid(HERO_LOT.id, { idempotencyKey: 'p1' });
+        expect(await r.settlements.paidAt(HERO_LOT.id)).toBe(at);
+        await expect(r.settlements.markPaid(HERO_LOT.id, { idempotencyKey: 'p2' })).rejects.toMatchObject({
+            code: 'conflict'
+        });
+    });
 });
 
 describe('sms repository', () => {

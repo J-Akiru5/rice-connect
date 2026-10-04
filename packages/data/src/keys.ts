@@ -34,7 +34,8 @@ export const keys = {
     },
     settlements: {
         all: ['settlements'] as const,
-        one: (lotId: string) => ['settlements', 'one', lotId] as const
+        one: (lotId: string) => ['settlements', 'one', lotId] as const,
+        paid: (lotId: string) => ['settlements', 'paid', lotId] as const
     },
     sms: {
         thread: ['sms', 'thread'] as const,

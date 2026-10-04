@@ -192,6 +192,20 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
         '{day} · {kg} kg · {sacks} ka sako'
     ],
     'dry.weeks': ['Harvest Week', 'Linggo ng Ani', 'Semana sang Alani'],
+    'dry.free': [
+        'Free this week: {free} of {cap} sacks',
+        'Bakante ngayong linggo: {free} sa {cap} sako',
+        'Bakante sini nga semana: {free} sa {cap} sako'
+    ],
+    'pay.markPaid': ['Mark Paid', 'Markahan na Bayad', 'Markahan nga Bayad'],
+    'pay.paidOn': ['Paid on {date}', 'Bayad noong {date}', 'Bayad sang {date}'],
+    'pay.confirm.title': ['Confirm settlement', 'Kumpirmahin ang settlement', 'Kumpirmahin ang settlement'],
+    'pay.confirm.body': [
+        'Mark {amount} as paid to farmer {farm} for lot {lot}? This cannot be undone in the app.',
+        'Markahan ang {amount} bilang bayad kay {farm} para sa lot {lot}? Hindi na ito maibabalik sa app.',
+        'Markahan ang {amount} bilang bayad kay {farm} para sa lot {lot}? Indi na ini mabalik sa app.'
+    ],
+    'pay.paidToast': ['Lot {lot} marked paid', 'Namarkahang bayad ang lot {lot}', 'Namarkahan nga bayad ang lot {lot}'],
     'dry.rule': [
         'Each lot dries on its harvest day, or the next day with room. No day goes over {t} t.',
         'Pinapatuyo ang bawat lot sa araw ng ani, o sa susunod na araw na may puwang. Walang araw na lalampas sa {t} t.',

@@ -2,18 +2,22 @@
 import { useState } from 'react';
 import { ZLink, useZoneNav } from '@rc/ui';
 import {
+    AlertDialog,
     AppShell,
     BigStat,
     EmptyState,
     Icon,
     Pagination,
     PrimaryButton,
+    SecondaryButton,
     SettlementSlip,
     SmsThread,
     StatusChip,
     useI18n,
+    useToast,
     ASSETS
 } from '@rc/ui';
+import { useMarkPaid, useSettlementPaid } from '@rc/data';
 import { paginate } from '@rc/domain/list';
 import { staticListState, type ListState } from './list-state';
 import {
@@ -151,7 +155,19 @@ function Rec({ k, children }: { k: string; children: React.ReactNode }) {
 /** /pay/[lotId] — lot record, settlement, the advance SMS and the A6 slip with its print view (desktop). */
 export function PayLotScreen({ state = 'default' }: { state?: 'default' | 'error' | 'success' }) {
     const { t } = useI18n();
+    const toast = useToast();
+    const paid = useSettlementPaid(HERO_LOT.id);
+    const markPaid = useMarkPaid();
+    const [confirmOpen, setConfirmOpen] = useState(false);
     const [view, setView] = useState(state);
+    const paidDate = paid.data
+        ? new Date(paid.data).toLocaleDateString('en-PH', {
+              timeZone: 'Asia/Manila',
+              day: 'numeric',
+              month: 'short',
+              year: 'numeric'
+          })
+        : null;
     const c = COMMITMENTS.find((x) => x.id === MATCHES.find((m) => m.lots.includes(HERO_LOT.id))!.commitment)!;
     const s = SETTLEMENT;
     const shell = (body: React.ReactNode) => (
@@ -218,8 +234,11 @@ export function PayLotScreen({ state = 'default' }: { state?: 'default' | 'error
                 <div className="glass-panel rounded-[1.5rem] p-5 flex flex-col gap-3">
                     <div className="flex flex-wrap gap-2">
                         <StatusChip status="delivered" label={t('pay.badge.delivered', { haul: HAUL.id })} />
-                        <StatusChip status="paid" label="pay.badge.paid" />
-                        <StatusChip status="pending" label="pay.badge.pending" />
+                        {paidDate ? (
+                            <StatusChip status="paid" label={t('pay.paidOn', { date: paidDate })} />
+                        ) : (
+                            <StatusChip status="pending" label="pay.badge.pending" />
+                        )}
                     </div>
                     <p className="m-0 text-[15px] leading-[22px] font-semibold">
                         {t('pay.explain', {
@@ -232,9 +251,9 @@ export function PayLotScreen({ state = 'default' }: { state?: 'default' | 'error
                         })}
                     </p>
                     <div className="flex flex-wrap gap-3">
-                        <PrimaryButton icon="Print" onClick={() => window.print()}>
+                        <SecondaryButton icon="Print" onClick={() => window.print()}>
                             {t('slip.print')}
-                        </PrimaryButton>
+                        </SecondaryButton>
                         <ZLink
                             href="/sms"
                             className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-3 rounded-[2rem] font-extrabold uppercase text-[13px] leading-4 tracking-[0.08em] bg-[var(--glass-fill-strong)] text-[var(--ink)] border-2 border-[color:var(--text-muted)]"
@@ -242,7 +261,28 @@ export function PayLotScreen({ state = 'default' }: { state?: 'default' | 'error
                             <Icon name="Sms" size={20} />
                             <span>{t('pay.viewSms')}</span>
                         </ZLink>
+                        {!paidDate && (
+                            <PrimaryButton icon="Pay" onClick={() => setConfirmOpen(true)}>
+                                {t('pay.markPaid')}
+                            </PrimaryButton>
+                        )}
                     </div>
+                    <AlertDialog
+                        open={confirmOpen}
+                        onOpenChange={setConfirmOpen}
+                        title={t('pay.confirm.title')}
+                        description={t('pay.confirm.body', {
+                            amount: peso(s.net),
+                            farm: HERO_FARM.id,
+                            lot: HERO_LOT.id
+                        })}
+                        confirmLabel={t('pay.markPaid')}
+                        onConfirm={() => {
+                            void markPaid
+                                .mutateAsync({ lotId: HERO_LOT.id })
+                                .then(() => toast.show(t('pay.paidToast', { lot: HERO_LOT.id })));
+                        }}
+                    />
                 </div>
                 <section aria-labelledby="pay-rec" className="glass-panel rounded-[1.5rem] p-5">
                     <h3 id="pay-rec" className="eyebrow">

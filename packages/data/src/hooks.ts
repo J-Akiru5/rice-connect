@@ -45,6 +45,22 @@ export const useSettlement = (lotId: string) =>
         enabled: lotId.length > 0
     });
 
+export const useSettlementPaid = (lotId: string) =>
+    useQuery({
+        queryKey: keys.settlements.paid(lotId),
+        queryFn: () => getRepos().settlements.paidAt(lotId),
+        enabled: lotId.length > 0
+    });
+
+export const useMarkPaid = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ lotId, idempotencyKey = newIdempotencyKey() }: { lotId: string; idempotencyKey?: string }) =>
+            getRepos().settlements.markPaid(lotId, { idempotencyKey }),
+        onSuccess: () => qc.invalidateQueries({ queryKey: keys.settlements.all })
+    });
+};
+
 export const useSmsThread = () => useQuery({ queryKey: keys.sms.thread, queryFn: () => getRepos().sms.list() });
 export const useSmsReplies = () => useQuery({ queryKey: keys.sms.replies, queryFn: () => getRepos().sms.replies() });
 

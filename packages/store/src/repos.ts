@@ -85,6 +85,10 @@ export interface OrderRepo {
 export interface SettlementRepo {
     /** The slip for a weighed lot; forecast lots have no settlement yet (not_found). */
     get(lotId: string): Promise<Slip>;
+    /** When the settlement was marked paid (ISO), or null. */
+    paidAt(lotId: string): Promise<string | null>;
+    /** Marks the settlement paid (idempotent per key; a second key is a conflict — irreversible in the app). */
+    markPaid(lotId: string, opts: WriteOpts): Promise<string>;
 }
 export interface SmsRepo {
     list(): Promise<SmsMessage[]>;
@@ -258,6 +262,23 @@ export function createMockRepos(adapter: DataAdapter): Repos {
         async get(lotId) {
             if (lotId !== HERO_LOT.id) throw new RepoError('not_found', `No settlement for lot ${lotId} yet`, lotId);
             return SLIP;
+        },
+        async paidAt(lotId) {
+            await settlements.get(lotId);
+            return state().settlementsPaid?.[lotId] ?? null;
+        },
+        async markPaid(lotId, opts) {
+            return once(opts.idempotencyKey, async () => {
+                await settlements.get(lotId);
+                if (state().settlementsPaid?.[lotId])
+                    throw new RepoError('conflict', `Settlement ${lotId} is already paid`, lotId);
+                const paidAt = new Date().toISOString();
+                adapter.update((s) => ({
+                    ...s,
+                    settlementsPaid: { ...s.settlementsPaid, [lotId]: paidAt }
+                }));
+                return paidAt;
+            });
         }
     };
 

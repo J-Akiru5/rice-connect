@@ -35,6 +35,8 @@ export interface DemoState {
     farmsAdded: string[];
     /** Last buyer type chosen in the buyer app (the radio group); absent = the default (Restaurant). */
     buyerType?: BuyerType;
+    /** Settlement marked paid by the coordinator: lot id → ISO timestamp. Irreversible in the app. */
+    settlementsPaid?: Record<string, string>;
     /** Simulated sign-in per app (no accounts, no passwords): the demo identity signed in to each app, absent = signed out. */
     session: Partial<Record<SessionRole, string>>;
 }

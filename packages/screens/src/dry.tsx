@@ -1,11 +1,11 @@
 'use client';
-import { AppShell, BigStat, Pagination, SlotTimeline, useI18n } from '@rc/ui';
+import { AppShell, BigStat, ErrorState, LoadingState, Pagination, SlotTimeline, useI18n } from '@rc/ui';
 import { paginate } from '@rc/domain/list';
 import { staticListState, type ListState } from './list-state';
 import { DRYER, HERO_LOT, KG_PER_SACK, SLOT, SLOTS, WEEKS, lotById, farmById, type Slot } from '@rc/domain/seed';
 import { dayLabel } from '@rc/domain/calendar';
 import { SectionPill, Note, ResponsiveTable, type Col } from './ui';
-import { useDemoState } from '@rc/store/react';
+import { useSlotStatus } from '@rc/data';
 import { StatusChip } from '@rc/ui';
 
 /** Seven day columns for a harvest week; L-03's slot is the hero. */
@@ -29,7 +29,8 @@ export function weekDays(week: number) {
 export function DryScreen({ list, week: weekParam }: { list?: ListState; week?: number }) {
     const { t } = useI18n();
     const L = list ?? staticListState('/dry');
-    const slotState = useDemoState().slots[SLOT.id] ?? 'scheduled';
+    const slotQuery = useSlotStatus(SLOT.id);
+    const slotState = slotQuery.data ?? 'scheduled';
     const heroWeek = Math.floor(SLOT.dayIndex / 7);
     const week = weekParam !== undefined && weekParam >= 0 && weekParam < WEEKS.length ? weekParam : heroWeek;
     const setWeek = (i: number) => L.set({ week: i + 1, page: null });
@@ -59,6 +60,7 @@ export function DryScreen({ list, week: weekParam }: { list?: ListState; week?: 
     const days = weekDays(week);
     const booked = days.reduce((s, d) => s + d.slots.reduce((a, x) => a + x.sacks, 0), 0);
     const cap = DRYER.capacitySacks * 7;
+    const free = Math.max(0, cap - booked);
     return (
         <AppShell title="dry.title" active="dry" eyebrow={t('dry.eyebrow', { dryer: DRYER.name, place: DRYER.place })}>
             <div className="flex flex-col gap-6 max-w-[1600px]">
@@ -92,12 +94,18 @@ export function DryScreen({ list, week: weekParam }: { list?: ListState; week?: 
                     />
                 </div>
                 <div aria-live="polite">
-                    <StatusChip
-                        status={
-                            slotState === 'confirmed' ? 'paid' : slotState === 'move-requested' ? 'pending' : 'open'
-                        }
-                        label={t('slot.' + slotState, { id: SLOT.id })}
-                    />
+                    {slotQuery.isPending ? (
+                        <LoadingState rows={1} />
+                    ) : slotQuery.isError ? (
+                        <ErrorState onRetry={() => void slotQuery.refetch()} />
+                    ) : (
+                        <StatusChip
+                            status={
+                                slotState === 'confirmed' ? 'paid' : slotState === 'move-requested' ? 'pending' : 'open'
+                            }
+                            label={t('slot.' + slotState, { id: SLOT.id })}
+                        />
+                    )}
                 </div>
                 <section aria-labelledby="dry-sec">
                     <div className="flex flex-wrap items-center justify-between gap-3">
@@ -124,7 +132,10 @@ export function DryScreen({ list, week: weekParam }: { list?: ListState; week?: 
                         </div>
                     </div>
                     <SlotTimeline days={days} capacity={DRYER.capacitySacks} />
-                    <Note className="mt-3">{t('dry.rule', { t: DRYER.capacityKg / 1000 })}</Note>
+                    <Note className="mt-3">
+                        {t('dry.free', { free: free.toLocaleString('en-US'), cap: cap.toLocaleString('en-US') })}
+                    </Note>
+                    <Note className="mt-1">{t('dry.rule', { t: DRYER.capacityKg / 1000 })}</Note>
                 </section>
                 <section aria-labelledby="dry-list" className="flex flex-col gap-3">
                     <div>

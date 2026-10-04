@@ -81,6 +81,21 @@ test.describe('critical flows', () => {
     // Undo restores the auto-assigned driver.
     await page.getByRole('button', { name: 'Undo' }).click();
     await expect(page.getByText('Coordinator override')).toHaveCount(0);
+
+    // Dryer: capacity is visible before any assignment; the domain refuses a double booking.
+    await page.goto('/coordinator/dry');
+    await expect(page.getByText(/Free this week/)).toBeVisible();
+
+    // Settlement: summary + confirm for Mark Paid; irreversible after (chip survives a reload).
+    await page.goto('/coordinator/pay/L-03');
+    await page.getByRole('button', { name: 'Mark Paid' }).click();
+    const settle = page.getByRole('alertdialog');
+    await expect(settle).toBeVisible();
+    await expect(settle.getByText(/100,000\.00/)).toBeVisible();
+    await settle.getByRole('button', { name: 'Mark Paid' }).click();
+    await expect(page.getByText(/Paid on/).first()).toBeVisible();
+    await page.reload();
+    await expect(page.getByText(/Paid on/).first()).toBeVisible();
   });
 
   test('auth: empty submit shows errors, sign in works, sign out returns', async ({ page }) => {
