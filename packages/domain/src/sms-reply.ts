@@ -7,7 +7,12 @@ const MOVE = new Set(['2', 'move', '2 move', 'ilipat', '2 ilipat', 'ibalhin', '2
 
 /** "1 OK", " ok ", "1ok", "1-OK!" → 'ok'; "2 Move", "MOVE", "2 ilipat", "2 ibalhin" → 'move'; anything else → null. */
 export function parseSmsReply(text: string): SmsAction | null {
-    const t = text.toLowerCase().replace(/[^a-z0-9]+/g, ' ').replace(/([0-9])([a-z])/g, '$1 $2').trim().replace(/\s+/g, ' ');
+    const t = text
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, ' ')
+        .replace(/([0-9])([a-z])/g, '$1 $2')
+        .trim()
+        .replace(/\s+/g, ' ');
     if (OK.has(t)) return 'ok';
     if (MOVE.has(t)) return 'move';
     return null;

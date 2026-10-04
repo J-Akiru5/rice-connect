@@ -1,0 +1,12 @@
+node_modules
+.next
+out
+build
+exports
+pnpm-lock.yaml
+docs
+.github
+public
+*.svg
+packages/ui/src/styles/tokens.css
+packages/ui/design/tokens.json

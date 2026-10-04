@@ -27,7 +27,16 @@ describe('settlement: lot L-03 fixture (5,000 kg)', () => {
         expect(s.advance + s.balance).toBe(s.net);
     });
     it('the seeded hero slip is this settlement', () => {
-        expect(D.SLIP).toMatchObject({ lot: 'L-03', farm: 'F-014', haul: 'H-07', kg: 5000, net: 10_000_000, advance: 8_000_000, balance: 2_000_000, buyerFee: 337_500 });
+        expect(D.SLIP).toMatchObject({
+            lot: 'L-03',
+            farm: 'F-014',
+            haul: 'H-07',
+            kg: 5000,
+            net: 10_000_000,
+            advance: 8_000_000,
+            balance: 2_000_000,
+            buyerFee: 337_500
+        });
     });
 });
 
@@ -44,20 +53,27 @@ describe('money formatting', () => {
 
 describe('seed: farms', () => {
     it('is deterministic (mulberry32, seed 20261009)', () => {
-        const a = mulberry32(20261009); const b = mulberry32(20261009);
+        const a = mulberry32(20261009);
+        const b = mulberry32(20261009);
         expect([a(), a(), a()]).toEqual([b(), b(), b()]);
     });
     it('has 100 farms totalling exactly 120.0 ha, each 0.5-2.5 ha', () => {
         expect(D.FARMS).toHaveLength(100);
         expect(D.FARMS.reduce((s, f) => s + f.areaTenths, 0)).toBe(1200);
-        for (const f of D.FARMS) { expect(f.areaTenths).toBeGreaterThanOrEqual(5); expect(f.areaTenths).toBeLessThanOrEqual(25); }
+        for (const f of D.FARMS) {
+            expect(f.areaTenths).toBeGreaterThanOrEqual(5);
+            expect(f.areaTenths).toBeLessThanOrEqual(25);
+        }
     });
     it('splits barangays 33/34/33 and spreads harvests over W1-W4', () => {
         expect(D.BARANGAYS.map((b) => D.FARMS.filter((f) => f.barangay === b).length)).toEqual([33, 34, 33]);
         for (const w of D.WEEKS) expect(D.FARMS.some((f) => f.harvestWeek === w)).toBe(true);
     });
     it('uses codes and masked mobiles only', () => {
-        for (const f of D.FARMS) { expect(f.name).toBe(`Farmer ${f.id}`); expect(f.mobile).toMatch(/^09•• ••• \d{4}$/); }
+        for (const f of D.FARMS) {
+            expect(f.name).toBe(`Farmer ${f.id}`);
+            expect(f.mobile).toMatch(/^09•• ••• \d{4}$/);
+        }
     });
     it('dries 3,429 kg/ha (~411 t in total)', () => {
         expect(D.DRIED_KG_PER_HA).toBe(3429);
@@ -88,7 +104,10 @@ describe('auto-match', () => {
         }
     });
     it('reports an unfilled commitment when the forecast is short', () => {
-        const r = autoMatch([{ id: 'X', tonnes: 10, grade: 'G', mcPct: 14, window: ['W1'] }], [{ id: 'a', week: 'W1', dayIndex: 0, driedKg: 4000, grade: 'G', mcPct: 14 }]);
+        const r = autoMatch(
+            [{ id: 'X', tonnes: 10, grade: 'G', mcPct: 14, window: ['W1'] }],
+            [{ id: 'a', week: 'W1', dayIndex: 0, driedKg: 4000, grade: 'G', mcPct: 14 }]
+        );
         expect(r[0]).toMatchObject({ filled: false, kg: 4000 });
     });
 });
@@ -108,14 +127,31 @@ describe('dryer slots', () => {
         for (const v of m.values()) expect(v).toBeLessThanOrEqual(D.DRYER.capacitySacks);
     });
     it('pushes overflow to the next day', () => {
-        const s = assignDryerSlots([{ id: 'a', dayIndex: 0, driedKg: 15000 }, { id: 'b', dayIndex: 0, driedKg: 15000 }], 24000);
+        const s = assignDryerSlots(
+            [
+                { id: 'a', dayIndex: 0, driedKg: 15000 },
+                { id: 'b', dayIndex: 0, driedKg: 15000 }
+            ],
+            24000
+        );
         expect(s.map((x) => x.dayIndex)).toEqual([0, 1]);
     });
 });
 
 describe('driver auto-assignment', () => {
-    const vehicles = [{ id: 'tri', icon: 'Tricycle', capacity: 10, price: 45000 }, { id: 'truck', icon: 'Truck', capacity: 100, price: 350000 }, { id: 'pickup', icon: 'Multicab', capacity: 100, price: 120000 }];
-    const d = (id: string, vehicle: string, distanceKm: number, available = true) => ({ id, name: id, plate: id, vehicle, distanceKm, available });
+    const vehicles = [
+        { id: 'tri', icon: 'Tricycle', capacity: 10, price: 45000 },
+        { id: 'truck', icon: 'Truck', capacity: 100, price: 350000 },
+        { id: 'pickup', icon: 'Multicab', capacity: 100, price: 120000 }
+    ];
+    const d = (id: string, vehicle: string, distanceKm: number, available = true) => ({
+        id,
+        name: id,
+        plate: id,
+        vehicle,
+        distanceKm,
+        available
+    });
     it('respects capacity: the nearest driver is skipped when the load does not fit', () => {
         expect(autoAssign(60, [d('near', 'tri', 1), d('far', 'truck', 5)], vehicles)?.id).toBe('far');
     });
@@ -134,6 +170,10 @@ describe('driver auto-assignment', () => {
 
 describe('SMS', () => {
     it('is plain ASCII and fits one 160-character SMS in every language', () => {
-        for (const m of D.SMS) for (const t of Object.values(m.text)) { expect(t).toMatch(/^[\x20-\x7E]*$/); expect(t.length).toBeLessThanOrEqual(160); }
+        for (const m of D.SMS)
+            for (const t of Object.values(m.text)) {
+                expect(t).toMatch(/^[\x20-\x7E]*$/);
+                expect(t.length).toBeLessThanOrEqual(160);
+            }
     });
 });

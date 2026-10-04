@@ -32,6 +32,7 @@ RiceConnect helps a farmer cluster in Dingle, Iloilo plan harvests, dry palay, h
 ## UI rules
 
 Everything in `docs/plan/04-ux-standards.md`, and in short:
+
 - Glass by default; panels holding text use `glass-fill-strong`. Haul screens use the hard logistics style (`.hard`, `.hard-thin`, `.hard-btn`) for content; the shell and nav around Haul stay glass. Never mix inside one card. Portaled dialogs and menus carry the opener's style class.
 - Radix is used as unstyled primitives wrapped in `packages/ui`; never Radix Themes or shadcn/ui CSS.
 - Every screen implements the state matrix (loading, empty, empty-filtered, error, not found, forbidden, offline, pending, success). No default spinners.

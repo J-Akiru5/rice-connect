@@ -2,11 +2,22 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { LocalAdapter, STORE_KEY } from './local';
 import { emptyState } from './types';
 
-class MemStorage { m = new Map<string, string>(); getItem = (k: string) => this.m.get(k) ?? null; setItem = (k: string, v: string) => void this.m.set(k, v); removeItem = (k: string) => void this.m.delete(k); }
+class MemStorage {
+    m = new Map<string, string>();
+    getItem = (k: string) => this.m.get(k) ?? null;
+    setItem = (k: string, v: string) => void this.m.set(k, v);
+    removeItem = (k: string) => void this.m.delete(k);
+}
 const order = { id: 'R-001', type: 'restaurant' as const, kg: 100, sacks: 4, total: 480000, week: 'W3' };
 const open: { close(): void }[] = [];
-const channel = (name: string) => { const c = new BroadcastChannel(name); open.push(c); return c as unknown as BroadcastChannel; };
-afterEach(() => { open.splice(0).forEach((c) => c.close()); });
+const channel = (name: string) => {
+    const c = new BroadcastChannel(name);
+    open.push(c);
+    return c as unknown as BroadcastChannel;
+};
+afterEach(() => {
+    open.splice(0).forEach((c) => c.close());
+});
 const tick = () => new Promise((r) => setTimeout(r, 30));
 
 describe('LocalAdapter', () => {
@@ -30,7 +41,17 @@ describe('LocalAdapter', () => {
         const storage = new MemStorage();
         storage.setItem(STORE_KEY, '{oops');
         expect(new LocalAdapter({ storage }).get()).toEqual(emptyState());
-        const blocked = { getItem: () => { throw new Error('blocked'); }, setItem: () => { throw new Error('blocked'); }, removeItem: () => { throw new Error('blocked'); } };
+        const blocked = {
+            getItem: () => {
+                throw new Error('blocked');
+            },
+            setItem: () => {
+                throw new Error('blocked');
+            },
+            removeItem: () => {
+                throw new Error('blocked');
+            }
+        };
         const a = new LocalAdapter({ storage: blocked });
         a.update((s) => ({ ...s, riceOrders: [order] }));
         expect(a.get().riceOrders).toHaveLength(1);

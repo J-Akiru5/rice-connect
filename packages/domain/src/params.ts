@@ -20,13 +20,28 @@ export const PRICE = {
     drying: 150, // ₱1.50/kg
     margin: 100, // ₱1.00/kg
     advancePct: 80,
-    buyerFeePct: 3, // of quoted, paid by the buyer, never deducted
+    buyerFeePct: 3 // of quoted, paid by the buyer, never deducted
 } as const;
 
 export const COMMITMENTS_BRIEF = [
-    { id: 'C-01', buyer: 'Buyer A (simulated)', tonnes: 30, grade: 'Grade 1', mcPct: 14, price: 2250, window: ['W3', 'W4'] },
-    { id: 'C-02', buyer: 'Buyer B (simulated)', tonnes: 25, window: ['W2', 'W3'] },
+    {
+        id: 'C-01',
+        buyer: 'Buyer A (simulated)',
+        tonnes: 30,
+        grade: 'Grade 1',
+        mcPct: 14,
+        price: 2250,
+        window: ['W3', 'W4']
+    },
+    { id: 'C-02', buyer: 'Buyer B (simulated)', tonnes: 25, window: ['W2', 'W3'] }
 ] as const;
 
 /* The one lot that flows through every module. */
-export const HERO = { farm: 'F-014', lot: 'L-03', haul: 'H-07', lotKg: 5000, commitment: 'C-01', slip: 'S-0303' } as const;
+export const HERO = {
+    farm: 'F-014',
+    lot: 'L-03',
+    haul: 'H-07',
+    lotKg: 5000,
+    commitment: 'C-01',
+    slip: 'S-0303'
+} as const;

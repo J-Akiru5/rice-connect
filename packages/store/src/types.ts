@@ -1,13 +1,26 @@
 import type { RiceOrder } from '@rc/domain/buyers';
 
 /** A palay commitment a miller posted in the buyer app (auto-matched against lots not yet committed). */
-export interface LocalCommitment { id: string; tonnes: number; price: number; window: string[]; kg: number; lots: string[] }
+export interface LocalCommitment {
+    id: string;
+    tonnes: number;
+    price: number;
+    window: string[];
+    kg: number;
+    lots: string[];
+}
 
 /** Everything the demo can change at runtime. The seed (packages/domain) never changes; this is the delta on top of it. */
 export type HaulStatus = 'requested' | 'assigned' | 'accepted' | 'pickedup' | 'delivered';
 export type SlotStatus = 'scheduled' | 'confirmed' | 'move-requested';
 /** A message in the farmer's SMS thread typed in the farmer app (the three system SMS come from the seed). */
-export interface SmsReply { id: string; farm: string; text: string; action: 'ok' | 'move' | null; seq: number }
+export interface SmsReply {
+    id: string;
+    farm: string;
+    text: string;
+    action: 'ok' | 'move' | null;
+    seq: number;
+}
 
 export interface DemoState {
     version: 1;
@@ -25,7 +38,16 @@ export interface DemoState {
 }
 /** The apps with their own sign-in (the farmer signs in with a mobile number). */
 export type SessionRole = 'coordinator' | 'buyer' | 'driver' | 'farmer' | 'admin';
-export const emptyState = (): DemoState => ({ version: 1, riceOrders: [], commitments: [], hauls: {}, slots: {}, smsReplies: [], farmsAdded: [], session: {} });
+export const emptyState = (): DemoState => ({
+    version: 1,
+    riceOrders: [],
+    commitments: [],
+    hauls: {},
+    slots: {},
+    smsReplies: [],
+    farmsAdded: [],
+    session: {}
+});
 
 /** The swap point. LocalAdapter implements this for the prototype (this browser only, synced across tabs).
     A server adapter (e.g. Supabase) would implement the same four methods; nothing in the apps changes. */

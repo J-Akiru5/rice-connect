@@ -8,7 +8,9 @@ import type { Role } from '@rc/ui/Components/AppShell';
    inside /demo, and on the phone modules (Farm, Haul) when the URL has ?frame=phone or ?rec=1.
    Everything else renders as a responsive website. */
 const FrameCtx = createContext(false);
-export const FrameProvider = ({ framed, children }: PropsWithChildren<{ framed: boolean }>) => <FrameCtx.Provider value={framed}>{children}</FrameCtx.Provider>;
+export const FrameProvider = ({ framed, children }: PropsWithChildren<{ framed: boolean }>) => (
+    <FrameCtx.Provider value={framed}>{children}</FrameCtx.Provider>
+);
 export const useFramed = () => useContext(FrameCtx);
 /** ?frame=phone or ?rec=1 asks for the phone frame (read inside a Suspense boundary). */
 export function useFrameParam() {
@@ -17,8 +19,25 @@ export function useFrameParam() {
 }
 
 /** The shell for a phone module (Farm, Haul): the website shell, or the phone shell inside the frame. */
-export function ModuleShell({ title, active, role, eyebrow, children }: PropsWithChildren<{ title: ReactNode; active: string; role?: Role; eyebrow?: ReactNode }>) {
+export function ModuleShell({
+    title,
+    active,
+    role,
+    eyebrow,
+    children
+}: PropsWithChildren<{ title: ReactNode; active: string; role?: Role; eyebrow?: ReactNode }>) {
     const framed = useFramed();
-    if (framed) return <PhoneStage><PhoneShell role={role} title={title} active={active}>{children}</PhoneShell></PhoneStage>;
-    return <AppShell role={role} title={title} eyebrow={eyebrow} active={active}>{children}</AppShell>;
+    if (framed)
+        return (
+            <PhoneStage>
+                <PhoneShell role={role} title={title} active={active}>
+                    {children}
+                </PhoneShell>
+            </PhoneStage>
+        );
+    return (
+        <AppShell role={role} title={title} eyebrow={eyebrow} active={active}>
+            {children}
+        </AppShell>
+    );
 }

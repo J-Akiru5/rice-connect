@@ -10,5 +10,9 @@ function Inner() {
 }
 
 export default function DryPage() {
-  return <Suspense fallback={<DryScreen />}><Inner /></Suspense>;
+  return (
+    <Suspense fallback={<DryScreen />}>
+      <Inner />
+    </Suspense>
+  );
 }

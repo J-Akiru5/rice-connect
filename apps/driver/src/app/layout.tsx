@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: 'RiceConnect · Driver (prototype)',
   description: 'RiceConnect Enactus 2026 prototype by Team Syntaxure Labs (ISUFST). Simulated data only.',
   robots: { index: false, follow: false },
-  icons: { icon: '/driver/brand/riceconnect-mark.svg' },
+  icons: { icon: '/driver/brand/riceconnect-mark.svg' }
 };
 export const viewport: Viewport = { width: 'device-width', initialScale: 1 };
 

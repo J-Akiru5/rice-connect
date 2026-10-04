@@ -10,7 +10,10 @@ const MOBILE = /^(?:09|\+639)\d{9}$/;
 
 export const cleanMobile = (v: string) => v.replace(/[\s-]/g, '');
 /** E.164 form of a valid PH mobile (+639XXXXXXXXX), the shape an SMS or phone-auth provider expects. */
-export const toE164 = (v: string) => { const m = cleanMobile(v); return m.startsWith('09') ? '+63' + m.slice(1) : m; };
+export const toE164 = (v: string) => {
+    const m = cleanMobile(v);
+    return m.startsWith('09') ? '+63' + m.slice(1) : m;
+};
 
 export function checkIdentifier(kind: Identifier, v: string): string | null {
     const s = v.trim();

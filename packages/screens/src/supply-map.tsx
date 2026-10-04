@@ -30,10 +30,13 @@ export function SupplyMap({ values, unit, label }: { values: number[]; unit: str
             const m = new maplibregl.Map({
                 container: box.current,
                 style: STYLE,
-                bounds: [[Math.min(...pts.map((p) => p.lng)), Math.min(...pts.map((p) => p.lat))], [Math.max(...pts.map((p) => p.lng)), Math.max(...pts.map((p) => p.lat))]],
+                bounds: [
+                    [Math.min(...pts.map((p) => p.lng)), Math.min(...pts.map((p) => p.lat))],
+                    [Math.max(...pts.map((p) => p.lng)), Math.max(...pts.map((p) => p.lat))]
+                ],
                 fitBoundsOptions: { padding: 72, maxZoom: 14 },
                 attributionControl: { compact: true },
-                cooperativeGestures: true,
+                cooperativeGestures: true
             });
             m.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
             m.on('error', () => setOffline(true));
@@ -41,13 +44,19 @@ export function SupplyMap({ values, unit, label }: { values: number[]; unit: str
                 const el = document.createElement('div');
                 el.className = 'rc-map-marker';
                 el.setAttribute('role', 'img');
-                new maplibregl.Marker({ element: el, anchor: 'bottom' }).setLngLat([PLACES[b].lng, PLACES[b].lat]).addTo(m);
+                new maplibregl.Marker({ element: el, anchor: 'bottom' })
+                    .setLngLat([PLACES[b].lng, PLACES[b].lat])
+                    .addTo(m);
                 return el;
             });
             map.current = m;
             setMarkers();
         })();
-        return () => { cancelled = true; map.current?.remove(); map.current = null; };
+        return () => {
+            cancelled = true;
+            map.current?.remove();
+            map.current = null;
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -72,9 +81,20 @@ export function SupplyMap({ values, unit, label }: { values: number[]; unit: str
 
     return (
         <figure className="glass-panel rounded-[1.5rem] p-3 m-0">
-            <div ref={box} role="region" aria-label={`${label} · ${MUNICIPALITY}. ${summary}`} className="w-full h-[360px] md:h-[420px] rounded-[1rem] overflow-hidden bg-[var(--glass-fill)]" />
-            {offline && <p role="status" className="mt-2 m-0 text-[14px] font-bold text-[var(--warning-ink)]">{t('supply.mapOffline')}</p>}
-            <figcaption className="mt-2 px-1 text-[14px] leading-5 font-semibold text-[var(--text-secondary)]">{t('supply.mapNote', { place: MUNICIPALITY })}</figcaption>
+            <div
+                ref={box}
+                role="region"
+                aria-label={`${label} · ${MUNICIPALITY}. ${summary}`}
+                className="w-full h-[360px] md:h-[420px] rounded-[1rem] overflow-hidden bg-[var(--glass-fill)]"
+            />
+            {offline && (
+                <p role="status" className="mt-2 m-0 text-[14px] font-bold text-[var(--warning-ink)]">
+                    {t('supply.mapOffline')}
+                </p>
+            )}
+            <figcaption className="mt-2 px-1 text-[14px] leading-5 font-semibold text-[var(--text-secondary)]">
+                {t('supply.mapNote', { place: MUNICIPALITY })}
+            </figcaption>
         </figure>
     );
 }

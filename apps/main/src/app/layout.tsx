@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: 'RiceConnect · Cluster selling for smallholder rice farmers',
   description: 'RiceConnect Enactus 2026 prototype by Team Syntaxure Labs (ISUFST). Simulated data only.',
   robots: { index: true, follow: true },
-  icons: { icon: '/brand/riceconnect-mark.svg' },
+  icons: { icon: '/brand/riceconnect-mark.svg' }
 };
 export const viewport: Viewport = { width: 'device-width', initialScale: 1 };
 

@@ -21,5 +21,9 @@ function List({ state, selectedId }: { state: 'default' | 'empty'; selectedId: s
 }
 
 export default function FarmPage() {
-  return <Suspense fallback={<FarmListScreen />}><Inner /></Suspense>;
+  return (
+    <Suspense fallback={<FarmListScreen />}>
+      <Inner />
+    </Suspense>
+  );
 }

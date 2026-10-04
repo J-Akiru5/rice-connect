@@ -8,7 +8,7 @@ import { join } from 'node:path';
 const require = createRequire(join(process.cwd(), 'package.json'));
 const bin = require.resolve('next/dist/bin/next');
 const child = spawn(process.execPath, [bin, ...process.argv.slice(2)], {
-  stdio: 'inherit',
-  env: { ...process.env, NEXT_TELEMETRY_DISABLED: '1' },
+    stdio: 'inherit',
+    env: { ...process.env, NEXT_TELEMETRY_DISABLED: '1' }
 });
 child.on('exit', (code) => process.exit(code ?? 1));

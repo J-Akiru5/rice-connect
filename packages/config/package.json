@@ -1,25 +1,25 @@
 {
-  "name": "@rc/config",
-  "version": "0.0.0",
-  "private": true,
-  "exports": {
-    "./tsconfig.base.json": "./tsconfig.base.json",
-    "./tailwind": "./tailwind.preset.ts",
-    "./eslint": "./eslint.config.mjs",
-    "./next.mjs": "./next.mjs",
-    "./zones.mjs": "./zones.mjs"
-  },
-  "scripts": {
-    "lint": "node --check eslint.config.mjs",
-    "test": "echo no tests",
-    "build": "echo nothing to build"
-  },
-  "dependencies": {
-    "eslint-config-next": "16.3.8"
-  },
-  "peerDependencies": {
-    "eslint": "9.39.5",
-    "tailwindcss": "3.4.19"
-  },
-  "type": "module"
+    "name": "@rc/config",
+    "version": "0.0.0",
+    "private": true,
+    "exports": {
+        "./tsconfig.base.json": "./tsconfig.base.json",
+        "./tailwind": "./tailwind.preset.ts",
+        "./eslint": "./eslint.config.mjs",
+        "./next.mjs": "./next.mjs",
+        "./zones.mjs": "./zones.mjs"
+    },
+    "scripts": {
+        "lint": "node --check eslint.config.mjs",
+        "test": "echo no tests",
+        "build": "echo nothing to build"
+    },
+    "dependencies": {
+        "eslint-config-next": "16.3.8"
+    },
+    "peerDependencies": {
+        "eslint": "9.39.5",
+        "tailwindcss": "3.4.19"
+    },
+    "type": "module"
 }

@@ -3,24 +3,14 @@
   "ui": "stream",
   "tasks": {
     "build": {
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": [
-        ".next/**",
-        "!.next/cache/**",
-        "src/styles/tokens.css"
-      ]
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**", "src/styles/tokens.css"]
     },
     "lint": {
-      "dependsOn": [
-        "^build"
-      ]
+      "dependsOn": ["^build"]
     },
     "test": {
-      "dependsOn": [
-        "^build"
-      ]
+      "dependsOn": ["^build"]
     },
     "dev": {
       "cache": false,
@@ -31,10 +21,6 @@
       "persistent": true
     }
   },
-  "globalEnv": [
-    "RC_LOCAL"
-  ],
-  "globalPassThroughEnv": [
-    "NEXT_TELEMETRY_DISABLED"
-  ]
+  "globalEnv": ["RC_LOCAL"],
+  "globalPassThroughEnv": ["NEXT_TELEMETRY_DISABLED"]
 }

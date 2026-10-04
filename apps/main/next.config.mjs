@@ -7,14 +7,23 @@ import { zoneOrigins } from '@rc/config/zones.mjs';
 const z = zoneOrigins();
 const zone = (name) => [
   { source: `/${name}`, destination: `${z[name]}/${name}` },
-  { source: `/${name}/:path*`, destination: `${z[name]}/${name}/:path*` },
+  { source: `/${name}/:path*`, destination: `${z[name]}/${name}/:path*` }
 ];
 const legacy = [
   ['/coordinator', '/coordinator/home'],
-  ['/farm', '/coordinator/farm'], ['/farm/:id', '/coordinator/farm/:id'], ['/plan', '/coordinator/plan'],
-  ['/market', '/coordinator/market'], ['/dry', '/coordinator/dry'], ['/haul', '/coordinator/haul'],
-  ['/haul/driver', '/driver'], ['/pay', '/coordinator/pay'], ['/pay/:lotId', '/coordinator/pay/:lotId'],
-  ['/sms', '/farmer'], ['/slip', '/farmer/slip'], ['/demo', '/coordinator/demo'], ['/home', '/coordinator/home'],
+  ['/farm', '/coordinator/farm'],
+  ['/farm/:id', '/coordinator/farm/:id'],
+  ['/plan', '/coordinator/plan'],
+  ['/market', '/coordinator/market'],
+  ['/dry', '/coordinator/dry'],
+  ['/haul', '/coordinator/haul'],
+  ['/haul/driver', '/driver'],
+  ['/pay', '/coordinator/pay'],
+  ['/pay/:lotId', '/coordinator/pay/:lotId'],
+  ['/sms', '/farmer'],
+  ['/slip', '/farmer/slip'],
+  ['/demo', '/coordinator/demo'],
+  ['/home', '/coordinator/home']
 ];
 
 /** @type {import('next').NextConfig} */
@@ -31,7 +40,11 @@ const nextConfig = {
   /* The coordinator and super admin pages are not for search engines; the public site is. */
   async headers() {
     const noindex = [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }];
-    return [{ source: '/coordinator/:path*', headers: noindex }, { source: '/admin/:path*', headers: noindex }, { source: '/admin', headers: noindex }];
-  },
+    return [
+      { source: '/coordinator/:path*', headers: noindex },
+      { source: '/admin/:path*', headers: noindex },
+      { source: '/admin', headers: noindex }
+    ];
+  }
 };
 export default nextConfig;

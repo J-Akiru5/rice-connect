@@ -14,15 +14,29 @@ export function useBuyerType(): [BuyerType, (t: BuyerType) => void] {
     const pathname = usePathname();
     const fromUrl = sp.get('type');
     const [stored, setStored] = useState<BuyerType | null>(null);
-    useEffect(() => { try { const v = window.localStorage.getItem(KEY); if (isBuyerType(v)) setStored(v); } catch { /* blocked */ } }, []);
-    const type = isBuyerType(fromUrl) ? fromUrl : stored ?? DEFAULT;
-    const set = useCallback((t: BuyerType) => {
-        try { window.localStorage.setItem(KEY, t); } catch { /* blocked */ }
-        setStored(t);
-        const next = new URLSearchParams(sp.toString());
-        next.set('type', t);
-        router.replace(`${pathname}?${next.toString()}`, { scroll: false });
-    }, [sp, router, pathname]);
+    useEffect(() => {
+        try {
+            const v = window.localStorage.getItem(KEY);
+            if (isBuyerType(v)) setStored(v);
+        } catch {
+            /* blocked */
+        }
+    }, []);
+    const type = isBuyerType(fromUrl) ? fromUrl : (stored ?? DEFAULT);
+    const set = useCallback(
+        (t: BuyerType) => {
+            try {
+                window.localStorage.setItem(KEY, t);
+            } catch {
+                /* blocked */
+            }
+            setStored(t);
+            const next = new URLSearchParams(sp.toString());
+            next.set('type', t);
+            router.replace(`${pathname}?${next.toString()}`, { scroll: false });
+        },
+        [sp, router, pathname]
+    );
     return [type, set];
 }
 
@@ -34,13 +48,21 @@ export function BuyerTypePicker({ value, onChange }: { value: BuyerType; onChang
             <div role="radiogroup" aria-label={t('buyer.type')} className="flex flex-wrap items-center gap-2">
                 <span className="eyebrow mr-1">{t('buyer.type')}</span>
                 {BUYER_TYPES.map((bt) => (
-                    <button key={bt} type="button" role="radio" aria-checked={value === bt} onClick={() => onChange(bt)}
-                        className={`min-h-[44px] px-4 rounded-full text-[14px] font-extrabold ${value === bt ? 'bg-[var(--fill-strong)] text-[var(--on-fill-strong)]' : 'bg-[var(--glass-fill-strong)] text-[var(--ink)] border-2 border-[color:var(--text-muted)]'}`}>
+                    <button
+                        key={bt}
+                        type="button"
+                        role="radio"
+                        aria-checked={value === bt}
+                        onClick={() => onChange(bt)}
+                        className={`min-h-[44px] px-4 rounded-full text-[14px] font-extrabold ${value === bt ? 'bg-[var(--fill-strong)] text-[var(--on-fill-strong)]' : 'bg-[var(--glass-fill-strong)] text-[var(--ink)] border-2 border-[color:var(--text-muted)]'}`}
+                    >
                         {t('buyer.type.' + bt)}
                     </button>
                 ))}
             </div>
-            <p className="m-0 text-[14px] font-semibold text-[var(--text-secondary)]">{t(buysPalay(value) ? 'buyer.buys.palay' : 'buyer.buys.rice')}</p>
+            <p className="m-0 text-[14px] font-semibold text-[var(--text-secondary)]">
+                {t(buysPalay(value) ? 'buyer.buys.palay' : 'buyer.buys.rice')}
+            </p>
         </div>
     );
 }
