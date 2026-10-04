@@ -19,11 +19,12 @@ describe('zones', () => {
         expect(gatewayPath('/haul/driver')).toBe('/driver');
         expect(gatewayPath('/launch')).toBe('/launch');
     });
-    it('uses next/link inside a zone and <a> across zones', () => {
-        expect(zoneHref('coordinator', '/pay/L-03')).toEqual({ href: '/pay/L-03', same: true });
-        expect(zoneHref('coordinator', '/sms')).toEqual({ href: '/farmer', same: false });
+    it('uses next/link inside an app and <a> across apps', () => {
+        expect(zoneHref('main', '/pay/L-03')).toEqual({ href: '/coordinator/pay/L-03', same: true });
+        expect(zoneHref('main', '/launch')).toEqual({ href: '/launch', same: true });
+        expect(zoneHref('main', '/sms')).toEqual({ href: '/farmer', same: false });
         expect(zoneHref('buyer', '/buyer/orders')).toEqual({ href: '/orders', same: true });
-        expect(zoneHref('web', '/sms')).toEqual({ href: '/sms', same: true });
+        expect(zoneHref('buyer', '/farm/F-014')).toEqual({ href: '/coordinator/farm/F-014', same: false });
         expect(zoneHref('farmer', '#sms-thread')).toEqual({ href: '#sms-thread', same: true });
     });
 });
