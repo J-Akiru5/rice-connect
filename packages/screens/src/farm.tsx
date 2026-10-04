@@ -144,6 +144,7 @@ export function FarmListScreen({
                             <label className="block">
                                 <span className="sr-only">{t('farm.status')}</span>
                                 <select
+                                    name="status"
                                     value={L.status}
                                     onChange={(e) => L.set({ status: e.target.value, farm: null })}
                                     className={selectCls}
@@ -159,6 +160,7 @@ export function FarmListScreen({
                             <label className="block">
                                 <span className="sr-only">{t('farm.barangay')}</span>
                                 <select
+                                    name="barangay"
                                     value={L.barangay}
                                     onChange={(e) => L.set({ barangay: e.target.value, farm: null })}
                                     className={selectCls}
