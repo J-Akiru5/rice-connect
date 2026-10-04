@@ -8,16 +8,16 @@ import ThemeToggle from './ThemeToggle';
 import Modal from './Modal';
 import { DemoChip, LanguageSwitcher } from './Enactus';
 import { useI18n, tx } from '@rc/i18n';
-import { signOut } from '@rc/store';
-import { useDemoState, updateDemoState } from '@rc/store/react';
-import { ACCOUNTS } from '../lib/account';
+import type { SessionRole } from '@rc/store';
+import { useDemoState } from '@rc/store/react';
+import { ACCOUNTS, auth } from '../lib/account';
 
 /* Intentional addition: Karl's AuthenticatedLayout reduced to a reusable shell for the prototype.
    Glass sidebar + header over the flat terrace-contour ground (.rc-ground).
    Prototype port (see docs/DECISIONS.md): the photo ground is removed; nav items without a route
    (Console, Inventory, Settings) are dropped so there are no dead links; every item links to a real route;
    a ThemeToggle and the team footer are added. Haul lives under Logistics, Pay under Orders. */
-export type Role = 'coordinator' | 'buyer' | 'driver' | 'admin';
+export type Role = SessionRole;
 type Item = { key: string; icon: string; href: string; sub?: string };
 const NAV: Record<Role, Item[]> = {
     coordinator: [
@@ -27,6 +27,8 @@ const NAV: Record<Role, Item[]> = {
     ],
     buyer: [{ key: 'supply', icon: 'Market', href: '/buyer' }, { key: 'myorders', icon: 'Orders', href: '/buyer/orders' }],
     driver: [{ key: 'logistics', icon: 'Logistics', href: '/haul/driver', sub: 'haul' }, { key: 'sms', icon: 'Sms', href: '/sms' }],
+    /* Farmer (docs/DECISIONS.md M23): the SMS inbox and the settlement slip. */
+    farmer: [{ key: 'sms', icon: 'Sms', href: '/sms' }, { key: 'slip', icon: 'Pay', href: '/slip' }],
     /* Super admin (prototype addition, docs/DECISIONS.md M20): read-only overview of every app. */
     admin: [
         { key: 'overview', icon: 'Console', href: '/admin' }, { key: 'users', icon: 'Users', href: '/admin/users' },
@@ -34,8 +36,8 @@ const NAV: Record<Role, Item[]> = {
     ],
 };
 /* Mobile bottom tabs; everything else in the role's nav goes into the "More" sheet. */
-const TABS: Record<Role, string[]> = { coordinator: ['home', 'farms', 'logistics', 'orders'], buyer: ['supply', 'myorders'], driver: ['logistics', 'sms'], admin: ['overview', 'users', 'config', 'activity'] };
-const ROLE_LABEL: Record<Role, string> = { coordinator: 'role.coordinator', buyer: 'role.buyer', driver: 'role.driver', admin: 'role.admin' };
+const TABS: Record<Role, string[]> = { coordinator: ['home', 'farms', 'logistics', 'orders'], buyer: ['supply', 'myorders'], driver: ['logistics', 'sms'], farmer: ['sms', 'slip'], admin: ['overview', 'users', 'config', 'activity'] };
+const ROLE_LABEL: Record<Role, string> = { coordinator: 'role.coordinator', buyer: 'role.buyer', driver: 'role.driver', farmer: 'role.farmer', admin: 'role.admin' };
 const isActive = (n: Item, active: string) => active === n.key || active === n.sub;
 
 /** Sign Out (signed in) or Log In (signed out) for this app's own simulated sign-in (docs/DECISIONS.md M22). */
@@ -46,7 +48,7 @@ export function AccountButton({ role }: { role: Role }) {
     const cls = 'inline-flex items-center gap-2 min-h-[44px] md:min-h-[40px] px-3 md:px-4 rounded-full border-2 border-[color:var(--text-muted)] text-[13px] font-extrabold uppercase tracking-[0.06em] whitespace-nowrap hover:bg-[rgba(5,150,105,.1)]';
     if (!signedIn) return <Link href={ACCOUNTS[role].signIn} className={cls}><Icon name="LogIn" size={20} /><span>{t('mk.login')}</span></Link>;
     return (
-        <button type="button" className={cls} onClick={() => { updateDemoState(signOut(role)); nav(ACCOUNTS[role].signIn); }}>
+        <button type="button" className={cls} onClick={async () => { await auth.signOut(role); nav(ACCOUNTS[role].signIn); }}>
             <Icon name="LogOut" size={20} /><span>{t('signin.out')}</span>
         </button>
     );

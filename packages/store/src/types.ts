@@ -23,8 +23,8 @@ export interface DemoState {
     /** Simulated sign-in per app (no accounts, no passwords): the demo identity signed in to each app, absent = signed out. */
     session: Partial<Record<SessionRole, string>>;
 }
-/** The apps with their own simulated sign-in. The farmer has none: the farmer only uses SMS. */
-export type SessionRole = 'coordinator' | 'buyer' | 'driver' | 'admin';
+/** The apps with their own sign-in (the farmer signs in with a mobile number). */
+export type SessionRole = 'coordinator' | 'buyer' | 'driver' | 'farmer' | 'admin';
 export const emptyState = (): DemoState => ({ version: 1, riceOrders: [], commitments: [], hauls: {}, slots: {}, smsReplies: [], farmsAdded: [], session: {} });
 
 /** The swap point. LocalAdapter implements this for the prototype (this browser only, synced across tabs).
