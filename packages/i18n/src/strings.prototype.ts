@@ -19,6 +19,12 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     'env.demo': ['Demo', 'Demo', 'Demo'],
     'env.staging': ['Staging', 'Staging', 'Staging'],
     'env.local': ['Local', 'Local', 'Local'],
+    'kit.title': ['Component Kit', 'Component Kit', 'Component Kit'],
+    'kit.note': [
+        'Development board for the UI kit. Every wrapper ships with keyboard and focus tests.',
+        'Development board for the UI kit. Every wrapper ships with keyboard and focus tests.',
+        'Development board for the UI kit. Every wrapper ships with keyboard and focus tests.'
+    ],
     'phone.net': ['4G', '4G', '4G'],
     'sms.chars': ['chars', 'mga karakter', 'mga karakter'],
     'slip.item': ['Item', 'Aytem', 'Butang'],

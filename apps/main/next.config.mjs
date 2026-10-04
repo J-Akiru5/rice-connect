@@ -43,7 +43,8 @@ const nextConfig = {
     return [
       { source: '/coordinator/:path*', headers: noindex },
       { source: '/admin/:path*', headers: noindex },
-      { source: '/admin', headers: noindex }
+      { source: '/admin', headers: noindex },
+      { source: '/__kit', headers: noindex }
     ];
   }
 };
