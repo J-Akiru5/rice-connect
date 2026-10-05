@@ -1,7 +1,7 @@
 'use client';
 import { useSyncExternalStore } from 'react';
 import { getStore } from './local';
-import { getLiveSession, subscribeLiveSession, type LiveSession } from './session';
+import { getLiveSession, getLiveSessionReady, subscribeLiveSession, type LiveSession } from './session';
 import { emptyState, type DemoState } from './types';
 
 const SERVER = emptyState();
@@ -13,6 +13,10 @@ export function useDemoState(): DemoState {
 /** Read the live Supabase session (B-04); null in demo mode. */
 export function useLiveSession(): LiveSession | null {
     return useSyncExternalStore(subscribeLiveSession, getLiveSession, () => null);
+}
+/** True once the live adapter has restored the stored session; guards wait for this before redirecting. */
+export function useLiveSessionReady(): boolean {
+    return useSyncExternalStore(subscribeLiveSession, getLiveSessionReady, () => true);
 }
 export const updateDemoState = (fn: (s: DemoState) => DemoState) => getStore().update(fn);
 export const resetDemoState = () => getStore().reset();

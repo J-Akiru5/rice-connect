@@ -12,11 +12,20 @@ export interface LiveSession {
 }
 
 let current: LiveSession | null = null;
+let ready = true;
 const listeners = new Set<() => void>();
 
 export const getLiveSession = () => current;
+/** False only while the adapter restores the stored session; guards wait for true before redirecting. */
+export const getLiveSessionReady = () => ready;
 export function setLiveSession(next: LiveSession | null) {
     current = next;
+    ready = true;
+    listeners.forEach((l) => l());
+}
+/** Called by the Supabase adapter while it restores the stored session. */
+export function resetLiveSessionReady() {
+    ready = false;
     listeners.forEach((l) => l());
 }
 export function subscribeLiveSession(listener: () => void) {

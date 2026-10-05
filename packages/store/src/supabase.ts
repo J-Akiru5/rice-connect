@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient, type User } from '@supabase/supabase-js';
 import type { AuthAdapter, AuthErrorCode, AuthResult, SignInInput, SignUpInput } from './auth';
-import { setLiveSession } from './session';
+import { resetLiveSessionReady, setLiveSession } from './session';
 import type { SessionRole } from './types';
 
 /* B-04: SupabaseAuthAdapter behind the same AuthAdapter the mock implements (docs/plan/03-architecture.md).
@@ -39,6 +39,7 @@ function mapAuthError(error: { code?: string; status?: number; message?: string 
 
 export class SupabaseAuthAdapter implements AuthAdapter {
     constructor(private client: SupabaseClient) {
+        resetLiveSessionReady();
         void this.restore();
         this.client.auth.onAuthStateChange((_event, session) => {
             this.publish(session?.user ?? null);
