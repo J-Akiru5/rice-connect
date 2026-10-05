@@ -28,8 +28,8 @@ import { staticListState, type ListState } from './list-state';
 import { ModuleShell } from './shell';
 import { useDemoState, updateDemoState } from '@rc/store/react';
 import { addFarm } from '@rc/store';
-import { useCreateFarm, useCreatedFarms, useFarms } from '@rc/data';
-import { BARANGAYS, FARMS, TOTALS, KG_PER_SACK, VARIETIES, lotOfFarm, farmById, type Farm } from '@rc/domain/seed';
+import { useCreateFarm, useCreatedFarms, useFarm, useFarms } from '@rc/data';
+import { BARANGAYS, FARMS, TOTALS, KG_PER_SACK, VARIETIES, lotOfFarm, type Farm } from '@rc/domain/seed';
 
 export type FarmState = 'default' | 'empty' | 'error' | 'success';
 const STATUSES: Farm['status'][] = ['registered', 'verified', 'cluster'];
@@ -479,10 +479,33 @@ export function FarmProfileScreen({
 }) {
     const { t } = useI18n();
     const nav = useZoneNav();
-    const farm = farmById(id)!;
-    const ownAdded = useDemoState().farmsAdded.includes(farm.id) || farm.status === 'cluster';
-    const added = forcedAdded ?? ownAdded;
+    /* Live mode reads the farm from the repositories (Gate 3 step 1b); the mock repo serves the seed. */
+    const farmQuery = useFarm(id);
+    const farm = farmQuery.data;
+    const farmsAdded = useDemoState().farmsAdded;
     const [view, setView] = useState<FarmState>(state);
+    if (farmQuery.isPending) {
+        return (
+            <ModuleShell title="farm.title" active="farms">
+                <LoadingState rows={3} />
+            </ModuleShell>
+        );
+    }
+    if (!farm || farmQuery.isError) {
+        return (
+            <ModuleShell title="farm.title" active="farms">
+                <EmptyState
+                    variant="error"
+                    title="state.farm.error.title"
+                    body="state.farm.error.body"
+                    action="error.retry"
+                    onAction={() => void farmQuery.refetch()}
+                />
+            </ModuleShell>
+        );
+    }
+    const ownAdded = farmsAdded.includes(farm.id) || farm.status === 'cluster';
+    const added = forcedAdded ?? ownAdded;
     const next = FARMS[(FARMS.indexOf(farm) + 1) % FARMS.length] ?? farm;
     if (view === 'error') {
         return (
