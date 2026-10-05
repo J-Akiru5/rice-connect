@@ -1,4 +1,5 @@
 import { zoneOrigins } from '@rc/config/zones.mjs';
+import { securityHeaders } from '@rc/config/security-headers.mjs';
 
 /* Main app: the public site ("/", "/launch", "/login"), the coordinator ("/coordinator/*") and the super admin
    ("/admin/*") in one Next.js app.
@@ -41,6 +42,7 @@ const nextConfig = {
   async headers() {
     const noindex = [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }];
     return [
+      { source: '/:path*', headers: securityHeaders() },
       { source: '/coordinator/:path*', headers: noindex },
       { source: '/admin/:path*', headers: noindex },
       { source: '/admin', headers: noindex },
