@@ -4,10 +4,12 @@ import { useEffect, useMemo, useState } from 'react';
 import {
     Dialog,
     EmptyState,
+    ErrorState,
     FarmProfileCard,
     Field,
     Form,
     Icon,
+    LoadingState,
     Pagination,
     SearchField,
     SecondaryButton,
@@ -20,13 +22,13 @@ import {
     useToast,
     zodResolver
 } from '@rc/ui';
+import { isLive } from '@rc/ui/mode';
 import { z } from 'zod';
-import { filterFarms, paginate, sortBy } from '@rc/domain/list';
 import { staticListState, type ListState } from './list-state';
 import { ModuleShell } from './shell';
 import { useDemoState, updateDemoState } from '@rc/store/react';
 import { addFarm } from '@rc/store';
-import { useCreateFarm, useCreatedFarms } from '@rc/data';
+import { useCreateFarm, useCreatedFarms, useFarms } from '@rc/data';
 import { BARANGAYS, FARMS, TOTALS, KG_PER_SACK, VARIETIES, lotOfFarm, farmById, type Farm } from '@rc/domain/seed';
 
 export type FarmState = 'default' | 'empty' | 'error' | 'success';
@@ -237,22 +239,36 @@ export function FarmListScreen({
     const [q, setQ] = useState(L.q);
     useEffect(() => setQ(L.q), [L.q]);
     const [addOpen, setAddOpen] = useState(false);
+    /* Live mode reads the Supabase repositories (B-05); demo mode gets the same shapes from the mock repo. */
+    const farmsQuery = useFarms({
+        q: L.q || undefined,
+        status: STATUSES.includes(L.status as Farm['status']) ? (L.status as Farm['status']) : undefined,
+        barangay: BARANGAYS.includes(L.barangay as Farm['barangay']) ? (L.barangay as Farm['barangay']) : undefined,
+        page: L.page,
+        size: L.size
+    });
     const createdQuery = useCreatedFarms();
     const created = useMemo(() => createdQuery.data ?? [], [createdQuery.data]);
     const createdIds = useMemo(() => new Set(created.map((f) => f.id)), [created]);
-    const filtered = useMemo(
-        () =>
-            sortBy(
-                filterFarms([...created, ...FARMS], { q: L.q, status: L.status, barangay: L.barangay }),
-                (f) => f.id
-            ),
-        [created, L.q, L.status, L.barangay]
-    );
-    const pg = paginate(filtered, L.page, L.size);
+    const pg = {
+        rows: farmsQuery.data?.rows ?? [],
+        total: farmsQuery.data?.total ?? 0,
+        page: farmsQuery.data?.page ?? 1,
+        size: farmsQuery.data?.size ?? 20
+    };
     const selected = pg.rows.find((f) => f.id === selectedId) ?? pg.rows[0];
     const farmsAdded = useDemoState().farmsAdded;
-    const totalFarms = FARMS.length + created.length;
-    const totalHa = (TOTALS.areaTenths + created.reduce((s, f) => s + f.areaTenths, 0)) / 10;
+    const totalFarms = pg.total;
+    /* Demo shows the cluster totals; live sums the page (the plan's aggregate view lands with the dashboard work). */
+    const totalHa = isLive
+        ? pg.rows.reduce((sum, f) => sum + f.areaTenths, 0) / 10
+        : (TOTALS.areaTenths + created.reduce((s, f) => s + f.areaTenths, 0)) / 10;
+    const loading = farmsQuery.isPending || createdQuery.isPending;
+    const failed = farmsQuery.isError || createdQuery.isError;
+    const retry = () => {
+        void farmsQuery.refetch();
+        void createdQuery.refetch();
+    };
     const clearFilters = () => {
         setQ('');
         L.set({ q: '', status: '', barangay: '', page: null, farm: null });
@@ -323,7 +339,11 @@ export function FarmListScreen({
                             </label>
                         </div>
                     </div>
-                    {pg.total === 0 ? (
+                    {loading ? (
+                        <LoadingState rows={3} />
+                    ) : failed ? (
+                        <ErrorState onRetry={retry} />
+                    ) : pg.total === 0 ? (
                         <EmptyState
                             variant="filtered"
                             title="farm.noMatch"
