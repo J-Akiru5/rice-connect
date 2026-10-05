@@ -21,7 +21,8 @@ export function Dialog({
     hard = false,
     closeButton = true,
     closeLabel,
-    className
+    className,
+    bodyClassName
 }: {
     open: boolean;
     onOpenChange: (open: boolean) => void;
@@ -36,6 +37,8 @@ export function Dialog({
     closeButton?: boolean;
     closeLabel?: string;
     className?: string;
+    /** Extra classes for the body wrapper (e.g. `flex-1 min-h-0` for a full-height panel layout). */
+    bodyClassName?: string;
 }) {
     const { t } = useI18n();
     return (
@@ -61,7 +64,7 @@ export function Dialog({
                     >
                         {description ?? title}
                     </DialogPrimitive.Description>
-                    <div className="mt-4">{children}</div>
+                    <div className={cx('mt-4', bodyClassName)}>{children}</div>
                     {footer && <div className="mt-5 flex flex-wrap justify-end gap-2">{footer}</div>}
                     {closeButton && (
                         <DialogPrimitive.Close asChild>

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { isDemo } from '@rc/ui/mode';
 import { RoleGuard } from '@rc/screens/guard';
+import { AnniDock } from '@rc/screens/anni';
 
 /* Coordinator app pages: an internal tool, not for search engines (the X-Robots-Tag header says the same). */
 export const metadata: Metadata = {
@@ -10,5 +11,10 @@ export const metadata: Metadata = {
 
 /* S-12: coordinator routes require the coordinator session in live mode; demo mode stays open. */
 export default function CoordinatorLayout({ children }: { children: React.ReactNode }) {
-  return <RoleGuard role="coordinator">{children}</RoleGuard>;
+  return (
+    <RoleGuard role="coordinator">
+      {children}
+      <AnniDock />
+    </RoleGuard>
+  );
 }

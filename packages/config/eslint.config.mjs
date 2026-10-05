@@ -56,7 +56,20 @@ const BOUNDARIES = {
     i18n: ['@rc/domain', '@rc/store', '@rc/ui', '@rc/screens', '@rc/data', '@rc/config', 'next', 'next/*'],
     ui: ['@rc/screens', '@rc/data', '@rc/config'],
     screens: ['@rc/config', 'next/link'],
-    data: ['@rc/ui', '@rc/screens', '@rc/i18n', '@rc/config']
+    data: ['@rc/ui', '@rc/screens', '@rc/i18n', '@rc/config'],
+    ai: [
+        '@rc/domain',
+        '@rc/store',
+        '@rc/i18n',
+        '@rc/ui',
+        '@rc/screens',
+        '@rc/data',
+        '@rc/config',
+        'react',
+        'react-dom',
+        'next',
+        'next/*'
+    ]
 };
 
 /* Storage is allowed in @rc/store, @rc/i18n and the theme module (@rc/ui); dialogs in @rc/ui. */
@@ -66,7 +79,8 @@ const LAYER_RULES = {
     i18n: { storage: false, syntax: false },
     ui: { storage: false, syntax: false },
     screens: { storage: true, syntax: true },
-    data: { storage: true, syntax: true }
+    data: { storage: true, syntax: true },
+    ai: { storage: true, syntax: true }
 };
 
 export function packageConfig(name) {

@@ -181,4 +181,15 @@ test.describe('critical flows', () => {
     await resetConfirm.click();
     await expect(page.getByText('Demo data reset.')).toBeVisible();
   });
+
+  test('ANNI: the head bubble opens the assistant panel and Escape closes it', async ({ page }) => {
+    await page.goto('/coordinator/home');
+    await page.getByRole('button', { name: 'Ask ANNI, the Farm Assistant' }).click();
+    const panel = page.getByRole('dialog');
+    await expect(panel).toBeVisible();
+    await expect(panel.getByText(/Hi! I am ANNI\./)).toBeVisible();
+    await expect(panel.getByRole('textbox', { name: 'Message ANNI' })).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+  });
 });
