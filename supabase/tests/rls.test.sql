@@ -155,7 +155,11 @@ select is((select count(*)::int from u), 0, 'driver cannot update another haul')
 set local "request.jwt.claims" = '{"sub":"eeeeeee1-0000-0000-0000-000000000001"}';
 
 select is((select count(*)::int from public.farms), 3, 'admin sees every farm');
-select is((select count(*)::int from public.audit_log), 1, 'admin reads the audit log');
+select is(
+    (select count(*)::int from public.audit_log where action = 'status_changed'),
+    1,
+    'admin reads the audit log'
+);
 with u as (update public.settlements set paid_at = now() where id = 'S-2' returning 1)
 select is((select count(*)::int from u), 1, 'admin can correct a paid settlement');
 

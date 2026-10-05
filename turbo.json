@@ -21,6 +21,18 @@
       "persistent": true
     }
   },
-  "globalEnv": ["RC_LOCAL", "NEXT_PUBLIC_RC_MODE", "NEXT_PUBLIC_VERCEL_ENV"],
-  "globalPassThroughEnv": ["NEXT_TELEMETRY_DISABLED"]
+  "globalEnv": [
+    "RC_LOCAL",
+    "NEXT_PUBLIC_RC_MODE",
+    "NEXT_PUBLIC_VERCEL_ENV",
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY"
+  ],
+  "globalPassThroughEnv": [
+    "NEXT_TELEMETRY_DISABLED",
+    "GEMINI_API_KEY",
+    "GEMINI_MODEL",
+    "GEMINI_THINKING_LEVEL",
+    "SUPABASE_SERVICE_ROLE_KEY"
+  ]
 }
