@@ -8,6 +8,8 @@ export type { LiveSession } from './session';
 export { createSupabaseClient, createSupabaseRuntime, SupabaseAuthAdapter } from './supabase';
 export { getAuthAdapter, setAuthAdapter } from './supabase';
 export type { SupabaseRuntime } from './supabase';
+export { MockSmsAdapter, UnconfiguredSmsAdapter, createSmsAdapter } from './sms-adapter';
+export type { SmsAdapter, SmsErrorCode, SmsSendInput, SmsSendResult, SmsTemplate } from './sms-adapter';
 export { RepoError, createMockRepos, getRepos, setRepos, DIRECTORY_ROLES } from './repos';
 export type {
     Repos,
