@@ -7,7 +7,8 @@ export function generateStaticParams() {
   return FARMS.map((f) => ({ id: f.id }));
 }
 
-export default function Page({ params }: { params: { id: string } }) {
+export default async function Page(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!farmById(params.id)) notFound();
   return <FarmProfilePage id={params.id} />;
 }

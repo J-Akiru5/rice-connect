@@ -11,5 +11,9 @@ function Inner() {
 }
 
 export default function DemoPage() {
-  return <Suspense fallback={<Stage t={0} />}><Inner /></Suspense>;
+  return (
+    <Suspense fallback={<Stage t={0} />}>
+      <Inner />
+    </Suspense>
+  );
 }

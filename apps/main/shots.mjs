@@ -11,12 +11,20 @@ import { fileURLToPath } from 'node:url';
 import { chromium } from '@playwright/test';
 
 const root = dirname(fileURLToPath(import.meta.url));
-const arg = (k) => process.argv.find((a) => a.startsWith(`--${k}=`))?.split('=').slice(1).join('=');
+const arg = (k) =>
+  process.argv
+    .find((a) => a.startsWith(`--${k}=`))
+    ?.split('=')
+    .slice(1)
+    .join('=');
 const only = arg('only');
 const executablePath = arg('executable');
 const base = arg('base') ?? 'http://localhost:3000';
 
-const VIEWPORTS = [{ width: 1920, height: 1080 }, { width: 390, height: 844 }];
+const VIEWPORTS = [
+  { width: 1920, height: 1080 },
+  { width: 390, height: 844 }
+];
 const THEMES = ['light', 'dark'];
 const SHOTS = [
   // [name, path, viewports] — viewports: 'both' | 'desktop'
@@ -47,13 +55,18 @@ const SHOTS = [
   ['framed-haul', '/coordinator/haul?frame=phone', 'desktop'],
   ['framed-haul-driver', '/driver?frame=phone', 'desktop'],
   ['framed-sms', '/farmer?frame=phone', 'desktop'],
-  ['demo-end-card', '/coordinator/demo?rec=1&beat=8', 'desktop'],
+  ['demo-end-card', '/coordinator/demo?rec=1&beat=8', 'desktop']
 ].filter(([name]) => !only || name.includes(only));
 
 async function waitForServer(url, ms = 30000) {
   const end = Date.now() + ms;
   while (Date.now() < end) {
-    try { const r = await fetch(url); if (r.ok) return; } catch { /* not up yet */ }
+    try {
+      const r = await fetch(url);
+      if (r.ok) return;
+    } catch {
+      /* not up yet */
+    }
     await new Promise((r) => setTimeout(r, 500));
   }
   throw new Error(`no app at ${url} (start it with pnpm demo:local)`);
@@ -68,7 +81,12 @@ try {
     for (const vp of VIEWPORTS) {
       const context = await browser.newContext({ viewport: vp, deviceScaleFactor: 2, reducedMotion: 'reduce' });
       await context.addInitScript((th) => {
-        try { localStorage.setItem('rc-theme', th); localStorage.setItem('rc-lang', 'en'); } catch { /* ignore */ }
+        try {
+          localStorage.setItem('rc-theme', th);
+          localStorage.setItem('rc-lang', 'en');
+        } catch {
+          /* ignore */
+        }
       }, theme);
       const page = await context.newPage();
       const dir = join(root, 'exports', theme, `${vp.width}x${vp.height}`);

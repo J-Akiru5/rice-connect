@@ -54,7 +54,7 @@ flowchart TB
 
 ## D1: one app or four?
 
-Open question O2. Today there are four Next.js apps on one origin (multi-zones): `main` (public site, coordinator, admin), `buyer`, `driver`, `farmer`.
+Decided (O2, 4 Oct 2026, M32): **keep the four apps**. Today there are four Next.js apps on one origin (multi-zones): `main` (public site, coordinator, admin), `buyer`, `driver`, `farmer`.
 
 | | Four apps (today) | One app, route groups (recommended) |
 |---|---|---|
@@ -65,7 +65,7 @@ Open question O2. Today there are four Next.js apps on one origin (multi-zones):
 | Independent release of one role | Possible (not needed at this team size). | Not possible (not needed). |
 | Migration cost | None. | Moderate, one-time: move `app/` trees under `(public)`, `(coordinator)`, `(buyer)`, `(driver)`, `(farmer)`, `(admin)` route groups; keep URLs identical. |
 
-Recommendation: one app, done early in Phase 1 before the UI kit work is repeated across four apps. URLs stay the same, so links, bookmarks and the demo video do not change.
+**Decision (4 Oct 2026, M32): keep the four apps.** The one-app recommendation above was declined. `zones.mjs` and `ZLink` stay, the M16 staging gap is accepted for now (zone pages are checked on their own previews), and ticket F-10 is dropped.
 
 ## Data contracts
 

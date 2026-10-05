@@ -8,5 +8,9 @@ function Inner() {
 }
 
 export default function PlanPage() {
-  return <Suspense fallback={<PlanScreen />}><Inner /></Suspense>;
+  return (
+    <Suspense fallback={<PlanScreen />}>
+      <Inner />
+    </Suspense>
+  );
 }

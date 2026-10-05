@@ -9,5 +9,9 @@ function Inner() {
 }
 
 export function PayLotPage() {
-  return <Suspense fallback={<PayLotScreen />}><Inner /></Suspense>;
+  return (
+    <Suspense fallback={<PayLotScreen />}>
+      <Inner />
+    </Suspense>
+  );
 }

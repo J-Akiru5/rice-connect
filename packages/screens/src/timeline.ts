@@ -8,13 +8,16 @@ export const BEATS = [
     { key: 'haul', start: 40, end: 52 },
     { key: 'pay', start: 52, end: 64 },
     { key: 'sms', start: 64, end: 72 },
-    { key: 'end', start: 72, end: 78 },
+    { key: 'end', start: 72, end: 78 }
 ] as const;
 export const TOTAL = 78;
 /** ?flip=1: the SMS beat switches EN → TL → HIL at 64 / 67 / 70 s (and stays HIL on the end card). */
 export const flipLang = (t: number): 'en' | 'tl' | 'hil' => (t < 67 ? 'en' : t < 70 ? 'tl' : 'hil');
 /** Inside the Haul beat: coordinator sees the auto-assigned driver, then the driver's phone moves the stepper. */
-export function haulAt(t: number): { who: 'coordinator' | 'driver'; status: 'assigned' | 'accepted' | 'pickedup' | 'delivered' } {
+export function haulAt(t: number): {
+    who: 'coordinator' | 'driver';
+    status: 'assigned' | 'accepted' | 'pickedup' | 'delivered';
+} {
     if (t < 46) return { who: 'coordinator', status: 'assigned' };
     if (t < 48) return { who: 'driver', status: 'accepted' };
     if (t < 50) return { who: 'driver', status: 'pickedup' };
@@ -25,4 +28,5 @@ export function beatIndexAt(t: number) {
     const i = BEATS.findIndex((b) => t >= b.start && t < b.end);
     return i < 0 ? 0 : i;
 }
-
+/** The beat at an index, clamped to the first beat (the index is always in range). */
+export const beatByIndex = (i: number) => BEATS[i] ?? BEATS[0];

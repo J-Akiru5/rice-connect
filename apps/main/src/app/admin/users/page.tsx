@@ -8,5 +8,9 @@ function Inner() {
 }
 
 export default function AdminUsersPage() {
-  return <Suspense fallback={<AdminUsersScreen />}><Inner /></Suspense>;
+  return (
+    <Suspense fallback={<AdminUsersScreen />}>
+      <Inner />
+    </Suspense>
+  );
 }

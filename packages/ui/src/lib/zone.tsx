@@ -48,21 +48,42 @@ export function zoneHref(current: Zone, href: string): { href: string; same: boo
 }
 
 const ZoneCtx = createContext<Zone>('main');
-export const ZoneProvider = ({ zone, children }: PropsWithChildren<{ zone: Zone }>) => <ZoneCtx.Provider value={zone}>{children}</ZoneCtx.Provider>;
+export const ZoneProvider = ({ zone, children }: PropsWithChildren<{ zone: Zone }>) => (
+    <ZoneCtx.Provider value={zone}>{children}</ZoneCtx.Provider>
+);
 export const useZone = () => useContext(ZoneCtx);
 
 /** A link written with the original URL; works inside an app and across apps. */
-export function ZLink({ href, children, replace, scroll, ...rest }: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string; replace?: boolean; scroll?: boolean }) {
+export function ZLink({
+    href,
+    children,
+    replace,
+    scroll,
+    ...rest
+}: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string; replace?: boolean; scroll?: boolean }) {
     const z = zoneHref(useZone(), href);
-    if (z.same) return <Link href={z.href} replace={replace} scroll={scroll} {...rest}>{children}</Link>;
-    return <a href={z.href} {...rest}>{children}</a>;
+    if (z.same)
+        return (
+            <Link href={z.href} replace={replace} scroll={scroll} {...rest}>
+                {children}
+            </Link>
+        );
+    return (
+        <a href={z.href} {...rest}>
+            {children}
+        </a>
+    );
 }
 /** Navigate to an original URL from code (same zone: client-side; other zone: full page load on the same origin). */
 export function useZoneNav() {
     const zone = useZone();
     const router = useRouter();
-    return useCallback((href: string) => {
-        const z = zoneHref(zone, href);
-        if (z.same) router.push(z.href); else window.location.assign(z.href);
-    }, [zone, router]);
+    return useCallback(
+        (href: string) => {
+            const z = zoneHref(zone, href);
+            if (z.same) router.push(z.href);
+            else window.location.assign(z.href);
+        },
+        [zone, router]
+    );
 }
