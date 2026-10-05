@@ -1,6 +1,6 @@
 'use client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getRepos, type FarmDraft, type FarmQuery, type ListQuery } from '@rc/store';
+import { getRepos, type DirectoryRole, type FarmDraft, type FarmQuery, type ListQuery } from '@rc/store';
 import type { BuyerType, Week } from '@rc/domain/schemas';
 import { keys } from './keys';
 
@@ -172,5 +172,59 @@ export const useSmsReply = () => {
             qc.invalidateQueries({ queryKey: keys.slots.all });
             qc.invalidateQueries({ queryKey: keys.hauls.all });
         }
+    });
+};
+
+/* S-11: simulated admin writes. Phase 3 swaps the AdminRepo implementation for Supabase; these hooks stay. */
+export const useAdminOverrides = () =>
+    useQuery({ queryKey: keys.admin.overrides, queryFn: () => getRepos().admin.overrides() });
+
+export const useSetUserRole = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({
+            key,
+            role,
+            idempotencyKey = newIdempotencyKey()
+        }: {
+            key: string;
+            role: DirectoryRole;
+            idempotencyKey?: string;
+        }) => getRepos().admin.setRole(key, role, { idempotencyKey }),
+        onSuccess: () => qc.invalidateQueries({ queryKey: keys.admin.all })
+    });
+};
+
+export const useClearUserRole = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ key, idempotencyKey = newIdempotencyKey() }: { key: string; idempotencyKey?: string }) =>
+            getRepos().admin.clearRole(key, { idempotencyKey }),
+        onSuccess: () => qc.invalidateQueries({ queryKey: keys.admin.all })
+    });
+};
+
+export const useSetAssumption = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({
+            key,
+            value,
+            idempotencyKey = newIdempotencyKey()
+        }: {
+            key: string;
+            value: string;
+            idempotencyKey?: string;
+        }) => getRepos().admin.setSetting(key, value, { idempotencyKey }),
+        onSuccess: () => qc.invalidateQueries({ queryKey: keys.admin.all })
+    });
+};
+
+export const useClearAssumption = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ key, idempotencyKey = newIdempotencyKey() }: { key: string; idempotencyKey?: string }) =>
+            getRepos().admin.clearSetting(key, { idempotencyKey }),
+        onSuccess: () => qc.invalidateQueries({ queryKey: keys.admin.all })
     });
 };

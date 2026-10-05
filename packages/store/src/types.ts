@@ -40,11 +40,23 @@ export interface DemoState {
     settlementsPaid?: Record<string, string>;
     /** Farms added through the Add Farm form (simulated data only). */
     farmsCreated?: Farm[];
+    /** Simulated admin role and configuration changes (S-11); absent in older saves. */
+    adminOverrides?: AdminOverrides;
     /** Simulated sign-in per app (no accounts, no passwords): the demo identity signed in to each app, absent = signed out. */
     session: Partial<Record<SessionRole, string>>;
 }
 /** The apps with their own sign-in (the farmer signs in with a mobile number). */
 export type SessionRole = 'coordinator' | 'buyer' | 'driver' | 'farmer' | 'admin';
+/** Roles in the admin directory (S-11); `admin` itself is not a directory row. */
+export type DirectoryRole = Exclude<SessionRole, 'admin'>;
+/** Simulated admin writes kept in this browser (S-11). Phase 3 writes profiles.role and the settings table
+    behind the same AdminRepo interface, and records every write in the real audit log (B-06). */
+export interface AdminOverrides {
+    /** Directory row key (`<base role>:<code>`) → the role it was changed to. */
+    roles: Record<string, DirectoryRole>;
+    /** Settings key → the value it was changed to. */
+    settings: Record<string, string>;
+}
 export const emptyState = (): DemoState => ({
     version: 1,
     riceOrders: [],
@@ -53,7 +65,8 @@ export const emptyState = (): DemoState => ({
     slots: {},
     smsReplies: [],
     farmsAdded: [],
-    session: {}
+    session: {},
+    adminOverrides: { roles: {}, settings: {} }
 });
 
 /** The swap point. LocalAdapter implements this for the prototype (this browser only, synced across tabs).

@@ -163,6 +163,37 @@ describe('sms repository', () => {
     });
 });
 
+describe('admin repository (S-11)', () => {
+    it('sets and clears a simulated role change per idempotency key', async () => {
+        const adapter = new LocalAdapter();
+        const r = createMockRepos(adapter);
+        expect(await r.admin.overrides()).toEqual({ roles: {}, settings: {} });
+        await r.admin.setRole('farmer:F-001', 'buyer', { idempotencyKey: 'r1' });
+        await r.admin.setRole('farmer:F-001', 'buyer', { idempotencyKey: 'r1' });
+        expect(await r.admin.overrides()).toEqual({ roles: { 'farmer:F-001': 'buyer' }, settings: {} });
+        await r.admin.clearRole('farmer:F-001', { idempotencyKey: 'r2' });
+        expect((await r.admin.overrides()).roles).toEqual({});
+    });
+
+    it('validates a role change and a setting value', async () => {
+        const r = repos();
+        await expect(r.admin.setRole('farmer:F-001', 'admin' as never, { idempotencyKey: 'r1' })).rejects.toMatchObject(
+            { code: 'validation' }
+        );
+        await expect(r.admin.setSetting('admin.set.kgPerSack', 'nope', { idempotencyKey: 's1' })).resolves.toEqual({
+            roles: {},
+            settings: { 'admin.set.kgPerSack': 'nope' }
+        });
+        await expect(r.admin.setSetting('admin.set.kgPerSack', '0', { idempotencyKey: 's2' })).rejects.toMatchObject({
+            code: 'validation'
+        });
+        await r.admin.setSetting('admin.set.kgPerSack', '60', { idempotencyKey: 's3' });
+        expect((await r.admin.overrides()).settings['admin.set.kgPerSack']).toBe('60');
+        await r.admin.clearSetting('admin.set.kgPerSack', { idempotencyKey: 's4' });
+        expect((await r.admin.overrides()).settings).toEqual({});
+    });
+});
+
 describe('typed errors', () => {
     it('carries a code and the entity id', () => {
         const e = new RepoError('forbidden', 'nope', 'F-014');

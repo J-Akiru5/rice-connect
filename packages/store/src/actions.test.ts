@@ -1,6 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import { emptyState } from './types';
-import { farmerReply, haulStatus, setHaul, addFarm, setBuyerType, signIn, signOut } from './actions';
+import {
+    farmerReply,
+    haulStatus,
+    setHaul,
+    addFarm,
+    setBuyerType,
+    signIn,
+    signOut,
+    setRoleOverride,
+    clearRoleOverride,
+    setSettingOverride,
+    clearSettingOverride
+} from './actions';
 
 const ids = { farm: 'F-014', slot: 'D-58', haul: 'H-07' };
 describe('store actions', () => {
@@ -36,5 +48,17 @@ describe('store actions', () => {
         const s = signIn('buyer', 'Buyer A (simulated)')(signIn('coordinator', 'Cluster 1')(emptyState()));
         expect(s.session).toEqual({ coordinator: 'Cluster 1', buyer: 'Buyer A (simulated)' });
         expect(signOut('buyer')(s).session).toEqual({ coordinator: 'Cluster 1' });
+    });
+    it('sets and clears simulated admin role and setting overrides', () => {
+        const s = setSettingOverride(
+            'admin.set.kgPerSack',
+            '60'
+        )(setRoleOverride('farmer:F-001', 'buyer')(emptyState()));
+        expect(s.adminOverrides).toEqual({
+            roles: { 'farmer:F-001': 'buyer' },
+            settings: { 'admin.set.kgPerSack': '60' }
+        });
+        const cleared = clearSettingOverride('admin.set.kgPerSack')(clearRoleOverride('farmer:F-001')(s));
+        expect(cleared.adminOverrides).toEqual({ roles: {}, settings: {} });
     });
 });

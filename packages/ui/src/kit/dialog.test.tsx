@@ -21,7 +21,7 @@ function DialogHarness() {
     );
 }
 
-function AlertHarness({ onConfirm }: { onConfirm: () => void }) {
+function AlertHarness({ onConfirm, confirmDisabled = false }: { onConfirm: () => void; confirmDisabled?: boolean }) {
     const [open, setOpen] = useState(false);
     return (
         <I18nProvider>
@@ -32,6 +32,7 @@ function AlertHarness({ onConfirm }: { onConfirm: () => void }) {
                 title="Delete farm"
                 description="This cannot be undone."
                 typedWord="DELETE"
+                confirmDisabled={confirmDisabled}
                 onConfirm={onConfirm}
             />
         </I18nProvider>
@@ -67,5 +68,18 @@ describe('AlertDialog', () => {
         fireEvent.click(confirm);
         expect(onConfirm).toHaveBeenCalledTimes(1);
         await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
+    });
+
+    it('stays locked when confirmDisabled while the typed word matches', async () => {
+        const onConfirm = vi.fn();
+        render(<AlertHarness onConfirm={onConfirm} confirmDisabled />);
+        fireEvent.click(screen.getByRole('button', { name: 'Open alert' }));
+        await screen.findByRole('alertdialog');
+        fireEvent.change(screen.getByLabelText('Type DELETE to confirm'), { target: { value: 'DELETE' } });
+        const confirm = screen.getByRole('button', { name: 'Confirm' });
+        expect(confirm.hasAttribute('disabled')).toBe(true);
+        fireEvent.click(confirm);
+        expect(onConfirm).not.toHaveBeenCalled();
+        await screen.findByRole('alertdialog');
     });
 });

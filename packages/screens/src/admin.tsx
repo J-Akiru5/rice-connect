@@ -1,5 +1,20 @@
 'use client';
-import { AppShell, BigStat, EmptyState, Icon, Pagination, SecondaryButton, StatusChip, ZLink, useI18n } from '@rc/ui';
+import {
+    AlertDialog,
+    AppShell,
+    BigStat,
+    EmptyState,
+    ErrorState,
+    Icon,
+    LoadingState,
+    Pagination,
+    SecondaryButton,
+    Select,
+    StatusChip,
+    ZLink,
+    useI18n,
+    useToast
+} from '@rc/ui';
 import overrides from '@rc/domain/overrides.json';
 import { COMMITMENTS, DRIVERS, FARMS, LOTS, VEHICLES, commitmentOfLot, vehicleOf } from '@rc/domain/seed';
 import { MUNICIPALITY, PRICE } from '@rc/domain/params';
@@ -7,14 +22,17 @@ import { MILLING } from '@rc/domain/buyers';
 import { dayLabel } from '@rc/domain/calendar';
 import { paginate } from '@rc/domain/list';
 import { peso } from '@rc/domain/money';
+import { DIRECTORY_ROLES, type DirectoryRole } from '@rc/store';
 import { useDemoState, resetDemoState } from '@rc/store/react';
+import { useAdminOverrides, useClearAssumption, useClearUserRole, useSetAssumption, useSetUserRole } from '@rc/data';
 import { useState } from 'react';
 import { staticListState, type ListState } from './list-state';
 import { Note, ResponsiveTable, SectionPill, type Col } from './ui';
 
-/* Super admin (prototype addition, docs/DECISIONS.md M20; derived, not in canvas). Read-only views over the seed and
-   over the demo state in this browser. No accounts exist, so there is nothing to grant or revoke: "Users and Roles"
-   is a directory built from the seeded codes (mobiles masked). Everything carries the DemoChip through AppShell. */
+/* Super admin (prototype addition, docs/DECISIONS.md M20; derived, not in canvas). Read views over the seed and
+   the demo state, plus the S-11 simulated writes: role changes and assumption edits, both behind the same
+   AdminRepo interfaces a Supabase implementation will use in Phase 3. Nothing here is real access control;
+   every dangerous change goes through a typed confirmation (kit AlertDialog) and shows up in the Activity view. */
 
 const BUYERS = [...new Set(COMMITMENTS.map((c) => c.buyer))];
 const MATCHED_LOTS = LOTS.filter((l) => commitmentOfLot(l.id)).length;
@@ -131,8 +149,8 @@ export function AdminOverviewScreen() {
 }
 
 /* ---------- users ---------- */
-type URole = 'coordinator' | 'farmer' | 'buyer' | 'driver';
-interface UserRow {
+type URole = DirectoryRole;
+interface BaseUser {
     code: string;
     role: URole;
     contact: string;
@@ -141,7 +159,13 @@ interface UserRow {
     status?: string;
     statusLabel?: string;
 }
-const USERS: UserRow[] = [
+interface UserRow extends BaseUser {
+    /** The seeded role, kept for the row key and the "was" hint after a simulated change. */
+    base: URole;
+    changed: boolean;
+}
+const userKey = (u: BaseUser) => `${u.role}:${u.code}`;
+const USERS: BaseUser[] = [
     { code: 'Cluster 1', role: 'coordinator', contact: '—', where: MUNICIPALITY, detail: String(FARMS.length) },
     ...FARMS.map((f) => ({
         code: f.id,
@@ -174,22 +198,45 @@ const USERS: UserRow[] = [
         };
     })
 ];
-const ROLE_ORDER: URole[] = ['coordinator', 'farmer', 'buyer', 'driver'];
 
-/** /admin/users: searchable, filterable by role, paginated with URL state (lists over 12 rows). */
+/** /admin/users: searchable, filterable by role, paginated with URL state (lists over 12 rows).
+    S-11: a simulated role change per row, behind a typed confirmation (type the code), with Undo. */
 export function AdminUsersScreen({ list }: { list?: ListState }) {
     const { t } = useI18n();
+    const toast = useToast();
     const L = list ?? staticListState('/admin/users');
+    const overridesQ = useAdminOverrides();
+    const roleEdits = overridesQ.data?.roles ?? {};
+    const setRole = useSetUserRole();
+    const clearRole = useClearUserRole();
+    const [pending, setPending] = useState<{ row: UserRow; next: URole } | null>(null);
     const q = L.q.trim().toLowerCase();
-    const role = ROLE_ORDER.includes(L.status as URole) ? (L.status as URole) : '';
-    const rows = USERS.filter(
+    const role = DIRECTORY_ROLES.includes(L.status as URole) ? (L.status as URole) : '';
+    const rows: UserRow[] = USERS.map((u) => {
+        const edited = roleEdits[userKey(u)];
+        return { ...u, base: u.role, role: edited ?? u.role, changed: edited !== undefined };
+    }).filter(
         (u) =>
             (!role || u.role === role) && (!q || [u.code, u.where, u.detail].some((v) => v.toLowerCase().includes(q)))
     );
     const pg = paginate(rows, L.page, L.size);
     const cols: Col<UserRow>[] = [
         { key: 'code', label: t('admin.users.code'), cell: (u) => u.code },
-        { key: 'role', label: t('admin.users.role'), cell: (u) => t('admin.role.' + u.role) },
+        {
+            key: 'role',
+            label: t('admin.users.role'),
+            cell: (u) => (
+                <span className="inline-flex flex-wrap items-center gap-2">
+                    {t('admin.role.' + u.role)}
+                    {u.changed && <StatusChip status="pending" kind="warning" label={t('admin.changed')} />}
+                    {u.changed && (
+                        <span className="text-[13px] font-bold text-[var(--text-muted)]">
+                            {t('admin.was', { value: t('admin.role.' + u.base) })}
+                        </span>
+                    )}
+                </span>
+            )
+        },
         {
             key: 'contact',
             label: t('admin.users.contact'),
@@ -218,11 +265,27 @@ export function AdminUsersScreen({ list }: { list?: ListState }) {
                 )
         }
     ];
+    if (overridesQ.isSuccess)
+        cols.push({
+            key: 'actions',
+            label: t('admin.users.actions'),
+            cell: (u) => (
+                <SecondaryButton icon="User" onClick={() => setPending({ row: u, next: u.role })}>
+                    {t('admin.change.role')}
+                </SecondaryButton>
+            ),
+            nowrap: true
+        });
     const field =
         'min-h-[44px] md:min-h-[40px] px-4 rounded-full bg-[var(--glass-fill-strong)] text-[var(--ink)] border-2 border-[color:var(--text-muted)] text-[15px] font-bold';
     return (
         <AppShell role="admin" active="users" title="admin.users.title" eyebrow="admin.eyebrow">
             <div className="flex flex-col gap-4">
+                {overridesQ.isPending ? (
+                    <LoadingState rows={1} />
+                ) : overridesQ.isError ? (
+                    <ErrorState onRetry={() => void overridesQ.refetch()} />
+                ) : null}
                 <div className="glass-panel rounded-[1.5rem] p-4 flex flex-wrap items-end gap-3">
                     <label className="flex flex-col gap-1 flex-[1_1_260px] min-w-0">
                         <span className="eyebrow">{t('admin.users.search')}</span>
@@ -241,7 +304,7 @@ export function AdminUsersScreen({ list }: { list?: ListState }) {
                             className={field}
                         >
                             <option value="">{t('admin.users.all')}</option>
-                            {ROLE_ORDER.map((r) => (
+                            {DIRECTORY_ROLES.map((r) => (
                                 <option key={r} value={r}>
                                     {t('admin.role.' + r)}
                                 </option>
@@ -256,7 +319,7 @@ export function AdminUsersScreen({ list }: { list?: ListState }) {
                         caption={t('admin.users.caption')}
                         cols={cols}
                         rows={pg.rows}
-                        rowKey={(u) => u.role + u.code}
+                        rowKey={(u) => `${u.base}:${u.code}`}
                     />
                 )}
                 {pg.total > 12 && (
@@ -270,40 +333,140 @@ export function AdminUsersScreen({ list }: { list?: ListState }) {
                 )}
                 <Note>{t('admin.users.note')}</Note>
             </div>
+            <AlertDialog
+                open={pending !== null}
+                onOpenChange={(o) => {
+                    if (!o) setPending(null);
+                }}
+                title={t('admin.change.roleTitle', { code: pending?.row.code ?? '' })}
+                description={t('admin.change.roleBody')}
+                confirmLabel={t('admin.change.role')}
+                typedWord={pending?.row.code}
+                confirmDisabled={pending !== null && pending.next === pending.row.role}
+                onConfirm={() => {
+                    const p = pending;
+                    if (!p) return;
+                    setPending(null);
+                    void setRole
+                        .mutateAsync({ key: `${p.row.base}:${p.row.code}`, role: p.next })
+                        .then(() =>
+                            toast.show(
+                                t('admin.change.roleToast', {
+                                    code: p.row.code,
+                                    role: t('admin.role.' + p.next)
+                                }),
+                                {
+                                    label: t('action.undo'),
+                                    onClick: () => {
+                                        void clearRole.mutateAsync({ key: `${p.row.base}:${p.row.code}` });
+                                    }
+                                }
+                            )
+                        )
+                        .catch(() => toast.show(t('admin.change.failed')));
+                }}
+            >
+                <label className="flex flex-col gap-1 text-[13px] font-bold">
+                    <span>{t('admin.change.newRole')}</span>
+                    <Select
+                        value={pending?.next ?? 'farmer'}
+                        onValueChange={(v) => setPending((p) => (p ? { ...p, next: v } : p))}
+                        label={t('admin.change.newRole')}
+                        options={DIRECTORY_ROLES.map((r) => ({ value: r, label: t('admin.role.' + r) }))}
+                    />
+                </label>
+            </AlertDialog>
         </AppShell>
     );
 }
 
 /* ---------- settings ---------- */
+type SettingKind = 'number' | 'text' | 'fixed';
 interface SetRow {
     k: string;
-    value: string;
+    /** The built-in raw value; a simulated edit in the store replaces it in this browser. */
+    raw: string;
+    /** Formats a raw value for display (units live next to the number). */
+    show: (v: string) => string;
     src: 'assumed' | 'brief';
+    kind: SettingKind;
 }
 const SETTINGS: SetRow[] = [
-    { k: 'admin.set.kgPerSack', value: `${overrides.kgPerSack} kg`, src: 'assumed' },
-    { k: 'admin.set.dryer', value: `${overrides.dryerKgPerDay.toLocaleString('en-PH')} kg`, src: 'assumed' },
-    { k: 'admin.set.grade', value: overrides.forecastGrade, src: 'assumed' },
-    { k: 'admin.set.mc', value: `${overrides.forecastMcPct}% MC`, src: 'assumed' },
-    { k: 'admin.set.smsLead', value: String(overrides.smsSlotLeadDays), src: 'assumed' },
-    { k: 'admin.set.buyerPays', value: String(overrides.buyerPaysAfterDays), src: 'assumed' },
-    { k: 'admin.set.milling', value: `${MILLING.recoveryPct}%`, src: 'assumed' },
-    { k: 'admin.set.ricePrice', value: `${peso(MILLING.price)}/kg · ${MILLING.sackKg} kg sacks`, src: 'assumed' },
-    { k: 'admin.set.today', value: dayLabel(overrides.demoTodayDayIndex), src: 'assumed' },
-    { k: 'admin.set.advance', value: `${PRICE.advancePct}%`, src: 'brief' }
+    {
+        k: 'admin.set.kgPerSack',
+        raw: String(overrides.kgPerSack),
+        show: (v) => `${v} kg`,
+        src: 'assumed',
+        kind: 'number'
+    },
+    {
+        k: 'admin.set.dryer',
+        raw: String(overrides.dryerKgPerDay),
+        show: (v) => `${Number(v).toLocaleString('en-PH')} kg`,
+        src: 'assumed',
+        kind: 'number'
+    },
+    { k: 'admin.set.grade', raw: overrides.forecastGrade, show: (v) => v, src: 'assumed', kind: 'text' },
+    {
+        k: 'admin.set.mc',
+        raw: String(overrides.forecastMcPct),
+        show: (v) => `${v}% MC`,
+        src: 'assumed',
+        kind: 'number'
+    },
+    { k: 'admin.set.smsLead', raw: String(overrides.smsSlotLeadDays), show: (v) => v, src: 'assumed', kind: 'number' },
+    {
+        k: 'admin.set.buyerPays',
+        raw: String(overrides.buyerPaysAfterDays),
+        show: (v) => v,
+        src: 'assumed',
+        kind: 'number'
+    },
+    { k: 'admin.set.milling', raw: String(MILLING.recoveryPct), show: (v) => `${v}%`, src: 'assumed', kind: 'number' },
+    {
+        k: 'admin.set.ricePrice',
+        raw: `${peso(MILLING.price)}/kg · ${MILLING.sackKg} kg sacks`,
+        show: (v) => v,
+        src: 'assumed',
+        kind: 'fixed'
+    },
+    { k: 'admin.set.today', raw: dayLabel(overrides.demoTodayDayIndex), show: (v) => v, src: 'assumed', kind: 'fixed' },
+    { k: 'admin.set.advance', raw: `${PRICE.advancePct}%`, show: (v) => v, src: 'brief', kind: 'fixed' }
 ];
 
-/** /admin/settings: read-only; values from overrides.json (assumed) and the brief. */
+/** /admin/settings: values from overrides.json (assumed) and the brief. S-11: an assumed value can be changed
+    in the prototype behind a typed confirmation; the edit stays in this browser and is listed in the Activity view. */
 export function AdminSettingsScreen() {
     const { t } = useI18n();
+    const toast = useToast();
+    const overridesQ = useAdminOverrides();
+    const edits = overridesQ.data?.settings ?? {};
+    const setAssumption = useSetAssumption();
+    const clearAssumption = useClearAssumption();
+    const [pending, setPending] = useState<{ row: SetRow; value: string } | null>(null);
     const days = (k: string, v: string) =>
         k === 'admin.set.smsLead' || k === 'admin.set.buyerPays' ? t('admin.days', { n: v }) : v;
+    const valueOf = (r: SetRow) => edits[r.k] ?? r.raw;
+    const valid = (r: SetRow, v: string) =>
+        r.kind === 'text' ? v.trim().length > 0 : Number.isFinite(Number(v)) && Number(v) > 0;
     const cols: Col<SetRow>[] = [
         { key: 'k', label: t('admin.settings.setting'), cell: (r) => t(r.k) },
         {
             key: 'v',
             label: t('admin.settings.value'),
-            cell: (r) => <span className="tabular">{days(r.k, r.value)}</span>
+            cell: (r) => (
+                <span className="inline-flex flex-wrap items-center gap-2">
+                    <span className="tabular">{days(r.k, r.show(valueOf(r)))}</span>
+                    {edits[r.k] !== undefined && (
+                        <>
+                            <StatusChip status="pending" kind="warning" label={t('admin.changed')} />
+                            <span className="text-[13px] font-bold text-[var(--text-muted)]">
+                                {t('admin.was', { value: days(r.k, r.show(r.raw)) })}
+                            </span>
+                        </>
+                    )}
+                </span>
+            )
         },
         {
             key: 's',
@@ -317,9 +480,26 @@ export function AdminSettingsScreen() {
             )
         }
     ];
+    if (overridesQ.isSuccess)
+        cols.push({
+            key: 'actions',
+            label: t('admin.users.actions'),
+            cell: (r) =>
+                r.kind === 'fixed' ? null : (
+                    <SecondaryButton icon="Settings" onClick={() => setPending({ row: r, value: valueOf(r) })}>
+                        {t('admin.change.action')}
+                    </SecondaryButton>
+                ),
+            nowrap: true
+        });
     return (
         <AppShell role="admin" active="config" title="admin.settings.title" eyebrow="admin.eyebrow">
             <div className="flex flex-col gap-4">
+                {overridesQ.isPending ? (
+                    <LoadingState rows={1} />
+                ) : overridesQ.isError ? (
+                    <ErrorState onRetry={() => void overridesQ.refetch()} />
+                ) : null}
                 <ResponsiveTable
                     caption={t('admin.settings.caption')}
                     cols={cols}
@@ -328,15 +508,73 @@ export function AdminSettingsScreen() {
                 />
                 <Note>{t('admin.settings.note')}</Note>
             </div>
+            <AlertDialog
+                open={pending !== null}
+                onOpenChange={(o) => {
+                    if (!o) setPending(null);
+                }}
+                title={t('admin.change.settingTitle', { setting: pending ? t(pending.row.k) : '' })}
+                description={t('admin.change.settingBody', {
+                    value: pending ? days(pending.row.k, pending.row.show(valueOf(pending.row))) : ''
+                })}
+                confirmLabel={t('admin.change.save')}
+                typedWord={t('admin.change.word')}
+                confirmDisabled={pending !== null && !valid(pending.row, pending.value)}
+                onConfirm={() => {
+                    const p = pending;
+                    if (!p || !valid(p.row, p.value)) return;
+                    const value = p.value.trim();
+                    setPending(null);
+                    void setAssumption
+                        .mutateAsync({ key: p.row.k, value })
+                        .then(() =>
+                            toast.show(
+                                t('admin.change.settingToast', {
+                                    setting: t(p.row.k),
+                                    value: days(p.row.k, p.row.show(value))
+                                }),
+                                {
+                                    label: t('action.undo'),
+                                    onClick: () => {
+                                        void clearAssumption.mutateAsync({ key: p.row.k });
+                                    }
+                                }
+                            )
+                        )
+                        .catch(() => toast.show(t('admin.change.failed')));
+                }}
+            >
+                <label className="flex flex-col gap-1 text-[13px] font-bold">
+                    <span>{t('admin.change.newValue')}</span>
+                    <input
+                        type={pending?.row.kind === 'number' ? 'number' : 'text'}
+                        step="any"
+                        value={pending?.value ?? ''}
+                        onChange={(e) => setPending((p) => (p ? { ...p, value: e.target.value } : p))}
+                        className="min-h-[44px] px-3 rounded-xl bg-[var(--glass-fill-strong)] border-2 border-[color:var(--text-muted)] text-[16px] font-bold"
+                    />
+                    {pending && !valid(pending.row, pending.value) && (
+                        <span role="alert" className="text-[13px] font-bold text-[var(--danger-ink)]">
+                            {t('admin.change.invalid')}
+                        </span>
+                    )}
+                </label>
+            </AlertDialog>
         </AppShell>
     );
 }
 
 /* ---------- activity ---------- */
-/** /admin/activity: every change the demo made in this browser (the shared store), newest first, plus Reset. */
+/** /admin/activity: the S-11 audit view. Derived from the current demo state in this browser (orders, replies,
+    hauls, slots, added farms, role and assumption changes), so it is honest about not being an append-only log:
+    Undo or Reset removes an entry. The per-entity audit trail ships with the backend (Phase 3, B-06). */
 export function AdminActivityScreen() {
     const { t } = useI18n();
     const s = useDemoState();
+    const overridesQ = useAdminOverrides();
+    const roleEdits = overridesQ.data?.roles ?? {};
+    const settingEdits = overridesQ.data?.settings ?? {};
+    const [resetOpen, setResetOpen] = useState(false);
     const [done, setDone] = useState(false);
     const items: { icon: string; text: string }[] = [
         ...s.riceOrders.map((o) => ({
@@ -356,7 +594,18 @@ export function AdminActivityScreen() {
             icon: 'Dry',
             text: t('admin.activity.slot', { id, status: t('slot.' + st, { id }) })
         })),
-        ...s.farmsAdded.map((id) => ({ icon: 'Farm', text: t('admin.activity.added', { id }) }))
+        ...s.farmsAdded.map((id) => ({ icon: 'Farm', text: t('admin.activity.added', { id }) })),
+        ...Object.entries(roleEdits).map(([key, role]) => ({
+            icon: 'Users',
+            text: t('admin.activity.role', {
+                code: key.split(':').slice(1).join(':') || key,
+                role: t('admin.role.' + role)
+            })
+        })),
+        ...Object.entries(settingEdits).map(([k, v]) => ({
+            icon: 'Settings',
+            text: t('admin.activity.setting', { setting: t(k), value: v })
+        }))
     ].reverse();
     return (
         <AppShell role="admin" active="activity" title="admin.activity.title" eyebrow="admin.eyebrow">
@@ -387,13 +636,7 @@ export function AdminActivityScreen() {
                         </p>
                     </div>
                     <div className="flex flex-col items-end gap-2">
-                        <SecondaryButton
-                            icon="Retry"
-                            onClick={() => {
-                                resetDemoState();
-                                setDone(true);
-                            }}
-                        >
+                        <SecondaryButton icon="Retry" onClick={() => setResetOpen(true)}>
                             {t('mk.reset.cta')}
                         </SecondaryButton>
                         {done && (
@@ -409,6 +652,20 @@ export function AdminActivityScreen() {
                 </div>
                 <Note>{t('admin.activity.note')}</Note>
             </div>
+            <AlertDialog
+                open={resetOpen}
+                onOpenChange={setResetOpen}
+                title={t('admin.reset.title')}
+                description={t('admin.reset.body')}
+                confirmLabel={t('mk.reset.cta')}
+                typedWord={t('admin.reset.word')}
+                onConfirm={() => {
+                    resetDemoState();
+                    setDone(true);
+                }}
+            >
+                <p className="m-0 text-[15px] font-bold">{t('admin.reset.count', { n: items.length })}</p>
+            </AlertDialog>
         </AppShell>
     );
 }

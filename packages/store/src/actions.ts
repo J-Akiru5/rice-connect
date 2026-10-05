@@ -1,6 +1,6 @@
 import { parseSmsReply } from '@rc/domain/sms-reply';
 import type { BuyerType } from '@rc/domain/buyers';
-import type { DemoState, HaulStatus, SessionRole } from './types';
+import type { AdminOverrides, DemoState, DirectoryRole, HaulStatus, SessionRole } from './types';
 
 /* Pure state transitions shared by the apps (tested in actions.test.ts). */
 export const DEFAULT_HAUL: HaulStatus = 'assigned';
@@ -52,4 +52,36 @@ export const signOut =
         const session = { ...s.session };
         delete session[role];
         return { ...s, session };
+    };
+
+/* Simulated admin writes (S-11). The screens go through AdminRepo, not these directly; Phase 3 replaces
+   the repository with Supabase and every write lands in the audit log (B-06). */
+const adminOverrides = (s: DemoState): AdminOverrides => s.adminOverrides ?? { roles: {}, settings: {} };
+export const setRoleOverride =
+    (key: string, role: DirectoryRole) =>
+    (s: DemoState): DemoState => {
+        const o = adminOverrides(s);
+        return { ...s, adminOverrides: { ...o, roles: { ...o.roles, [key]: role } } };
+    };
+export const clearRoleOverride =
+    (key: string) =>
+    (s: DemoState): DemoState => {
+        const o = adminOverrides(s);
+        const roles = { ...o.roles };
+        delete roles[key];
+        return { ...s, adminOverrides: { ...o, roles } };
+    };
+export const setSettingOverride =
+    (key: string, value: string) =>
+    (s: DemoState): DemoState => {
+        const o = adminOverrides(s);
+        return { ...s, adminOverrides: { ...o, settings: { ...o.settings, [key]: value } } };
+    };
+export const clearSettingOverride =
+    (key: string) =>
+    (s: DemoState): DemoState => {
+        const o = adminOverrides(s);
+        const settings = { ...o.settings };
+        delete settings[key];
+        return { ...s, adminOverrides: { ...o, settings } };
     };

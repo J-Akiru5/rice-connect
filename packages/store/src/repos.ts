@@ -17,9 +17,27 @@ import { makeRiceOrder } from '@rc/domain/buyers';
 import { FarmSchema } from '@rc/domain/schemas';
 import type { Commitment, Farm, Lot, Slip, Slot, SmsMessage } from '@rc/domain/schemas';
 import type { Week } from '@rc/domain/schemas';
-import { addFarm, farmerReply, haulStatus, setHaul } from './actions';
+import {
+    addFarm,
+    clearRoleOverride,
+    clearSettingOverride,
+    farmerReply,
+    haulStatus,
+    setHaul,
+    setRoleOverride,
+    setSettingOverride
+} from './actions';
 import { getStore } from './local';
-import type { DataAdapter, DemoState, HaulStatus, LocalCommitment, SmsReply, SlotStatus } from './types';
+import type {
+    AdminOverrides,
+    DataAdapter,
+    DemoState,
+    DirectoryRole,
+    HaulStatus,
+    LocalCommitment,
+    SmsReply,
+    SlotStatus
+} from './types';
 
 /* Repository layer (D-04): every screen talks to these interfaces; the mock implementations read the seed and
    persist writes in the LocalAdapter. A Supabase implementation (Phase 3) replaces them without screen changes. */
@@ -122,6 +140,16 @@ export interface SmsRepo {
     replies(): Promise<SmsReply[]>;
     reply(text: string, opts: WriteOpts): Promise<SmsReply>;
 }
+export const DIRECTORY_ROLES: readonly DirectoryRole[] = ['coordinator', 'farmer', 'buyer', 'driver'];
+/** Simulated admin writes (S-11): role changes and assumption edits in this browser. A Supabase implementation
+    writes profiles.role and the settings table, and every write is audited (Phase 3, B-06). */
+export interface AdminRepo {
+    overrides(): Promise<AdminOverrides>;
+    setRole(key: string, role: DirectoryRole, opts: WriteOpts): Promise<AdminOverrides>;
+    clearRole(key: string, opts: WriteOpts): Promise<AdminOverrides>;
+    setSetting(key: string, value: string, opts: WriteOpts): Promise<AdminOverrides>;
+    clearSetting(key: string, opts: WriteOpts): Promise<AdminOverrides>;
+}
 
 export interface Repos {
     farms: FarmRepo;
@@ -132,6 +160,7 @@ export interface Repos {
     orders: OrderRepo;
     settlements: SettlementRepo;
     sms: SmsRepo;
+    admin: AdminRepo;
 }
 
 const pageOf = <T>(all: T[], q?: ListQuery): Page<T> => {
@@ -365,7 +394,45 @@ export function createMockRepos(adapter: DataAdapter): Repos {
         }
     };
 
-    return { farms, lots, slots, hauls, commitments, orders, settlements, sms };
+    const admin: AdminRepo = {
+        async overrides() {
+            const o = state().adminOverrides ?? { roles: {}, settings: {} };
+            return { roles: { ...o.roles }, settings: { ...o.settings } };
+        },
+        async setRole(key, role, opts) {
+            return once(opts.idempotencyKey, async () => {
+                if (!key.trim()) throw new RepoError('validation', 'a role change needs a user key');
+                if (!DIRECTORY_ROLES.includes(role)) throw new RepoError('validation', `unknown role ${role}`);
+                adapter.update(setRoleOverride(key, role));
+                return admin.overrides();
+            });
+        },
+        async clearRole(key, opts) {
+            return once(opts.idempotencyKey, async () => {
+                adapter.update(clearRoleOverride(key));
+                return admin.overrides();
+            });
+        },
+        async setSetting(key, value, opts) {
+            return once(opts.idempotencyKey, async () => {
+                const v = value.trim();
+                if (!key.trim()) throw new RepoError('validation', 'a setting change needs a key');
+                if (!v || v.length > 40) throw new RepoError('validation', `invalid value for ${key}`);
+                if (Number.isFinite(Number(v)) && Number(v) <= 0)
+                    throw new RepoError('validation', `value for ${key} must be greater than zero`);
+                adapter.update(setSettingOverride(key, v));
+                return admin.overrides();
+            });
+        },
+        async clearSetting(key, opts) {
+            return once(opts.idempotencyKey, async () => {
+                adapter.update(clearSettingOverride(key));
+                return admin.overrides();
+            });
+        }
+    };
+
+    return { farms, lots, slots, hauls, commitments, orders, settlements, sms, admin };
 }
 
 let repos: Repos | null = null;

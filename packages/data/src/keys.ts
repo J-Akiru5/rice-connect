@@ -41,5 +41,9 @@ export const keys = {
     sms: {
         thread: ['sms', 'thread'] as const,
         replies: ['sms', 'replies'] as const
+    },
+    admin: {
+        all: ['admin'] as const,
+        overrides: ['admin', 'overrides'] as const
     }
 };

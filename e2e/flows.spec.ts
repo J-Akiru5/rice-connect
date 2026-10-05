@@ -129,4 +129,56 @@ test.describe('critical flows', () => {
     await page.getByRole('button', { name: 'Sign Out' }).click();
     await expect(page.locator('button[type="submit"]')).toBeVisible();
   });
+
+  test('admin: typed confirmations guard role, assumption and reset changes (S-11)', async ({ page }) => {
+    // Role change: the kit AlertDialog locks confirm until the user code is typed; Undo reverts it.
+    await page.goto('/admin/users?q=F-001');
+    const userRow = page.locator('table').getByRole('row').filter({ hasText: 'F-001' });
+    await userRow.getByRole('button', { name: 'Change Role' }).click();
+    const roleDialog = page.getByRole('alertdialog');
+    await expect(roleDialog).toBeVisible();
+    const roleConfirm = roleDialog.getByRole('button', { name: 'Change Role' });
+    await expect(roleConfirm).toBeDisabled();
+    await roleDialog.getByLabel(/Type F-001 to confirm/).fill('F-001');
+    await roleDialog.getByLabel('New role').click();
+    await page.getByRole('option', { name: 'Buyer' }).click();
+    await expect(roleConfirm).toBeEnabled();
+    await roleConfirm.click();
+    await expect(page.getByText('F-001 is now Buyer (simulated).').first()).toBeVisible();
+    await expect(page.locator('table').getByText('Changed in this browser').first()).toBeVisible();
+    await page.getByRole('button', { name: 'Undo' }).click();
+    await expect(page.locator('table').getByText('Changed in this browser')).toHaveCount(0, { timeout: 15000 });
+
+    // Assumption change: same typed confirmation, then the row shows the simulated value and the built-in one.
+    await page.goto('/admin/settings');
+    const settingRow = page.locator('table').getByRole('row').filter({ hasText: 'Kilograms per sack' });
+    await settingRow.getByRole('button', { name: 'Change' }).click();
+    const settingDialog = page.getByRole('alertdialog');
+    await expect(settingDialog).toBeVisible();
+    const settingConfirm = settingDialog.getByRole('button', { name: 'Save Change' });
+    await expect(settingConfirm).toBeDisabled();
+    await settingDialog.getByLabel(/Type CHANGE to confirm/).fill('CHANGE');
+    await settingDialog.getByLabel('New value').fill('60');
+    await expect(settingConfirm).toBeEnabled();
+    await settingConfirm.click();
+    await expect(page.getByText('Kilograms per sack is now 60 kg (simulated).').first()).toBeVisible();
+    await expect(page.locator('table').getByText('60 kg').first()).toBeVisible();
+    await page.getByRole('button', { name: 'Undo' }).click();
+    await expect(page.locator('table').getByText('50 kg').first()).toBeVisible({ timeout: 15000 });
+
+    // Reset: typed confirmation; Escape must not close it, then the reset is reported.
+    await page.goto('/admin/activity');
+    await page.getByRole('button', { name: 'Reset Demo Data' }).click();
+    const resetDialog = page.getByRole('alertdialog');
+    await expect(resetDialog).toBeVisible();
+    await expect(resetDialog.getByText(/changes in this browser will be cleared/)).toBeVisible();
+    const resetConfirm = resetDialog.getByRole('button', { name: 'Reset Demo Data' });
+    await expect(resetConfirm).toBeDisabled();
+    await page.keyboard.press('Escape');
+    await expect(resetDialog).toBeVisible();
+    await resetDialog.getByLabel(/Type RESET to confirm/).fill('RESET');
+    await expect(resetConfirm).toBeEnabled();
+    await resetConfirm.click();
+    await expect(page.getByText('Demo data reset.')).toBeVisible();
+  });
 });

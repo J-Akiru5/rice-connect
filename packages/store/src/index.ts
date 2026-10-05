@@ -3,7 +3,7 @@ export { LocalAdapter, getStore, STORE_KEY, CHANNEL } from './local';
 export * from './actions';
 export { MockAuthAdapter } from './auth';
 export type { AuthAdapter, AuthResult, AuthErrorCode, SignInInput, SignUpInput } from './auth';
-export { RepoError, createMockRepos, getRepos } from './repos';
+export { RepoError, createMockRepos, getRepos, DIRECTORY_ROLES } from './repos';
 export type {
     Repos,
     Page,
@@ -20,5 +20,6 @@ export type {
     CommitmentRepo,
     OrderRepo,
     SettlementRepo,
-    SmsRepo
+    SmsRepo,
+    AdminRepo
 } from './repos';

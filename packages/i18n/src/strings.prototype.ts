@@ -1184,9 +1184,50 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     ],
     'admin.users.none': ['No user matches.', 'Walang tumugmang user.', 'Wala sang nagtupong nga user.'],
     'admin.users.note': [
-        'Simulated directory built from the seed: codes only, mobiles masked. No logins exist in the prototype.',
-        'Simulated na directory mula sa seed: code lang, nakatago ang mobile. Walang login sa prototype.',
-        'Simulated nga directory halin sa seed: code lang, natago ang mobile. Wala sang login sa prototype.'
+        'Simulated directory built from the seed: codes only, mobiles masked. No logins exist; role changes are simulated and kept in this browser.',
+        'Simulated na directory mula sa seed: code lang, nakatago ang mobile. Walang login; simulated ang pagpapalit ng papel at sa browser na ito lang nakatala.',
+        'Simulated nga directory halin sa seed: code lang, natago ang mobile. Wala sang login; simulated ang pag-ilis sang papel kag sa sini nga browser lang natago.'
+    ],
+    'admin.users.actions': ['Actions', 'Mga Aksyon', 'Mga Aksyon'],
+    'admin.change.role': ['Change Role', 'Palitan ang Papel', 'Ilisan ang Papel'],
+    'admin.change.roleTitle': ['Change role for {code}', 'Palitan ang papel ni {code}', 'Ilisan ang papel ni {code}'],
+    'admin.change.roleBody': [
+        'The directory is simulated and has no logins: the change is kept in this browser and shows up in the Activity Log.',
+        'Simulated ang directory at walang login: sa browser na ito lang nakatala ang pagbabago at makikita ito sa Talaan ng Aktibidad.',
+        'Simulated ang directory kag wala sang login: sa sini nga browser lang natago ang pagbag-o kag makita ini sa Listahan sang Aktibidad.'
+    ],
+    'admin.change.newRole': ['New role', 'Bagong papel', 'Bag-o nga papel'],
+    'admin.change.roleToast': [
+        '{code} is now {role} (simulated).',
+        'Si {code} ay {role} na (simulated).',
+        'Si {code} {role} na (simulated).'
+    ],
+    'admin.changed': ['Changed in this browser', 'Binago sa browser na ito', 'Ginbag-o sa sini nga browser'],
+    'admin.was': ['was {value}', 'dating {value}', 'dati {value}'],
+    'admin.change.settingTitle': ['Change {setting}', 'Palitan ang {setting}', 'Ilisan ang {setting}'],
+    'admin.change.settingBody': [
+        'Current value: {value}. The change is simulated and kept in this browser only; screens keep using the built-in value until the backend (Phase 3).',
+        'Kasalukuyang halaga: {value}. Simulated ang pagbabago at sa browser na ito lang nakatala; ginagamit pa rin ng mga screen ang built-in na halaga hanggang sa backend (Phase 3).',
+        'Karon nga kantidad: {value}. Simulated ang pagbag-o kag sa sini nga browser lang natago; ginagamit gihapon sang mga screen ang built-in nga kantidad asta sa backend (Phase 3).'
+    ],
+    'admin.change.newValue': ['New value', 'Bagong halaga', 'Bag-o nga kantidad'],
+    'admin.change.invalid': [
+        'Enter a value greater than zero.',
+        'Maglagay ng halagang higit sa zero.',
+        'Magbutang sang kantidad nga labaw sa sero.'
+    ],
+    'admin.change.word': ['CHANGE', 'CHANGE', 'CHANGE'],
+    'admin.change.action': ['Change', 'Palitan', 'Ilisan'],
+    'admin.change.save': ['Save Change', 'I-save ang Pagbabago', 'I-save ang Pagbag-o'],
+    'admin.change.settingToast': [
+        '{setting} is now {value} (simulated).',
+        'Ang {setting} ay {value} na (simulated).',
+        'Ang {setting} {value} na (simulated).'
+    ],
+    'admin.change.failed': [
+        'The change was not saved. Try again.',
+        'Hindi na-save ang pagbabago. Subukan muli.',
+        'Wala na-save ang pagbag-o. Tilawan liwat.'
     ],
     'admin.role.coordinator': ['Coordinator', 'Coordinator', 'Coordinator'],
     'admin.role.farmer': ['Farmer', 'Magsasaka', 'Mangunguma'],
@@ -1194,9 +1235,9 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     'admin.role.driver': ['Driver', 'Driver', 'Driver'],
     'admin.settings.title': ['Settings and Assumptions', 'Settings at mga Tantiya', 'Settings kag mga Banta'],
     'admin.settings.note': [
-        'Read-only in the prototype. Values come from packages/domain/src/overrides.json; those marked Assumed are listed in docs/NUMBERS.md.',
-        'Basahin lang sa prototype. Galing ang mga halaga sa overrides.json; nakalista sa docs/NUMBERS.md ang may markang Tantiya.',
-        'Basa lang sa prototype. Halin ang mga kantidad sa overrides.json; nakalista sa docs/NUMBERS.md ang may marka nga Banta.'
+        'Values come from packages/domain/src/overrides.json; those marked Assumed are listed in docs/NUMBERS.md. A change here is simulated and kept in this browser only.',
+        'Galing ang mga halaga sa overrides.json; nakalista sa docs/NUMBERS.md ang may markang Tantiya. Simulated ang pagbabago dito at sa browser na ito lang nakatala.',
+        'Halin ang mga kantidad sa overrides.json; nakalista sa docs/NUMBERS.md ang may marka nga Banta. Simulated ang pagbag-o diri kag sa sini nga browser lang natago.'
     ],
     'admin.settings.setting': ['Setting', 'Setting', 'Setting'],
     'admin.settings.value': ['Value', 'Halaga', 'Kantidad'],
@@ -1257,9 +1298,31 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
         'Naidagdag ang bukid {id} sa Cluster 1',
         'Nadugang ang uma {id} sa Cluster 1'
     ],
+    'admin.activity.role': [
+        'Role of {code} changed to {role} (simulated)',
+        'Ang papel ni {code} ay pinalitan ng {role} (simulated)',
+        'Ang papel ni {code} gin-ilis sa {role} (simulated)'
+    ],
+    'admin.activity.setting': [
+        'Assumption {setting} changed to {value} (simulated)',
+        'Ang tantiya na {setting} ay pinalitan ng {value} (simulated)',
+        'Ang banta nga {setting} gin-ilis sa {value} (simulated)'
+    ],
+    'admin.reset.title': ['Reset demo data?', 'I-reset ang demo data?', 'I-reset ang demo data?'],
+    'admin.reset.body': [
+        'Clears every change made in this browser: orders, replies, hauls, slots, added farms, and role or assumption changes. The seed never changes. This cannot be undone.',
+        'Binubura ang lahat ng pagbabago sa browser na ito: mga order, sagot, hakot, slot, naidagdag na bukid, at mga pagbabago sa papel o tantiya. Hindi nagbabago ang seed. Hindi na ito maibabalik.',
+        'Ginapanas ang tanan nga pagbag-o sa sini nga browser: mga order, sabat, hakot, slot, nadugang nga uma, kag mga pagbag-o sa papel ukon banta. Indi nagabag-o ang seed. Indi na ini maibalik.'
+    ],
+    'admin.reset.count': [
+        '{n} changes in this browser will be cleared.',
+        '{n} pagbabago sa browser na ito ang buburahin.',
+        '{n} ka pagbag-o sa sini nga browser ang pagapanason.'
+    ],
+    'admin.reset.word': ['RESET', 'RESET', 'RESET'],
     'admin.activity.note': [
-        'Kept in this browser only (shared by every open tab). Reset clears it; the seed never changes.',
-        'Sa browser na ito lang nakatago (pareho sa lahat ng bukas na tab). Binubura ng Reset; hindi nagbabago ang seed.',
-        'Sa sini lang nga browser natago (pareho sa tanan nga bukas nga tab). Ginapanas sang Reset; indi nagabag-o ang seed.'
+        'Derived from the current demo state in this browser, not an append-only audit trail: an Undo or a Reset removes the entry. The real per-entity audit log ships with the backend (Phase 3, B-06).',
+        'Galing sa kasalukuyang demo state sa browser na ito, hindi ito isang append-only na audit trail: tinatanggal ng Undo o Reset ang entry. Darating ang tunay na audit log kasama ng backend (Phase 3, B-06).',
+        'Halin sa karon nga demo state sa sini nga browser, indi ini isa ka append-only nga audit trail: ginakuha sang Undo ukon Reset ang entry. Magaabot ang matuod nga audit log upod sa backend (Phase 3, B-06).'
     ]
 };

@@ -7,7 +7,8 @@ import SecondaryButton from '../Components/SecondaryButton';
 import { cx } from './cx';
 
 /** Consequence text is required. With `typedWord`, the confirm button stays locked until the word is typed
-    and Escape does not close the dialog. Glass by default; `hard` for Haul-style openers. */
+    and Escape does not close the dialog. `confirmDisabled` lets the opener lock confirm on extra form validity
+    (e.g. a new value that is not valid yet). Glass by default; `hard` for Haul-style openers. */
 export function AlertDialog({
     open,
     onOpenChange,
@@ -19,6 +20,7 @@ export function AlertDialog({
     cancelLabel,
     onConfirm,
     typedWord,
+    confirmDisabled = false,
     hard = false,
     className
 }: {
@@ -32,6 +34,7 @@ export function AlertDialog({
     cancelLabel?: string;
     onConfirm: () => void;
     typedWord?: string;
+    confirmDisabled?: boolean;
     hard?: boolean;
     className?: string;
 }) {
@@ -88,7 +91,11 @@ export function AlertDialog({
                             </SecondaryButton>
                         </AlertDialogPrimitive.Cancel>
                         <AlertDialogPrimitive.Action asChild>
-                            <PrimaryButton disabled={!ready} onClick={onConfirm} className={hard ? 'hard-btn' : ''}>
+                            <PrimaryButton
+                                disabled={!ready || confirmDisabled}
+                                onClick={onConfirm}
+                                className={hard ? 'hard-btn' : ''}
+                            >
                                 {confirmLabel ?? t('action.confirm')}
                             </PrimaryButton>
                         </AlertDialogPrimitive.Action>
