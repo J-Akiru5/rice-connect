@@ -32,6 +32,8 @@ select is(
 -- 2) A farmer cannot change their own role.
 select pg_temp.new_user('f0000002-0000-0000-0000-000000000002', 'hardfarmer@example.com', 'farmer', 'Hard Farmer');
 select pg_temp.new_user('f0000003-0000-0000-0000-000000000003', 'hardadmin@example.com', 'admin', 'Hard Admin');
+/* Admin accounts come from RiceConnect, not sign-up metadata (M49): promote the fixture as the owner. */
+update public.profiles set role = 'admin' where id = 'f0000003-0000-0000-0000-000000000003';
 
 set local role authenticated;
 set local "request.jwt.claims" = '{"sub":"f0000002-0000-0000-0000-000000000002"}';
