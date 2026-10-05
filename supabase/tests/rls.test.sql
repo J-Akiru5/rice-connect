@@ -71,7 +71,7 @@ insert into public.hauls (id, lot_id, driver_id, vehicle_id, sacks, status) valu
     ('H-2', 'L-02', 'ddddddd2-0000-0000-0000-000000000002', 'V-1', 10, 'assigned'),
     ('H-3', 'L-03', 'ddddddd1-0000-0000-0000-000000000001', 'V-2', 8, 'requested');
 
-insert into public.commitments (id, cluster_id, buyer_id, tonnes, grade, price_centavos_per_kg, window) values
+insert into public.commitments (id, cluster_id, buyer_id, tonnes, grade, price_centavos_per_kg, weeks) values
     ('C-01', '11111111-1111-1111-1111-111111111111', 'bbbbbbb1-0000-0000-0000-000000000001', 5.0, 'Grade 1', 4600, '{W3}'),
     ('C-02', '11111111-1111-1111-1111-111111111111', 'bbbbbbb2-0000-0000-0000-000000000002', 2.0, 'Grade 1', 4500, '{W4}');
 

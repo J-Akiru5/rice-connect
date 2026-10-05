@@ -166,7 +166,7 @@ create table public.commitments (
     tonnes numeric(6, 2) not null check (tonnes > 0),
     grade text,
     price_centavos_per_kg integer not null check (price_centavos_per_kg > 0),
-    window text[] not null default '{}',
+    weeks text[] not null default '{}',
     status text not null default 'open' check (status in ('open', 'full')),
     created_at timestamptz not null default now(),
     updated_at timestamptz not null default now()
@@ -225,8 +225,8 @@ create table public.audit_log (
     entity text not null,
     entity_id text,
     action text not null,
-    before jsonb,
-    after jsonb,
+    before_data jsonb,
+    after_data jsonb,
     at timestamptz not null default now()
 );
 
