@@ -33,7 +33,7 @@ flowchart TB
 1. **Rules switch.** Replace `AGENTS.md` and `CLAUDE.md` with [AGENTS.next.md](AGENTS.next.md). Record the switch in `docs/DECISIONS.md`.
 2. **Required CI** on `develop`, `staging`, `main` (owner action in GitHub settings; see ticket F-01).
 3. **Platform upgrade**, as its own PR with nothing else in it: Next.js and React to the current stable releases at the time, with the official codemods. Doing this first means no later code is written against APIs that are about to change.
-4. **App structure decision** (O2). If approved, fold the four apps into one app with route groups before the UI kit work starts.
+4. **App structure (O2, decided 4 Oct).** Keep the four multi-zone apps; the one-app fold is dropped (F-10, decision M32). `zones.mjs` and `ZLink` stay, and the M16 staging gap is accepted for now.
 5. **Lint and guard rules** that block the known mistakes (colour literals, raw links, storage outside approved modules, missing labels). See [05-engineering-standards.md](05-engineering-standards.md).
 6. **UI kit v1** on Radix primitives: Dialog, AlertDialog, DropdownMenu, Select, Tabs, Toast, Popover, Tooltip, Checkbox, RadioGroup, Switch. Wrapped in `packages/ui` under the owner's guardrails.
 7. **Form kit** on React Hook Form + Zod: `Form`, `Field`, `FieldError`, an i18n error map, a submit button that cannot double-submit.

@@ -9,5 +9,9 @@ function Inner() {
 }
 
 export default function BuyerOrdersPage() {
-  return <Suspense fallback={<BuyerOrdersScreen type="restaurant" onType={() => {}} />}><Inner /></Suspense>;
+  return (
+    <Suspense fallback={<BuyerOrdersScreen type="restaurant" onType={() => {}} />}>
+      <Inner />
+    </Suspense>
+  );
 }

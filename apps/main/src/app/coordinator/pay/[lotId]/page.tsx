@@ -8,7 +8,8 @@ export function generateStaticParams() {
   return [{ lotId: HERO_LOT.id }];
 }
 
-export default function Page({ params }: { params: { lotId: string } }) {
+export default async function Page(props: { params: Promise<{ lotId: string }> }) {
+  const params = await props.params;
   if (params.lotId !== HERO_LOT.id) notFound();
   return <PayLotPage />;
 }

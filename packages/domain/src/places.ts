@@ -7,5 +7,5 @@ import { BARANGAYS } from './params';
 export const PLACES: Record<(typeof BARANGAYS)[number], { lat: number; lng: number }> = {
     'San Matias': { lat: 11.0002, lng: 122.6599 },
     'Licu-an': { lat: 11.0097, lng: 122.6519 },
-    Ilajas: { lat: 11.0007, lng: 122.687 },
+    Ilajas: { lat: 11.0007, lng: 122.687 }
 };

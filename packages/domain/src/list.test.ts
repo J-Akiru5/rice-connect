@@ -67,14 +67,27 @@ describe('filterFarms', () => {
 
 describe('sortBy', () => {
     it('is stable', () => {
-        const r = sortBy([{ k: 2, n: 'a' }, { k: 1, n: 'b' }, { k: 2, n: 'c' }], (x) => x.k);
+        const r = sortBy(
+            [
+                { k: 2, n: 'a' },
+                { k: 1, n: 'b' },
+                { k: 2, n: 'c' }
+            ],
+            (x) => x.k
+        );
         expect(r.map((x) => x.n)).toEqual(['b', 'a', 'c']);
     });
 });
 
 describe('URL state', () => {
     it('parses and validates params', () => {
-        expect(parseListParams(sp('page=2&size=20&q=x&status=verified&barangay=B'))).toEqual({ page: 2, size: 20, q: 'x', status: 'verified', barangay: 'B' });
+        expect(parseListParams(sp('page=2&size=20&q=x&status=verified&barangay=B'))).toEqual({
+            page: 2,
+            size: 20,
+            q: 'x',
+            status: 'verified',
+            barangay: 'B'
+        });
         expect(parseListParams(sp('page=-1&size=7'))).toMatchObject({ page: 1, size: null });
         expect(parseListParams(sp(''))).toMatchObject({ page: 1, size: null, q: '' });
     });

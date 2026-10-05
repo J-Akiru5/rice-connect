@@ -4,16 +4,16 @@
    "main" (marketing + coordinator) is the one origin users visit; it rewrites /buyer, /driver and /farmer
    to their apps so all of them share localStorage and BroadcastChannel. */
 export const PRODUCTION = {
-  main: 'https://rice-connect-opal.vercel.app',
-  buyer: 'https://riceconnect-buyer.vercel.app',
-  driver: 'https://riceconnect-driver.vercel.app',
-  farmer: 'https://riceconnect-farmer.vercel.app',
+    main: 'https://rice-connect-opal.vercel.app',
+    buyer: 'https://riceconnect-buyer.vercel.app',
+    driver: 'https://riceconnect-driver.vercel.app',
+    farmer: 'https://riceconnect-farmer.vercel.app'
 };
 export const LOCAL = {
-  main: 'http://localhost:3000',
-  buyer: 'http://localhost:3002',
-  driver: 'http://localhost:3003',
-  farmer: 'http://localhost:3004',
+    main: 'http://localhost:3000',
+    buyer: 'http://localhost:3002',
+    driver: 'http://localhost:3003',
+    farmer: 'http://localhost:3004'
 };
 export const zoneOrigins = () => (process.env.RC_LOCAL === '1' ? LOCAL : PRODUCTION);
 
@@ -24,9 +24,9 @@ export const zoneOrigins = () => (process.env.RC_LOCAL === '1' ? LOCAL : PRODUCT
     - paths that belong to another app (/coordinator, /admin, /login, other zones, ...) go to the main origin. */
 const OTHER_PATHS = ['coordinator', 'admin', 'login', 'signup', 'launch', 'buyer', 'driver', 'farmer'];
 export const zoneRedirects = (zone) => [
-  { source: '/', destination: `/${zone}`, basePath: false, permanent: false },
-  ...OTHER_PATHS.filter((p) => p !== zone).flatMap((p) => [
-    { source: `/${p}`, destination: `${zoneOrigins().main}/${p}`, basePath: false, permanent: false },
-    { source: `/${p}/:path*`, destination: `${zoneOrigins().main}/${p}/:path*`, basePath: false, permanent: false },
-  ]),
+    { source: '/', destination: `/${zone}`, basePath: false, permanent: false },
+    ...OTHER_PATHS.filter((p) => p !== zone).flatMap((p) => [
+        { source: `/${p}`, destination: `${zoneOrigins().main}/${p}`, basePath: false, permanent: false },
+        { source: `/${p}/:path*`, destination: `${zoneOrigins().main}/${p}/:path*`, basePath: false, permanent: false }
+    ])
 ];

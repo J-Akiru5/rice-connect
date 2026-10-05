@@ -1,6 +1,6 @@
 /* Driver auto-assignment and dryer slot assignment. Pure functions; seed.ts feeds them. */
-export interface Vehicle { id: string; icon: string; capacity: number; price: number }
-export interface Driver { id: string; name: string; vehicle: string; plate: string; available: boolean; distanceKm: number }
+import type { Driver, Vehicle } from './schemas';
+export type { Driver, Vehicle } from './schemas';
 
 /** Nearest available driver whose vehicle carries all the sacks in one trip; tie-break: lowest price per trip, then id.
     Returns null when nobody qualifies (the Haul error state). The coordinator may override with any driver. */
@@ -13,8 +13,17 @@ export function autoAssign(sacks: number, drivers: readonly Driver[], vehicles: 
 /** Trips a vehicle needs for a load. */
 export const tripsFor = (sacks: number, v: Vehicle) => Math.ceil(sacks / v.capacity);
 
-export interface SlotLot { id: string; dayIndex: number; driedKg: number }
-export interface DryerSlot { id: string; lot: string; dayIndex: number; kg: number }
+export interface SlotLot {
+    id: string;
+    dayIndex: number;
+    driedKg: number;
+}
+export interface DryerSlot {
+    id: string;
+    lot: string;
+    dayIndex: number;
+    kg: number;
+}
 
 /** First fit: each lot dries on its harvest day, or the next day with room. A day never takes more than capacityKg.
     Slot ids follow the order slots are given out (D-1, D-2, ...). */

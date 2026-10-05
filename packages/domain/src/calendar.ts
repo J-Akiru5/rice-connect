@@ -13,7 +13,8 @@ export function dayLabel(dayIndex: number) {
     return `${DOW[d.getUTCDay()]} ${d.getUTCDate()} ${MON[d.getUTCMonth()]}`;
 }
 /** "Thu 22 Oct 2026" */
-export const dateLabel = (dayIndex: number) => `${dayLabel(dayIndex)} ${new Date(W1 + dayIndex * DAY).getUTCFullYear()}`;
+export const dateLabel = (dayIndex: number) =>
+    `${dayLabel(dayIndex)} ${new Date(W1 + dayIndex * DAY).getUTCFullYear()}`;
 /** Planting week label for a day index that may be negative (before W1): "Jul W1" = days 1-7 of July. */
 export function monthWeekLabel(dayIndex: number) {
     const d = new Date(W1 + dayIndex * DAY);

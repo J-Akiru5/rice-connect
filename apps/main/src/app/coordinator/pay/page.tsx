@@ -10,5 +10,9 @@ function Inner() {
 }
 
 export default function PayPage() {
-  return <Suspense fallback={<PayListScreen />}><Inner /></Suspense>;
+  return (
+    <Suspense fallback={<PayListScreen />}>
+      <Inner />
+    </Suspense>
+  );
 }

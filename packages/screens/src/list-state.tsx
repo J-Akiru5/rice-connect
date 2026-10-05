@@ -13,7 +13,11 @@ function subscribe(cb: () => void) {
 /** Default rows per page: 10 below 768px (a CSS media query, no user-agent) or inside the phone frame, else 20. */
 export function useDefaultPageSize() {
     const framed = useFramed();
-    const narrow = useSyncExternalStore(subscribe, () => window.matchMedia(MQ).matches, () => false);
+    const narrow = useSyncExternalStore(
+        subscribe,
+        () => window.matchMedia(MQ).matches,
+        () => false
+    );
     return framed || narrow ? SIZE_MOBILE : SIZE_DESKTOP;
 }
 
@@ -26,8 +30,14 @@ export function useListState() {
     const p = parseListParams(sp);
     const fallback = useDefaultPageSize();
     const size = p.size ?? fallback;
-    const href = useCallback((patch: Record<string, string | number | null>) => pathname + listQuery(sp.toString(), patch), [pathname, sp]);
-    const set = useCallback((patch: Record<string, string | number | null>) => router.replace(href(patch), { scroll: false }), [router, href]);
+    const href = useCallback(
+        (patch: Record<string, string | number | null>) => pathname + listQuery(sp.toString(), patch),
+        [pathname, sp]
+    );
+    const set = useCallback(
+        (patch: Record<string, string | number | null>) => router.replace(href(patch), { scroll: false }),
+        [router, href]
+    );
     return { ...p, size, href, set, pageHref: (n: number) => href({ page: n }) };
 }
 
@@ -35,5 +45,14 @@ export type ListState = ReturnType<typeof useListState>;
 /** The same shape without hooks: page 1, desktop size, no filters. Used for the server-rendered Suspense fallback. */
 export function staticListState(pathname: string, size = SIZE_DESKTOP): ListState {
     const href = (patch: Record<string, string | number | null>) => pathname + listQuery('', patch);
-    return { page: 1, size, q: '', status: '', barangay: '', href, set: () => {}, pageHref: (n: number) => href({ page: n }) };
+    return {
+        page: 1,
+        size,
+        q: '',
+        status: '',
+        barangay: '',
+        href,
+        set: () => {},
+        pageHref: (n: number) => href({ page: n })
+    };
 }

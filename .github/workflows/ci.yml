@@ -24,15 +24,48 @@ jobs:
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm format:check
       - run: pnpm lint
       - run: pnpm build
       - run: pnpm test
+      - name: Bundle budget (fails when client JS grows more than 10%)
+        run: pnpm bundle
       - name: Guard checks (colors only from tokens, no rice-field photo)
         run: |
-          if git grep -nE "#[0-9a-fA-F]{3,8}" -- apps packages ':!**/tokens*' ':!**/app.css' ':!**/*.svg'; then
-            echo "Raw hex colors found: use tokens"; exit 1; fi
+          if git grep -nE "#[0-9a-fA-F]{3,8}|rgba?\(|hsla?\(" -- apps packages ':!**/tokens*' ':!**/app.css' ':!**/*.svg'; then
+            echo "Colour literals found: use tokens (or color-mix from tokens in app.css)"; exit 1; fi
           if git grep -niE "rice-field|rc-photo|photo-scrim" -- apps packages ':!**/tokens*'; then
             echo "The rice-field photo is retired"; exit 1; fi
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      RC_LOCAL: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build:local
+      # The browser is downloaded inside the job only; agent sessions never download it.
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm e2e
+      # Baselines are updated only when the PR carries the visual-update label.
+      - name: 'Visual snapshots (label: visual-update)'
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'visual-update')
+        run: VISUAL=1 pnpm e2e e2e/visual.spec.ts --update-snapshots
+      # S-12 route guards exist only in a live-mode build; the demo suite above must run first. A clean .next
+      # plus --force keeps a previous build's chunks out of the live build (turbo restores over existing dirs).
+      - name: Build live mode for the route guards (S-12)
+        run: |
+          rm -rf apps/*/.next
+          NEXT_PUBLIC_RC_MODE=live pnpm build:local --force
+      - run: E2E_LIVE=1 pnpm e2e e2e/guards-live.spec.ts

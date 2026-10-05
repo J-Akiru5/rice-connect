@@ -11,7 +11,7 @@ Ordered by phase, then priority. Size: **S** (under half a day of agent work), *
 | P0-03 | Update `docs/UAT-KIT.html` tasks that use the removed "View as" switcher | S | Agent | B1 and D1 start from `/buyer/login` and `/driver/login`; no mention of "View as" remains. |
 | P0-04 | Run the Oct 6–7 usability test | M | Team | Sheets filled per [07-usability-test.md](07-usability-test.md); consent read to everyone; no personal data recorded. |
 | P0-05 | Log findings as issues | S | Team | Every severity 2+ finding is an issue with `ux-finding` + `sev-N` labels within 24 hours. |
-| P0-06 | Owner answers O2 (one app or four) | S | Owner | Answer recorded in `docs/DECISIONS.md`. (O1 closed by M31.) |
+| P0-06 | ~~Owner answers O2 (one app or four)~~ **Closed (P12): keep four apps** | S | Owner | Recorded in `docs/DECISIONS.md` (M32). (O1 closed by M31.) |
 
 ## Phase 1: guardrails and foundations
 
@@ -22,11 +22,11 @@ Ordered by phase, then priority. Size: **S** (under half a day of agent work), *
 | F-03 | Upgrade Next.js and React to current stable | M | Kimi 3 | Official codemods run; all builds, tests and the demo pass; no other change in the PR. |
 | F-04 | Tighten TypeScript (`noUncheckedIndexedAccess`, `noImplicitOverride`) | M | GLM 2.5 | Flags on; every error fixed without `!` or `any`. |
 | F-05 | Package-boundary lint | S | DeepSeek V4 Pro | Rules per [05-engineering-standards.md](05-engineering-standards.md#package-boundaries); a deliberate bad import in a test file fails lint. |
-| F-06 | Formatter (if O3 approved) | S | DeepSeek V4 Pro | Prettier config; `prettier --check` in CI; one formatting-only PR. |
+| F-06 | Formatter (O3 approved: Prettier 3.9.9) | S | DeepSeek V4 Pro | Prettier config; `prettier --check` in CI; one formatting-only PR. |
 | F-07 | Colour guard covers `rgb`, `rgba`, `hsl`; replace the 20 existing literals with tokens | M | Claude Sonnet | Guard fails on any colour literal outside tokens; all 20 replaced with token-based classes; visual check at 390/1440. |
 | F-08 | Lint rules for raw links, `localStorage`, `confirm/alert`, hand-rolled dialogs, English in JSX | M | DeepSeek V4 Pro | Each rule has a failing example in a test fixture; codebase passes. |
 | F-09 | One shared theme boot script in `@rc/ui` | S | Flash 3.6 | The four copies in app layouts are replaced by one import; behaviour unchanged. |
-| F-10 | Fold four apps into one with route groups (if O2 approved) | L | Kimi 3 | URLs unchanged (checked by an E2E route list); one Vercel project; `zones.mjs` removed or reduced; staging shows every page from the staging build. |
+| F-10 | ~~Fold four apps into one with route groups (if O2 approved)~~ **Declined (M32): keep the four apps** | — | — | No work; `zones.mjs` and `ZLink` stay, M16 gap accepted. |
 | F-11 | Branded `not-found`, `error`, `loading` per route group | M | Claude Sonnet | A wrong URL shows the branded 404 with DemoChip (demo mode), footer and a link home for the role; a thrown error shows the error page with a reference code. |
 | F-12 | Environment ribbon | S | Flash 3.6 | Shows Demo / Staging / Local outside production; absent in production; never covers content. |
 | F-13 | Mode switch `NEXT_PUBLIC_RC_MODE=demo|live` | M | Kimi 3 | Demo: mock adapters, DemoChip, open routes. Live: guarded routes, no DemoChip. Default `demo` until Phase 3. |
@@ -54,7 +54,7 @@ Ordered by phase, then priority. Size: **S** (under half a day of agent work), *
 |---|---|---|---|---|
 | Q-01 | Playwright in CI (browser installed in the job only) | M | DeepSeek V4 Pro | Smoke spec: every route 200, DemoChip (demo), footer, no console errors, no horizontal scroll at 360px. |
 | Q-02 | Critical-flow E2E specs (five flows in [05-engineering-standards.md](05-engineering-standards.md#testing)) | L | Kimi 3 | All five pass on CI; `e2e` becomes a required check. |
-| Q-03 | Component tests for the kit (if O4 approved) | M | Claude Sonnet | Keyboard and focus tests for K-02 to K-05. |
+| Q-03 | Component tests for the kit (O4 approved) | M | Claude Sonnet | Keyboard and focus tests for K-02 to K-05; covered by the tests shipped in those tickets (M33). |
 | Q-04 | Axe in E2E (if O5 approved) | S | DeepSeek V4 Pro | No serious or critical violations on any route. |
 | Q-05 | Bundle budget check | S | DeepSeek V4 Pro | Baseline recorded; CI fails on more than 10% growth per route. |
 | Q-06 | Visual snapshots for key screens | M | Claude Sonnet | 390 and 1440, light and dark; updated only with a `visual-update` label. |
@@ -103,11 +103,11 @@ Every item in [08-pilot-readiness.md](08-pilot-readiness.md) becomes a ticket wi
 
 | Issue | Where it is fixed |
 |---|---|
-| Staging main app shows production buyer/driver/farmer apps (M16) | F-10 (one app) |
-| Coordinator's "SMS" menu item opens the farmer app's shell with no way back except the logo | F-10, then S-01 |
+| Staging main app shows production buyer/driver/farmer apps (M16) | Accepted (M32): zone pages are checked on their own previews; revisit if it blocks testing. |
+| Coordinator's "SMS" menu item opens the farmer app's shell with no way back except the logo | S-01 |
 | Farmer sign-up subtitle reuses launch-card copy ("The farmer's SMS: reply 1 OK or 2 Move.") | D-06 (new `auth.about.farmer` string) |
 | Page titles and meta descriptions say "prototype" | F-13 (mode-aware metadata) |
-| `CONTACT_EMAIL` is a placeholder (`team@example.com`) | F-02 checklist, before any public launch |
+| `CONTACT_EMAIL` is a placeholder (`team@example.com`) | Owner: supply the real address before any public launch (still open after F-02) |
 | No route-level 404/error/loading | F-11 |
 | 20 `rgba(...)` literals bypass the colour guard | F-07 |
 | Theme boot script copied four times | F-09 |

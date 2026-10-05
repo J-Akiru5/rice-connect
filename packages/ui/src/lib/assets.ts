@@ -5,6 +5,8 @@ export const ASSETS = {
     logoReversed: '/brand/riceconnect-logo-reversed.svg',
     logoMono: '/brand/riceconnect-logo-mono.svg',
     mark: '/brand/riceconnect-mark.svg',
-    markReversed: '/brand/riceconnect-mark-reversed.svg',
+    markReversed: '/brand/riceconnect-mark-reversed.svg'
 };
-export function setAssets(next: Partial<typeof ASSETS>) { Object.assign(ASSETS, next); }
+export function setAssets(next: Partial<typeof ASSETS>) {
+    Object.assign(ASSETS, next);
+}
