@@ -1,6 +1,6 @@
 // pnpm demo:local — build every app with RC_LOCAL=1 and start the main app plus the buyer, driver and farmer apps.
 // Open http://localhost:3000 (main app). Works with the network off (run `pnpm install` once beforehand).
-// Flags: --skip-build (start only), --build-only.
+// Flags: --skip-build (start only), --build-only, --force (skip the turbo cache; use for a live-mode build).
 import { spawn, spawnSync } from 'node:child_process';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,7 +17,8 @@ const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
 
 if (!process.argv.includes('--skip-build')) {
   const filters = APPS.flatMap(([a]) => ['--filter', `@rc/${a}`]);
-  const r = spawnSync(pnpm, ['exec', 'turbo', 'run', 'build', ...filters], {
+  const force = process.argv.includes('--force') ? ['--force'] : [];
+  const r = spawnSync(pnpm, ['exec', 'turbo', 'run', 'build', ...filters, ...force], {
     cwd: root,
     env,
     stdio: 'inherit',

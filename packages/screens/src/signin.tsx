@@ -1,5 +1,5 @@
 'use client';
-import { useId, useState, type ReactNode } from 'react';
+import { useEffect, useId, useState, type ReactNode } from 'react';
 import {
     ACCOUNTS,
     ApplicationLogo,
@@ -132,6 +132,14 @@ export function AuthScreen({ role, mode }: { role: SessionRole; mode: AuthMode }
     const uid = useId();
     const [showPw, setShowPw] = useState(false);
     const [formError, setFormError] = useState<string | null>(null);
+    /* S-12: the route guard sends signed-out users here with ?next=<the page>; return there after sign-in.
+       Same-origin paths only, so the parameter can never be an open redirect. */
+    const [next, setNext] = useState<string | null>(null);
+    useEffect(() => {
+        const raw = new URLSearchParams(window.location.search).get('next');
+        if (raw && /^\/(?!\/)/.test(raw) && !raw.includes('\\')) setNext(raw);
+    }, []);
+    const goHome = () => nav(next ?? a.home);
 
     const idField: Field =
         a.identifier === 'email'
@@ -178,7 +186,7 @@ export function AuthScreen({ role, mode }: { role: SessionRole; mode: AuthMode }
             setFormError(t(`auth.err.${res.code}`));
             return;
         }
-        nav(a.home);
+        goHome();
     };
 
     const showPwButton = (
@@ -247,7 +255,7 @@ export function AuthScreen({ role, mode }: { role: SessionRole; mode: AuthMode }
                                     {t('signin.as', { who: tx(t, current) })}
                                 </p>
                                 <div className="flex flex-wrap gap-3">
-                                    <PrimaryButton icon="ArrowRight" onClick={() => nav(a.home)}>
+                                    <PrimaryButton icon="ArrowRight" onClick={goHome}>
                                         {t('signin.continue')}
                                     </PrimaryButton>
                                     <SecondaryButton

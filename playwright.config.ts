@@ -8,6 +8,8 @@ const COMMON_ENV = { RC_LOCAL: '1', NEXT_TELEMETRY_DISABLED: '1' };
 
 export default defineConfig({
   testDir: './e2e',
+  // S-12 guards exist only in a live-mode build; set E2E_LIVE=1 with a NEXT_PUBLIC_RC_MODE=live build to run them.
+  testIgnore: process.env.E2E_LIVE ? [] : ['**/guards-live.spec.ts'],
   timeout: 60_000,
   expect: { timeout: 10_000 },
   fullyParallel: false,

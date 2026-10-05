@@ -62,3 +62,10 @@ jobs:
       - name: 'Visual snapshots (label: visual-update)'
         if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'visual-update')
         run: VISUAL=1 pnpm e2e e2e/visual.spec.ts --update-snapshots
+      # S-12 route guards exist only in a live-mode build; the demo suite above must run first. A clean .next
+      # plus --force keeps a previous build's chunks out of the live build (turbo restores over existing dirs).
+      - name: Build live mode for the route guards (S-12)
+        run: |
+          rm -rf apps/*/.next
+          NEXT_PUBLIC_RC_MODE=live pnpm build:local --force
+      - run: E2E_LIVE=1 pnpm e2e e2e/guards-live.spec.ts

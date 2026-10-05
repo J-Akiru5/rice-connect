@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { THEME_BOOT } from '@rc/ui/theme';
-import { isDemo } from '@rc/ui/mode';
+import { MODE_BOOT, isDemo } from '@rc/ui/mode';
 import { Providers } from './providers';
 
 export const metadata: Metadata = {
@@ -19,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
+        <script dangerouslySetInnerHTML={{ __html: MODE_BOOT }} />
       </head>
       <body>
         <Providers>{children}</Providers>
