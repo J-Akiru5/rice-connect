@@ -1,6 +1,6 @@
 export { createQueryClient, getQueryClient } from './client';
 export { keys } from './keys';
-export { configureLiveAuth } from './live';
+export { configureLive } from './live';
 export { DataProvider } from './provider';
 export { AnniChatError } from './hooks';
 export type { AnniChatErrorCode, AnniChatMessage } from './hooks';

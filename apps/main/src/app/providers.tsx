@@ -2,7 +2,7 @@
 import { PropsWithChildren } from 'react';
 import { EnvironmentRibbon, I18nProvider, ToastProvider, ZoneProvider, setAssets } from '@rc/ui';
 import { isLive } from '@rc/ui/mode';
-import { DataProvider, configureLiveAuth } from '@rc/data';
+import { DataProvider, configureLive } from '@rc/data';
 
 /* No basePath: public files are at the root. */
 setAssets({
@@ -20,7 +20,7 @@ if (
   process.env.NEXT_PUBLIC_SUPABASE_URL &&
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 ) {
-  configureLiveAuth(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  configureLive(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 }
 
 export function Providers({ children }: PropsWithChildren) {
