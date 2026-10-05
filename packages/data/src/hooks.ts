@@ -228,3 +228,35 @@ export const useClearAssumption = () => {
         onSuccess: () => qc.invalidateQueries({ queryKey: keys.admin.all })
     });
 };
+
+/* ANNI, the RiceConnect Farm Assistant (docs/DECISIONS.md M42). Server-side route per app; read-only. */
+export type AnniChatErrorCode = 'validation' | 'not_configured' | 'provider';
+export class AnniChatError extends Error {
+    constructor(public code: AnniChatErrorCode) {
+        super(code);
+        this.name = 'AnniChatError';
+    }
+}
+export interface AnniChatMessage {
+    role: 'user' | 'anni';
+    text: string;
+}
+interface AnniChatReply {
+    ok?: boolean;
+    text?: string;
+    code?: AnniChatErrorCode;
+}
+export const useAnniChat = (endpoint: string) =>
+    useMutation({
+        mutationFn: async ({ messages }: { messages: AnniChatMessage[] }) => {
+            const res = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'content-type': 'application/json' },
+                body: JSON.stringify({ messages })
+            });
+            const data = (await res.json().catch(() => null)) as AnniChatReply | null;
+            if (!data || data.ok !== true || typeof data.text !== 'string')
+                throw new AnniChatError(data?.code ?? 'provider');
+            return data.text;
+        }
+    });

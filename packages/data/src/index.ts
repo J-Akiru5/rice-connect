@@ -1,10 +1,13 @@
 export { createQueryClient, getQueryClient } from './client';
 export { keys } from './keys';
 export { DataProvider } from './provider';
+export { AnniChatError } from './hooks';
+export type { AnniChatErrorCode, AnniChatMessage } from './hooks';
 export {
     newIdempotencyKey,
     useAddFarm,
     useAdminOverrides,
+    useAnniChat,
     useCancelOrder,
     useClearAssumption,
     useClearUserRole,

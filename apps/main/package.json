@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@fontsource/plus-jakarta-sans": "5.3.0",
-    "@google/genai": "2.27.0",
+    "@rc/ai": "workspace:*",
     "@rc/data": "workspace:*",
     "@rc/domain": "workspace:*",
     "@rc/i18n": "workspace:*",
