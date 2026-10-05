@@ -99,16 +99,10 @@ select is((select count(*)::int from public.farms where id = 'F-002'), 0, 'farme
 select is((select count(*)::int from public.lots), 2, 'farmer sees lots on own farms');
 select is((select count(*)::int from public.hauls), 2, 'farmer sees hauls on own lots');
 select is((select count(*)::int from public.settlements), 1, 'farmer sees only own settlement');
-select is(
-    (with u as (update public.settlements set balance_centavos = 1 where id = 'S-1' returning 1) select count(*)::int from u),
-    0,
-    'farmer cannot write settlements'
-);
-select is(
-    (with u as (update public.farms set name = 'Nope' where id = 'F-002' returning 1) select count(*)::int from u),
-    0,
-    'farmer cannot update another farm'
-);
+with u as (update public.settlements set balance_centavos = 1 where id = 'S-1' returning 1)
+select is((select count(*)::int from u), 0, 'farmer cannot write settlements');
+with u as (update public.farms set name = 'Nope' where id = 'F-002' returning 1)
+select is((select count(*)::int from u), 0, 'farmer cannot update another farm');
 select lives_ok(
     $$ insert into public.consents (profile_id, policy_version) values ('aaaaaaa1-0000-0000-0000-000000000001', 'v1') $$,
     'farmer can record own consent'
@@ -142,43 +136,28 @@ set local "request.jwt.claims" = '{"sub":"ccccccc1-0000-0000-0000-000000000001"}
 select is((select count(*)::int from public.farms), 2, 'coordinator sees own cluster farms');
 select is((select count(*)::int from public.hauls), 2, 'coordinator sees own cluster hauls');
 select is((select count(*)::int from public.profiles), 7, 'coordinator sees own cluster profiles');
-select is(
-    (with u as (update public.settlements set paid_at = now() where id = 'S-1' returning 1) select count(*)::int from u),
-    1,
-    'coordinator can mark an unpaid settlement paid'
-);
-select is(
-    (with u as (update public.settlements set balance_centavos = 1 where id = 'S-2' returning 1) select count(*)::int from u),
-    0,
-    'coordinator cannot change a paid settlement'
-);
+with u as (update public.settlements set paid_at = now() where id = 'S-1' returning 1)
+select is((select count(*)::int from u), 1, 'coordinator can mark an unpaid settlement paid');
+with u as (update public.settlements set balance_centavos = 1 where id = 'S-2' returning 1)
+select is((select count(*)::int from u), 0, 'coordinator cannot change a paid settlement');
 
 -- Driver One --------------------------------------------------------------------------------------------
 set local "request.jwt.claims" = '{"sub":"ddddddd1-0000-0000-0000-000000000001"}';
 
 select is((select count(*)::int from public.hauls), 2, 'driver sees only own hauls');
 select is((select count(*)::int from public.farms), 0, 'driver sees no farms');
-select is(
-    (with u as (update public.hauls set status = 'accepted' where id = 'H-1' returning 1) select count(*)::int from u),
-    1,
-    'driver can move own haul forward'
-);
-select is(
-    (with u as (update public.hauls set status = 'accepted' where id = 'H-2' returning 1) select count(*)::int from u),
-    0,
-    'driver cannot update another haul'
-);
+with u as (update public.hauls set status = 'accepted' where id = 'H-1' returning 1)
+select is((select count(*)::int from u), 1, 'driver can move own haul forward');
+with u as (update public.hauls set status = 'accepted' where id = 'H-2' returning 1)
+select is((select count(*)::int from u), 0, 'driver cannot update another haul');
 
 -- Admin -------------------------------------------------------------------------------------------------
 set local "request.jwt.claims" = '{"sub":"eeeeeee1-0000-0000-0000-000000000001"}';
 
 select is((select count(*)::int from public.farms), 3, 'admin sees every farm');
 select is((select count(*)::int from public.audit_log), 1, 'admin reads the audit log');
-select is(
-    (with u as (update public.settlements set paid_at = now() where id = 'S-2' returning 1) select count(*)::int from u),
-    1,
-    'admin can correct a paid settlement'
-);
+with u as (update public.settlements set paid_at = now() where id = 'S-2' returning 1)
+select is((select count(*)::int from u), 1, 'admin can correct a paid settlement');
 
 -- Anonymous ---------------------------------------------------------------------------------------------
 set local role anon;
