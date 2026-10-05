@@ -15,7 +15,7 @@ import { dayLabel, monthWeekLabel } from '@rc/domain/calendar';
 import overrides from '@rc/domain/overrides.json';
 import { makeRiceOrder } from '@rc/domain/buyers';
 import { FarmSchema } from '@rc/domain/schemas';
-import type { Commitment, Farm, Lot, Slip, Slot, SmsMessage } from '@rc/domain/schemas';
+import type { Commitment, Farm, Haul, Lot, Slip, Slot, SmsMessage } from '@rc/domain/schemas';
 import type { Week } from '@rc/domain/schemas';
 import {
     addFarm,
@@ -107,9 +107,9 @@ export interface SlotRepo {
     setStatus(id: string, next: SlotStatus, opts: WriteOpts): Promise<Slot>;
 }
 export interface HaulRepo {
-    get(id: string): Promise<typeof HAUL>;
+    get(id: string): Promise<Haul>;
     status(id: string): Promise<HaulStatus>;
-    setStatus(id: string, next: HaulStatus, opts: WriteOpts): Promise<typeof HAUL>;
+    setStatus(id: string, next: HaulStatus, opts: WriteOpts): Promise<Haul>;
 }
 export interface CommitmentRepo {
     /** The seed's buyer commitments. */
@@ -440,4 +440,8 @@ let repos: Repos | null = null;
 export function getRepos(): Repos {
     repos ??= createMockRepos(getStore());
     return repos;
+}
+/** B-05 seam: the live runtime swaps the repositories in when the app boots in live mode. */
+export function setRepos(next: Repos) {
+    repos = next;
 }

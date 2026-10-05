@@ -45,6 +45,7 @@ export { ZoneProvider, ZLink, useZone, useZoneNav, resolveZone, gatewayPath, zon
 export type { Zone } from './lib/zone';
 export { ACCOUNTS, auth } from './lib/account';
 export type { Account } from './lib/account';
+export { useSession } from './lib/session';
 export { cx, Dialog, AlertDialog, Menu, MenuItem, MenuSeparator } from './kit';
 export {
     Checkbox,
