@@ -441,3 +441,7 @@ export function getRepos(): Repos {
     repos ??= createMockRepos(getStore());
     return repos;
 }
+/** B-05 seam: the live runtime swaps the repositories in when the app boots in live mode. */
+export function setRepos(next: Repos) {
+    repos = next;
+}

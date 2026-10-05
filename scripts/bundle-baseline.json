@@ -1,18 +1,18 @@
 {
   "main": {
-    "total": 1646549,
+    "total": 1981217,
     "shared": 439060
   },
   "buyer": {
-    "total": 2360945,
+    "total": 2657169,
     "shared": 439158
   },
   "driver": {
-    "total": 1302358,
+    "total": 1593695,
     "shared": 439162
   },
   "farmer": {
-    "total": 1310651,
+    "total": 1601745,
     "shared": 439162
   }
 }

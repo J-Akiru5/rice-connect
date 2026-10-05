@@ -9,8 +9,8 @@ import { Dialog } from '../kit/Dialog';
 import { DemoChip, LanguageSwitcher } from './Enactus';
 import { useI18n, tx } from '@rc/i18n';
 import type { SessionRole } from '@rc/store';
-import { useDemoState } from '@rc/store/react';
 import { ACCOUNTS, auth } from '../lib/account';
+import { useSession } from '../lib/session';
 
 /* Intentional addition: Karl's AuthenticatedLayout reduced to a reusable shell for the prototype.
    Glass sidebar + header over the flat terrace-contour ground (.rc-ground).
@@ -72,7 +72,7 @@ const isActive = (n: Item, active: string) => active === n.key || active === n.s
 export function AccountButton({ role }: { role: Role }) {
     const { t } = useI18n();
     const nav = useZoneNav();
-    const signedIn = useDemoState().session[role];
+    const signedIn = useSession(role);
     const cls =
         'inline-flex items-center gap-2 min-h-[44px] md:min-h-[40px] px-3 md:px-4 rounded-full border-2 border-[color:var(--text-muted)] text-[13px] font-extrabold uppercase tracking-[0.06em] whitespace-nowrap rc-hover-accent';
     if (!signedIn)
@@ -99,7 +99,7 @@ export function AccountButton({ role }: { role: Role }) {
 /** "Signed In: Cluster 1" (nothing when signed out). */
 function SignedInAs({ role, className = '' }: { role: Role; className?: string }) {
     const { t } = useI18n();
-    const id = useDemoState().session[role];
+    const id = useSession(role);
     if (!id) return null;
     return (
         <span

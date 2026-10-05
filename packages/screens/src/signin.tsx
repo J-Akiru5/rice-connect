@@ -22,11 +22,11 @@ import {
     tx,
     useForm,
     useI18n,
+    useSession,
     useZoneNav,
     type Resolver
 } from '@rc/ui';
 import type { SessionRole } from '@rc/store';
-import { useDemoState } from '@rc/store/react';
 import { checkConsent, checkIdentifier, checkPassword, checkRequired, toE164 } from '@rc/domain/auth-form';
 import { BUYER_TYPES } from '@rc/domain/buyers';
 import { BARANGAYS } from '@rc/domain/params';
@@ -128,7 +128,7 @@ export function AuthScreen({ role, mode }: { role: SessionRole; mode: AuthMode }
     const nav = useZoneNav();
     const a = ACCOUNTS[role];
     const signup = mode === 'signup' && a.signUp !== null;
-    const current = useDemoState().session[role];
+    const current = useSession(role);
     const uid = useId();
     const [showPw, setShowPw] = useState(false);
     const [formError, setFormError] = useState<string | null>(null);
