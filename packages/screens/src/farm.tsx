@@ -201,7 +201,7 @@ export function FarmDetail({
                     </div>
                     <div>
                         <dt className={cap}>{t('farm.lot')}</dt>
-                        <dd className="text-[16px] font-bold">{lot.id}</dd>
+                        <dd className="text-[16px] font-bold">{lot ? lot.id : '—'}</dd>
                     </div>
                     <div className="col-span-2">
                         <dt className={cap}>{t('farm.forecast')}</dt>
