@@ -13,12 +13,17 @@
     "e2e": "playwright test",
     "bundle": "node scripts/bundle-budget.mjs",
     "demo:local": "node scripts/demo-local.mjs",
-    "build:local": "node scripts/demo-local.mjs --build-only"
+    "build:local": "node scripts/demo-local.mjs --build-only",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "db:push": "supabase db push"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",
     "@playwright/test": "1.56.1",
     "prettier": "3.9.9",
+    "supabase": "2.119.0",
     "turbo": "2.11.7"
   },
   "pnpm": {

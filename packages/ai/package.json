@@ -1,0 +1,25 @@
+{
+    "name": "@rc/ai",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "exports": {
+        "./anni": "./src/anni.ts"
+    },
+    "scripts": {
+        "lint": "eslint . && tsc --noEmit -p .",
+        "test": "vitest run",
+        "build": "echo source package"
+    },
+    "dependencies": {
+        "@google/genai": "2.27.0",
+        "zod": "4.6.5"
+    },
+    "devDependencies": {
+        "@rc/config": "workspace:*",
+        "typescript": "5.6.3",
+        "vitest": "2.1.9",
+        "@types/node": "20.17.10",
+        "eslint": "9.39.5"
+    }
+}

@@ -1324,5 +1324,33 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
         'Derived from the current demo state in this browser, not an append-only audit trail: an Undo or a Reset removes the entry. The real per-entity audit log ships with the backend (Phase 3, B-06).',
         'Galing sa kasalukuyang demo state sa browser na ito, hindi ito isang append-only na audit trail: tinatanggal ng Undo o Reset ang entry. Darating ang tunay na audit log kasama ng backend (Phase 3, B-06).',
         'Halin sa karon nga demo state sa sini nga browser, indi ini isa ka append-only nga audit trail: ginakuha sang Undo ukon Reset ang entry. Magaabot ang matuod nga audit log upod sa backend (Phase 3, B-06).'
+    ],
+    // ANNI, the Farm Assistant (out of plan; docs/DECISIONS.md M42; TL/HIL drafts: needs native review)
+    'anni.launch': [
+        'Ask ANNI, the Farm Assistant',
+        'Tanungin si ANNI, ang Farm Assistant',
+        'Pamangkuta si ANNI, ang Farm Assistant'
+    ],
+    'anni.title': ['ANNI', 'ANNI', 'ANNI'],
+    'anni.sub': ['Farm Assistant', 'Katulong sa Bukid', 'Katabang sa Uma'],
+    'anni.greeting': [
+        'Hi! I am ANNI. Ask me about harvests, drying, hauling or selling. I can explain a screen, but please check important details.',
+        'Kumusta! Ako si ANNI. Magtanong tungkol sa ani, pagpapatuyo, paghakot o pagbebenta. Maaari kong ipaliwanag ang isang screen, ngunit suriin ang mahahalagang detalye.',
+        'Kamusta! Ako si ANNI. Pamangkot parte sa ani, pagpamala, paghakot ukon pagbaligya. Mahimo ko ipaliwanag ang isa ka screen, pero usisaon ang importante nga detalye.'
+    ],
+    'anni.inputLabel': ['Message ANNI', 'Mensahe kay ANNI', 'Mensahe kay ANNI'],
+    'anni.placeholder': ['Ask about your farm…', 'Magtanong tungkol sa bukid…', 'Pamangkot parte sa uma…'],
+    'anni.send': ['Send', 'Ipadala', 'Ipadala'],
+    'anni.thinking': ['ANNI is thinking…', 'Nag-iisip si ANNI…', 'Nagapamalandong si ANNI…'],
+    'anni.error': [
+        'ANNI could not answer. Check your connection and try again.',
+        'Hindi makasagot si ANNI. Suriin ang koneksyon at subukan muli.',
+        'Indi makasabat si ANNI. Usisaon ang koneksyon kag tilawan liwat.'
+    ],
+    'anni.notConfigured': ['ANNI is not switched on yet.', 'Hindi pa naka-on si ANNI.', 'Wala pa naka-on si ANNI.'],
+    'anni.disclaimer': [
+        'ANNI can make mistakes. Check important details.',
+        'Maaaring magkamali si ANNI. Suriin ang mahahalagang detalye.',
+        'Mahimo magsayop si ANNI. Usisaon ang importante nga detalye.'
     ]
 };

@@ -3,6 +3,7 @@ import './globals.css';
 import { THEME_BOOT } from '@rc/ui/theme';
 import { MODE_BOOT, isDemo } from '@rc/ui/mode';
 import { RoleGuard } from '@rc/screens/guard';
+import { AnniDock } from '@rc/screens/anni';
 import { Providers } from './providers';
 
 export const metadata: Metadata = {
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {/* S-12: farmer routes require the farmer session in live mode; sign-in and sign-up stay open. */}
           <RoleGuard role="farmer" allow={['/farmer/login', '/farmer/signup']}>
             {children}
+            <AnniDock />
           </RoleGuard>
         </Providers>
       </body>
