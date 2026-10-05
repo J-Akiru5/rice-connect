@@ -64,4 +64,14 @@ test.describe('smoke', () => {
     await expect(page.getByText('Team Syntaxure Labs').first()).toBeVisible();
     await expect(page.getByRole('link', { name: /Go to Home/ })).toBeVisible();
   });
+
+  test('security headers are set on the main app and the zone apps (B-09)', async ({ page }) => {
+    const main = await page.request.get('/');
+    expect(main.headers()['content-security-policy']).toContain("default-src 'self'");
+    expect(main.headers()['content-security-policy']).toContain("frame-ancestors 'none'");
+    expect(main.headers()['x-content-type-options']).toBe('nosniff');
+    expect(main.headers()['referrer-policy']).toBe('strict-origin-when-cross-origin');
+    const buyer = await page.request.get('/buyer');
+    expect(buyer.headers()['content-security-policy']).toContain("frame-ancestors 'none'");
+  });
 });

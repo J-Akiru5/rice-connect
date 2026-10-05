@@ -26,6 +26,19 @@ Create a migration after changing the schema through the Studio or SQL:
 pnpm exec supabase migration new <name>
 ```
 
+## Tests (B-03)
+
+`supabase/tests/*.sql` are pgTAP suites. CI's `db` job runs them on every PR; locally:
+
+```bash
+pnpm db:start     # needs Docker Desktop
+pnpm db:reset     # applies supabase/migrations from scratch
+pnpm exec supabase test db
+```
+
+The suite signs in as each role (by setting `request.jwt.claims`) and checks the row-level-security
+matrix from `docs/plan/03-architecture.md`. Add assertions for every new policy.
+
 ## Environments
 
 | Environment | Branch    | Supabase                       |
