@@ -6,10 +6,16 @@ import { defineConfig, devices } from '@playwright/test';
 const mainPort = Number(process.env.E2E_MAIN_PORT ?? 3000);
 const COMMON_ENV = { RC_LOCAL: '1', NEXT_TELEMETRY_DISABLED: '1' };
 
+/* Live-mode specs are excluded unless their gate env is on (the default suite is the demo build). */
+const liveSpecs: string[] = [];
+if (!process.env.E2E_LIVE) liveSpecs.push('**/guards-live.spec.ts');
+if (!process.env.E2E_GATE3) liveSpecs.push('**/gate3-live.spec.ts');
+if (!process.env.E2E_ANNI) liveSpecs.push('**/anni-live.spec.ts');
+
 export default defineConfig({
   testDir: './e2e',
   // S-12 guards exist only in a live-mode build; set E2E_LIVE=1 with a NEXT_PUBLIC_RC_MODE=live build to run them.
-  testIgnore: process.env.E2E_LIVE ? [] : ['**/guards-live.spec.ts'],
+  testIgnore: liveSpecs,
   timeout: 60_000,
   expect: { timeout: 10_000 },
   fullyParallel: false,
