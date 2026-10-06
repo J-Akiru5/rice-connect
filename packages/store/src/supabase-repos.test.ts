@@ -58,11 +58,23 @@ describe('Supabase row mapping (B-05)', () => {
         });
     });
 
-    it('maps a commitment row and never invents a buyer name', () => {
+    it('maps a commitment row and never invents a buyer name or a moisture figure', () => {
         const commitment = rowToCommitment(
             { id: 'C-01', tonnes: 5, grade: 'Grade 1', price_centavos_per_kg: 4600, weeks: ['W3'], status: 'open' },
             'Buyer A'
         );
-        expect(commitment).toMatchObject({ buyer: 'Buyer A', tonnes: 5, week: 'W3', window: ['W3'], status: 'open' });
+        expect(commitment).toMatchObject({
+            buyer: 'Buyer A',
+            tonnes: 5,
+            grade: 'Grade 1',
+            /* No moisture column yet: a dash, not the demo's assumed 14% MC. */
+            mc: '—',
+            week: 'W3',
+            window: ['W3'],
+            status: 'open'
+        });
+        expect(rowToCommitment({ id: 'C-02', tonnes: 3, price_centavos_per_kg: 4500, weeks: ['W2'] }, '').grade).toBe(
+            '—'
+        );
     });
 });

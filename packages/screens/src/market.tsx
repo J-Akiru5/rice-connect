@@ -140,17 +140,22 @@ export function MarketScreen({ committed: forced }: { committed?: boolean }) {
                         <EmptyState variant="empty" title="empty.results" />
                     ) : (
                         <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(300px,1fr))]">
-                            {list.map((c) => (
-                                <div key={c.id} className="flex flex-col gap-2 min-w-0">
-                                    <CommitmentCard c={c} highlight={c.id === focus?.id} />
-                                    {c.assumed.length > 0 && (
-                                        <Note className="px-2 flex items-center gap-1.5">
-                                            <Icon name="Info" size={18} />
-                                            {t('market.assumed', { id: c.id })}
-                                        </Note>
-                                    )}
-                                </div>
-                            ))}
+                            {list.map((c) => {
+                                /* Live has no stored fills: derive them from the same auto-match as the table. */
+                                const match = matches.find((m) => m.commitment === c.id);
+                                const shown = isLive && match ? { ...c, filled: Math.round(match.kg / 100) / 10 } : c;
+                                return (
+                                    <div key={c.id} className="flex flex-col gap-2 min-w-0">
+                                        <CommitmentCard c={shown} highlight={c.id === focus?.id} />
+                                        {c.assumed.length > 0 && (
+                                            <Note className="px-2 flex items-center gap-1.5">
+                                                <Icon name="Info" size={18} />
+                                                {t('market.assumed', { id: c.id })}
+                                            </Note>
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
                     )}
                     <section aria-labelledby="mk-fc" className="flex flex-col gap-3">

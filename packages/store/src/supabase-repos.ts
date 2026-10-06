@@ -140,13 +140,15 @@ export function rowToCommitment(r: Row, buyerName: string): Commitment {
         id: s(r.id),
         buyer: buyerName || s(r.buyer_id),
         tonnes: n(r.tonnes),
-        grade: s(r.grade) || 'Grade unknown',
-        mc: `${overrides.forecastMcPct}% MC`,
+        grade: s(r.grade) || '—',
+        /* The commitments table stores no moisture: live shows a dash instead of the demo's assumed 14%. */
+        mc: '—',
         price: n(r.price_centavos_per_kg),
         week: window[0] ?? 'W1',
         filled: 0,
         status: s(r.status) === 'full' ? 'full' : 'open',
         window,
+        /* Kept as the auto-match heuristic only (M48); it is never shown as a measured value. */
         mcPct: overrides.forecastMcPct,
         assumed: []
     };
