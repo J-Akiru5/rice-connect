@@ -173,6 +173,36 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     ],
     'plan.book.cancel': ['Cancel Booking', 'Kanselahin ang Booking', 'Kanselahon ang Booking'],
     'plan.book.cancelled': ['Booking cancelled', 'Nakansela ang booking', 'Nakansela ang booking'],
+    // central milling (S-16): the farmer's dryer slot and what the assumed milling gives back
+    'nav.milling': ['Milling', 'Paggiling', 'Pagkagiling'],
+    'milling.title': ['Central Milling', 'Central na Paggiling', 'Sentral nga Pagkagiling'],
+    'milling.eyebrow': ['Lot {lot} · {dryer}', 'Lot {lot} · {dryer}', 'Lot {lot} · {dryer}'],
+    'milling.drying': ['Drying', 'Pagpapatuyo', 'Pagpamala'],
+    'milling.time': ['Time', 'Oras', 'Oras'],
+    'milling.dryer': ['Dryer', 'Patuyuan', 'Pamalahan'],
+    'milling.section': ['From Dried Palay', 'Mula sa Tuyong Palay', 'Halin sa Uga nga Palay'],
+    'milling.milled': ['Milled Rice', 'Gilingang Bigas', 'Giling nga Bugas'],
+    'milling.recovery.note': ['{pct}% recovery (assumed)', '{pct}% recovery (tantiya)', '{pct}% recovery (banta)'],
+    'milling.rice.sacks': ['Rice Sacks', 'Mga Sako ng Bigas', 'Mga Sako nga Bugas'],
+    'milling.sack.note': ['{kg} kg per sack (assumed)', '{kg} kg bawat sako (tantiya)', '{kg} kg kada sako (banta)'],
+    'milling.assumed': [
+        'Recovery {pct}%, {kg} kg sacks and the partner miller are assumed (docs/NUMBERS.md).',
+        'Ang recovery na {pct}%, {kg} kg na sako at ang partner miller ay tantiya (docs/NUMBERS.md).',
+        'Ang recovery nga {pct}%, {kg} nga sako kag ang partner miller ay banta (docs/NUMBERS.md).'
+    ],
+    'milling.partner': [
+        'Milled by {miller} after drying.',
+        'Gigilingan ng {miller} pagkatapos matuyo.',
+        'Giligingan sang {miller} pagkatapos ugaon.'
+    ],
+    'milling.confirm': ['Confirm Slot', 'Kumpirmahin ang Slot', 'Kumpirmaha ang Slot'],
+    'milling.move': ['Request Another Time', 'Humingi ng Ibang Oras', 'Pangayo sang Ibang Oras'],
+    'milling.empty.title': ['No Dryer Slot Yet', 'Wala Pang Slot sa Patuyuan', 'Wala Pa sang Slot sa Pamalahan'],
+    'milling.empty.body': [
+        'The coordinator assigns a slot when the harvest date is set.',
+        'Nagbibigay ng slot ang coordinator kapag nakatakda na ang petsa ng ani.',
+        'Nagahatag sang slot ang coordinator kon natig-ad na ang petsa sang alani.'
+    ],
     // market
     'market.eyebrow': [
         'Buyers post standing orders Â· the cluster fills them',

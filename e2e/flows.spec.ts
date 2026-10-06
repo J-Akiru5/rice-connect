@@ -29,6 +29,24 @@ test.describe('critical flows', () => {
     await expect(page.getByText('Repeat Delivery Booked').first()).toBeVisible();
   });
 
+  test('farmer: central milling reads the dryer slot, then confirms and moves it', async ({ page }) => {
+    await page.goto('/farmer/milling');
+    await expect(page.getByRole('heading', { name: 'Central Milling' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Drying' })).toBeVisible();
+    await expect(page.getByText('62% recovery (assumed)')).toBeVisible();
+    await expect(page.getByText('25 kg per sack (assumed)')).toBeVisible();
+    const confirm = page.getByRole('button', { name: 'Confirm Slot' });
+    const move = page.getByRole('button', { name: 'Request Another Time' });
+    if (await confirm.isVisible()) await confirm.click();
+    await expect(move).toBeVisible();
+    await expect(page.getByText('confirmed by farmer').first()).toBeVisible();
+    await move.click();
+    await expect(page.getByText('asked to move slot').first()).toBeVisible();
+    await expect(confirm).toBeVisible();
+    await confirm.click();
+    await expect(page.getByText('confirmed by farmer').first()).toBeVisible();
+  });
+
   test('driver: accept, pick up, deliver', async ({ page }) => {
     await page.goto('/driver');
     await page.getByRole('button', { name: 'Accept Job' }).click();

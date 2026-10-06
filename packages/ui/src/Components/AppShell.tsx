@@ -39,10 +39,11 @@ const NAV: Record<Role, Item[]> = {
         { key: 'sms', icon: 'Sms', href: '/sms' }
     ],
     /* Farmer (docs/DECISIONS.md M52): the SMS inbox, the harvest plan with its delivery
-       booking, and the settlement slip. Milling and price join in their own tickets, each with its route. */
+       booking, and the settlement slip. Price joins with its own route in S-17. */
     farmer: [
         { key: 'sms', icon: 'Sms', href: '/sms' },
         { key: 'plan', icon: 'Plan', href: '/farmer/plan' },
+        { key: 'milling', icon: 'Sack', href: '/farmer/milling' },
         { key: 'slip', icon: 'Pay', href: '/slip' }
     ],
     /* Super admin (prototype addition, docs/DECISIONS.md M20): read-only overview of every app. */
@@ -58,7 +59,7 @@ const TABS: Record<Role, string[]> = {
     coordinator: ['home', 'farms', 'logistics', 'orders'],
     buyer: ['supply', 'myorders'],
     driver: ['logistics', 'sms'],
-    farmer: ['sms', 'plan', 'slip'],
+    farmer: ['sms', 'plan', 'milling', 'slip'],
     admin: ['overview', 'users', 'config', 'activity']
 };
 /* One split for both shells, so the sidebar, the tab bar and the phone frame always agree (WCAG 3.2.3). */
