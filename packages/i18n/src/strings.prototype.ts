@@ -219,6 +219,10 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
         'Natutugma ang iyong lot sa mamimili kapag inilathala ng coordinator ang kontrata.',
         'Natig-ad ang imo lot sa mamalitay kon igapost sang coordinator ang kontrata.'
     ],
+    // driver jobs (S-18)
+    'nav.jobs': ['Jobs', 'Mga Trabaho', 'Mga Buhat'],
+    'haul.driver.jobs': ['Your Jobs', 'Ang Iyong mga Trabaho', 'Ang Imo nga mga Obra'],
+    'haul.open': ['Open Job', 'Buksan ang Trabaho', 'Buksan ang Buhat'],
     // market
     'market.eyebrow': [
         'Buyers post standing orders Â· the cluster fills them',

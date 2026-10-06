@@ -13,6 +13,7 @@ const SCREENS: [string, string][] = [
   ['plan', '/coordinator/plan'],
   ['pay', '/coordinator/pay/L-03'],
   ['driver', '/driver'],
+  ['driver-job', '/driver/jobs/H-07'],
   ['farmer', '/farmer'],
   ['farmer-plan', '/farmer/plan'],
   ['farmer-milling', '/farmer/milling'],

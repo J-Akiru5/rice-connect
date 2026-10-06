@@ -61,9 +61,12 @@ test.describe('critical flows', () => {
     await expect(page.getByText(/₱\d+\.\d\d/).first()).toBeVisible();
   });
 
-  test('driver: accept, pick up, deliver', async ({ page }) => {
+  test('driver: accept on the list, then pick up and deliver on the job card', async ({ page }) => {
     await page.goto('/driver');
     await page.getByRole('button', { name: 'Accept Job' }).click();
+    await expect(page.getByRole('link', { name: 'Open Job' })).toBeVisible();
+    await page.getByRole('link', { name: 'Open Job' }).click();
+    await expect(page.getByRole('heading', { name: 'H-07' })).toBeVisible();
     await page.getByRole('button', { name: 'Mark Picked Up' }).click();
     await page.getByRole('button', { name: 'Mark Delivered' }).click();
     await expect(page.getByText('Delivered. Thank you!')).toBeVisible();
@@ -72,6 +75,8 @@ test.describe('critical flows', () => {
   test('driver: an offline step is queued as Not sent yet and flushed when back online', async ({ page, context }) => {
     await page.goto('/driver');
     await page.getByRole('button', { name: 'Accept Job' }).click();
+    await expect(page.getByRole('link', { name: 'Open Job' })).toBeVisible();
+    await page.getByRole('link', { name: 'Open Job' }).click();
     await expect(page.getByRole('button', { name: 'Mark Picked Up' })).toBeVisible();
     await context.setOffline(true);
     await page.waitForFunction(() => navigator.onLine === false);

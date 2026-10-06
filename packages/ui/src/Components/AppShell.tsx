@@ -34,8 +34,9 @@ const NAV: Record<Role, Item[]> = {
         { key: 'supply', icon: 'Market', href: '/buyer' },
         { key: 'myorders', icon: 'Orders', href: '/buyer/orders' }
     ],
+    /* Driver (docs/DECISIONS.md M52): the jobs list at /haul/driver and the SMS inbox, nothing else. */
     driver: [
-        { key: 'logistics', icon: 'Logistics', href: '/haul/driver', sub: 'haul' },
+        { key: 'jobs', icon: 'Logistics', href: '/haul/driver', sub: 'haul' },
         { key: 'sms', icon: 'Sms', href: '/sms' }
     ],
     /* Farmer (docs/DECISIONS.md M52): the SMS inbox, the harvest plan with its delivery
@@ -60,7 +61,7 @@ const NAV: Record<Role, Item[]> = {
 const TABS: Record<Role, string[]> = {
     coordinator: ['home', 'farms', 'logistics', 'orders'],
     buyer: ['supply', 'myorders'],
-    driver: ['logistics', 'sms'],
+    driver: ['jobs', 'sms'],
     farmer: ['sms', 'plan', 'milling', 'slip'],
     admin: ['overview', 'users', 'config', 'activity']
 };
