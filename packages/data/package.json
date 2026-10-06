@@ -4,7 +4,8 @@
     "private": true,
     "type": "module",
     "exports": {
-        ".": "./src/index.ts"
+        ".": "./src/index.ts",
+        "./anni-server": "./src/anni-server.ts"
     },
     "scripts": {
         "lint": "eslint . && tsc --noEmit -p .",
@@ -12,6 +13,7 @@
         "build": "echo source package"
     },
     "dependencies": {
+        "@rc/ai": "workspace:*",
         "@rc/domain": "workspace:*",
         "@rc/store": "workspace:*",
         "@tanstack/react-query": "5.104.1",

@@ -13,9 +13,14 @@ const ROLES: SessionRole[] = ['coordinator', 'buyer', 'driver', 'farmer', 'admin
 export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 export const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-export const createSupabaseClient = (url: string, anonKey: string): SupabaseClient =>
+export const createSupabaseClient = (url: string, anonKey: string, opts?: { accessToken?: string }): SupabaseClient =>
     createClient(url, anonKey, {
-        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false }
+        auth: {
+            persistSession: !opts?.accessToken,
+            autoRefreshToken: !opts?.accessToken,
+            detectSessionInUrl: false
+        },
+        ...(opts?.accessToken ? { global: { headers: { Authorization: `Bearer ${opts.accessToken}` } } } : {})
     });
 
 const roleOf = (user: User): SessionRole => {
@@ -104,7 +109,16 @@ export interface SupabaseRuntime {
 /** Build the live runtime once per app load (called from each app's providers when mode is live). */
 export function createSupabaseRuntime(url: string, anonKey: string): SupabaseRuntime {
     const client = createSupabaseClient(url, anonKey);
+    runtimeClient = client;
     return { client, auth: new SupabaseAuthAdapter(client) };
+}
+
+/* The browser client, for the ANNI dock to attach the caller's access token to /api/anni (A-04). */
+let runtimeClient: SupabaseClient | null = null;
+export async function getSupabaseAccessToken(): Promise<string | null> {
+    if (!runtimeClient) return null;
+    const { data } = await runtimeClient.auth.getSession();
+    return data.session?.access_token ?? null;
 }
 
 /* The auth swap seam. @rc/ui's `auth` delegates here; @rc/data's configureLiveAuth swaps in Supabase. */

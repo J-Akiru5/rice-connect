@@ -108,6 +108,8 @@ export interface SlotRepo {
 }
 export interface HaulRepo {
     get(id: string): Promise<Haul>;
+    /** Read-only list for ANNI's read tools and the haul screens (A-03). */
+    list(q?: { status?: HaulStatus; size?: number }): Promise<Page<Haul>>;
     status(id: string): Promise<HaulStatus>;
     setStatus(id: string, next: HaulStatus, opts: WriteOpts): Promise<Haul>;
 }
@@ -134,6 +136,8 @@ export interface SettlementRepo {
     paidAt(lotId: string): Promise<string | null>;
     /** Marks the settlement paid (idempotent per key; a second key is a conflict — irreversible in the app). */
     markPaid(lotId: string, opts: WriteOpts): Promise<string>;
+    /** Unpaid advances for the ANNI read tools (A-03): net and advance per lot, RLS-scoped. */
+    advancesDue(): Promise<{ lotId: string; net: number; advance: number; paid: boolean }[]>;
 }
 export interface SmsRepo {
     list(): Promise<SmsMessage[]>;
@@ -286,6 +290,11 @@ export function createMockRepos(adapter: DataAdapter): Repos {
             if (id !== HAUL.id) throw new RepoError('not_found', `Haul ${id} does not exist`, id);
             return HAUL;
         },
+        async list(q) {
+            const current = haulStatus(state(), HAUL.id);
+            const all = q?.status && q.status !== current ? [] : [HAUL];
+            return pageOf(all, { size: q?.size });
+        },
         async status(id) {
             await hauls.get(id);
             return haulStatus(state(), id);
@@ -372,6 +381,16 @@ export function createMockRepos(adapter: DataAdapter): Repos {
                 }));
                 return paidAt;
             });
+        },
+        async advancesDue() {
+            return [
+                {
+                    lotId: HERO_LOT.id,
+                    net: SLIP.net,
+                    advance: SLIP.advance,
+                    paid: Boolean(state().settlementsPaid?.[HERO_LOT.id])
+                }
+            ];
         }
     };
 

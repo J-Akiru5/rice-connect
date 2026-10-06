@@ -1,6 +1,15 @@
 'use client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getRepos, type DirectoryRole, type FarmDraft, type FarmQuery, type ListQuery } from '@rc/store';
+import {
+    getRepos,
+    getSupabaseAccessToken,
+    type DirectoryRole,
+    type FarmDraft,
+    type FarmQuery,
+    type ListQuery,
+    type SessionRole
+} from '@rc/store';
+import type { AnniProposal } from '@rc/ai/anni';
 import type { BuyerType, Week } from '@rc/domain/schemas';
 import { keys } from './keys';
 
@@ -229,8 +238,9 @@ export const useClearAssumption = () => {
     });
 };
 
-/* ANNI, the RiceConnect Farm Assistant (docs/DECISIONS.md M42). Server-side route per app; read-only. */
-export type AnniChatErrorCode = 'validation' | 'not_configured' | 'provider';
+/* ANNI, the RiceConnect Farm Assistant (docs/DECISIONS.md M42, M50). Server-side route per app; read-only
+   unless the runner returns a proposal, which the dock confirms before the matching mutation runs. */
+export type AnniChatErrorCode = 'validation' | 'not_configured' | 'provider' | 'forbidden' | 'rate_limited';
 export class AnniChatError extends Error {
     constructor(public code: AnniChatErrorCode) {
         super(code);
@@ -244,19 +254,23 @@ export interface AnniChatMessage {
 interface AnniChatReply {
     ok?: boolean;
     text?: string;
+    proposal?: AnniProposal;
     code?: AnniChatErrorCode;
 }
 export const useAnniChat = (endpoint: string) =>
     useMutation({
-        mutationFn: async ({ messages }: { messages: AnniChatMessage[] }) => {
+        mutationFn: async ({ messages, role }: { messages: AnniChatMessage[]; role: SessionRole }) => {
+            const token = await getSupabaseAccessToken();
             const res = await fetch(endpoint, {
                 method: 'POST',
-                headers: { 'content-type': 'application/json' },
-                body: JSON.stringify({ messages })
+                headers: {
+                    'content-type': 'application/json',
+                    ...(token ? { authorization: `Bearer ${token}` } : {})
+                },
+                body: JSON.stringify({ messages, role })
             });
             const data = (await res.json().catch(() => null)) as AnniChatReply | null;
-            if (!data || data.ok !== true || typeof data.text !== 'string')
-                throw new AnniChatError(data?.code ?? 'provider');
-            return data.text;
+            if (!data || data.ok !== true) throw new AnniChatError(data?.code ?? 'provider');
+            return { text: data.text ?? '', proposal: data.proposal };
         }
     });

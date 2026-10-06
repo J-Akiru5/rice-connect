@@ -5,7 +5,7 @@ export { MockAuthAdapter } from './auth';
 export type { AuthAdapter, AuthResult, AuthErrorCode, SignInInput, SignUpInput } from './auth';
 export { getLiveSession, setLiveSession, subscribeLiveSession } from './session';
 export type { LiveSession } from './session';
-export { createSupabaseClient, createSupabaseRuntime, SupabaseAuthAdapter } from './supabase';
+export { createSupabaseClient, createSupabaseRuntime, SupabaseAuthAdapter, getSupabaseAccessToken } from './supabase';
 export { getAuthAdapter, setAuthAdapter } from './supabase';
 export type { SupabaseRuntime } from './supabase';
 export { MockSmsAdapter, UnconfiguredSmsAdapter, createSmsAdapter } from './sms-adapter';
