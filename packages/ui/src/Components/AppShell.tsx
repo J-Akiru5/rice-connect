@@ -39,11 +39,13 @@ const NAV: Record<Role, Item[]> = {
         { key: 'sms', icon: 'Sms', href: '/sms' }
     ],
     /* Farmer (docs/DECISIONS.md M52): the SMS inbox, the harvest plan with its delivery
-       booking, and the settlement slip. Price joins with its own route in S-17. */
+       booking, central milling and the settlement slip. Four tabs fit; the contract price
+       page rides in the More sheet, which splitNav() opens from the fifth item on. */
     farmer: [
         { key: 'sms', icon: 'Sms', href: '/sms' },
         { key: 'plan', icon: 'Plan', href: '/farmer/plan' },
         { key: 'milling', icon: 'Sack', href: '/farmer/milling' },
+        { key: 'price', icon: 'Market', href: '/farmer/price' },
         { key: 'slip', icon: 'Pay', href: '/slip' }
     ],
     /* Super admin (prototype addition, docs/DECISIONS.md M20): read-only overview of every app. */

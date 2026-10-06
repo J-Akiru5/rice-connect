@@ -203,6 +203,22 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
         'Nagbibigay ng slot ang coordinator kapag nakatakda na ang petsa ng ani.',
         'Nagahatag sang slot ang coordinator kon natig-ad na ang petsa sang alani.'
     ],
+    // contract price and variety (S-17)
+    'nav.price': ['Price', 'Presyo', 'Presyo'],
+    'price.title': ['Contract Price & Variety', 'Presyo ng Kontrata at Variety', 'Presyo sang Kontrata kag Variety'],
+    'price.eyebrow': ['Lot {lot} · {id}', 'Lot {lot} · {id}', 'Lot {lot} · {id}'],
+    'price.contract': ['Your Contract', 'Ang Iyong Kontrata', 'Ang Imo nga Kontrata'],
+    'price.variety': ['Rice Variety', 'Variety ng Bigas', 'Variety nga Bugas'],
+    'price.variety.label': ['Variety', 'Variety', 'Variety'],
+    'price.mc': ['Moisture Content', 'Konten ng Moisture', 'Kontenido sang Moisture'],
+    'price.week': ['Delivery Week', 'Linggo ng Hatid', 'Semana sang Hatid'],
+    'price.rate': ['Price per Kilo', 'Presyo bawat Kilo', 'Presyo kada Kilo'],
+    'price.empty.title': ['No Contract Yet', 'Wala Pang Kontrata', 'Wala Pa sang Kontrata'],
+    'price.empty.body': [
+        'Your lot is matched to a buyer when the coordinator posts the contract.',
+        'Natutugma ang iyong lot sa mamimili kapag inilathala ng coordinator ang kontrata.',
+        'Natig-ad ang imo lot sa mamalitay kon igapost sang coordinator ang kontrata.'
+    ],
     // market
     'market.eyebrow': [
         'Buyers post standing orders Â· the cluster fills them',

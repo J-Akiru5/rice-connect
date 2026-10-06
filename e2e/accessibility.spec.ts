@@ -31,6 +31,7 @@ const ROUTES = [
   '/farmer',
   '/farmer/plan',
   '/farmer/milling',
+  '/farmer/price',
   '/farmer/slip',
   '/farmer/login'
 ];

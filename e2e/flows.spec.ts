@@ -47,6 +47,20 @@ test.describe('critical flows', () => {
     await expect(page.getByText('confirmed by farmer').first()).toBeVisible();
   });
 
+  test('farmer: Price lives in More and the contract reads beside the variety', async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.goto('/farmer/plan');
+    await page.getByRole('button', { name: 'More' }).click();
+    const sheet = page.getByRole('dialog');
+    await sheet.getByRole('link', { name: 'Price' }).click();
+    await expect(page.getByRole('heading', { name: 'Contract Price & Variety' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Your Contract' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Rice Variety' })).toBeVisible();
+    await expect(page.getByText('Grade 1').first()).toBeVisible();
+    await expect(page.getByText('Price per Kilo')).toBeVisible();
+    await expect(page.getByText(/₱\d+\.\d\d/).first()).toBeVisible();
+  });
+
   test('driver: accept, pick up, deliver', async ({ page }) => {
     await page.goto('/driver');
     await page.getByRole('button', { name: 'Accept Job' }).click();
