@@ -426,7 +426,10 @@ export function HarvestCalendar({
                                         >
                                             <div
                                                 className="absolute inset-y-0 left-0 bg-[var(--fill-strong)]"
-                                                style={{ width: `${(v / max) * 100}%`, opacity: 0.9 }}
+                                                style={{
+                                                    width: v > 0 ? `max(6px, ${(v / max) * 100}%)` : '0%',
+                                                    opacity: 0.9
+                                                }}
                                             />
                                             <div
                                                 className="relative h-full flex items-center px-3 text-[15px] font-extrabold"
@@ -437,11 +440,11 @@ export function HarvestCalendar({
                                                 {v.toFixed(1)} {t('unit.t')}
                                             </div>
                                         </div>
-                                        {hl && (
-                                            <div className="mt-1 text-[12px] font-bold text-[var(--gold-ink)]">
-                                                {highlight!.label}
-                                            </div>
-                                        )}
+                                        {/* Fixed-height slot in every cell: the highlight label must not make its
+                                            cell taller, or the outlined bar floats above the row's other bars. */}
+                                        <div className="mt-1 h-4 text-[12px] leading-4 font-bold text-[var(--gold-ink)]">
+                                            {hl ? highlight!.label : ''}
+                                        </div>
                                     </td>
                                 );
                             })}
