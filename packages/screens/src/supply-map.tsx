@@ -78,7 +78,7 @@ export function SupplyMap({ values, unit, label }: { values: number[]; unit: str
     useEffect(setMarkers, [values.join('|'), unit]);
 
     return (
-        <figure className="glass-panel rounded-[1.5rem] p-3 m-0">
+        <figure className="panel-solid rounded-[1.5rem] p-4 m-0">
             <div
                 ref={box}
                 role="region"
@@ -86,11 +86,11 @@ export function SupplyMap({ values, unit, label }: { values: number[]; unit: str
                 className="w-full h-[360px] md:h-[420px] rounded-[1rem] overflow-hidden bg-[var(--glass-fill)]"
             />
             {offline && (
-                <p role="status" className="mt-2 m-0 text-[14px] font-bold text-[var(--warning-ink)]">
+                <p role="status" className="mt-3 m-0 text-[16px] leading-6 font-bold text-[var(--warning-ink)]">
                     {t('supply.mapOffline')}
                 </p>
             )}
-            <figcaption className="mt-2 px-1 text-[14px] leading-5 font-semibold text-[var(--text-secondary)]">
+            <figcaption className="mt-3 px-1 text-[15px] leading-6 font-medium text-[var(--text-secondary)] max-w-[70ch]">
                 {t('supply.mapNote', { place: MUNICIPALITY })}
             </figcaption>
         </figure>

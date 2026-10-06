@@ -36,20 +36,25 @@ export function ResponsiveTable<T>({
     cols,
     rows,
     rowKey,
-    highlight
+    highlight,
+    surface = 'glass'
 }: {
     caption: string;
     cols: Col<T>[];
     rows: T[];
     rowKey: (r: T) => string;
     highlight?: (r: T) => boolean;
+    /* 'solid' opts a screen into the opaque content sheet (older/government readers);
+       the default keeps every existing caller on glass. */
+    surface?: 'glass' | 'solid';
 }) {
     const [first, ...rest] = cols;
     const head: Col<T> = first ?? { key: 'head', label: caption, cell: rowKey };
     const capCls = 'text-[12px] leading-4 font-extrabold uppercase tracking-[0.1em] text-[var(--text-muted)]';
+    const panel = surface === 'solid' ? 'panel-solid' : 'glass-panel';
     return (
         <>
-            <div className="cq-wide-only glass-panel rounded-[1.5rem] p-4 min-w-0">
+            <div className={`cq-wide-only ${panel} rounded-[1.5rem] p-4 min-w-0`}>
                 <table className="w-full text-left tabular">
                     <caption className="sr-only">{caption}</caption>
                     <thead>
@@ -91,7 +96,7 @@ export function ResponsiveTable<T>({
                 {rows.map((r) => (
                     <li
                         key={rowKey(r)}
-                        className={`glass-panel rounded-[1.5rem] p-4 ${highlight?.(r) ? 'outline outline-[3px] outline-[color:var(--text-accent)]' : ''}`}
+                        className={`${panel} rounded-[1.5rem] p-4 ${highlight?.(r) ? 'outline outline-[3px] outline-[color:var(--text-accent)]' : ''}`}
                     >
                         <div className="text-[16px] leading-6 font-extrabold tabular break-words">{head.cell(r)}</div>
                         <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2 tabular">
