@@ -4,13 +4,16 @@
 // Dev adds 'unsafe-eval' and http/ws origins because Next's dev overlay needs them.
 export function securityHeaders({ dev = process.env.NODE_ENV !== 'production' } = {}) {
     const supabase = 'https://*.supabase.co wss://*.supabase.co';
+    /* Vercel injects its preview toolbar/feedback from vercel.live (scripts, iframe, API and a pusher socket). */
+    const vercel = 'https://vercel.live';
     const csp = [
         "default-src 'self'",
-        `script-src 'self' 'unsafe-inline'${dev ? " 'unsafe-eval'" : ''}`,
+        `script-src 'self' 'unsafe-inline' ${vercel}${dev ? " 'unsafe-eval'" : ''}`,
         "style-src 'self' 'unsafe-inline'",
-        "img-src 'self' data: blob:",
+        `img-src 'self' data: blob: ${vercel}`,
         "font-src 'self'",
-        `connect-src 'self' ${supabase}${dev ? ' http: https: ws: wss:' : ''}`,
+        `connect-src 'self' ${supabase} ${vercel} wss://ws-us3.pusher.com${dev ? ' http: https: ws: wss:' : ''}`,
+        `frame-src ${vercel}`,
         "worker-src 'self' blob:",
         "frame-ancestors 'none'",
         "base-uri 'self'",
