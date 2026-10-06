@@ -34,7 +34,7 @@ describe('Supabase row mapping (B-05)', () => {
         ).toEqual({ id: 'R-001', type: 'miller', kg: 1000, sacks: 40, total: 4800000, week: 'W3' });
     });
 
-    it('maps a slot row with the dryer label and the DB hyphen fix', () => {
+    it('maps a slot row with the dryer label, the calendar day index and sack capacity', () => {
         expect(
             rowToSlot({
                 id: 'D-58',
@@ -50,7 +50,11 @@ describe('Supabase row mapping (B-05)', () => {
             dryer: 'RiceConnect Dryer',
             day: '2026-10-23',
             time: 'morning',
-            lot: 'L-03'
+            lot: 'L-03',
+            /* W1 Monday is 2026-10-05, so the 23rd is day 18; 8000 kg at 50 kg/sack is 160 sacks. */
+            dayIndex: 18,
+            sacks: 8,
+            capacityPerDay: 160
         });
     });
 

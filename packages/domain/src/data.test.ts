@@ -4,6 +4,7 @@ import { peso, rate, pesoAscii } from './money';
 import { autoMatch } from './match';
 import { autoAssign, assignDryerSlots } from './assign';
 import { mulberry32 } from './rng';
+import { dayIndexOf, dayLabel, isoOf } from './calendar';
 import * as D from './seed';
 import { HERO } from './params';
 
@@ -88,6 +89,15 @@ describe('IDs link the modules: F-014 → L-03 → H-07 → dryer slot → slip'
         expect(D.SLOT.lot).toBe(HERO.lot);
         expect(D.SLIP).toMatchObject({ haul: HERO.haul, slot: D.SLOT.id, lot: HERO.lot, farm: HERO.farm });
         expect(D.commitmentOfLot(HERO.lot)).toBe('C-01');
+    });
+});
+
+describe('calendar', () => {
+    it('round-trips a day index through the ISO date', () => {
+        expect(isoOf(0)).toBe('2026-10-05');
+        expect(dayIndexOf(isoOf(18))).toBe(18);
+        expect(dayIndexOf('not-a-date')).toBeNaN();
+        expect(dayLabel(0)).toBe('Mon 5 Oct');
     });
 });
 

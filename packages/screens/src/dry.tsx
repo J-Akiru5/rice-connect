@@ -1,46 +1,83 @@
 'use client';
-import { AppShell, BigStat, ErrorState, LoadingState, Pagination, SlotTimeline, useI18n } from '@rc/ui';
+import { useMemo } from 'react';
+import { AppShell, BigStat, ErrorState, LoadingState, Pagination, SlotTimeline, StatusChip, useI18n } from '@rc/ui';
+import { isLive } from '@rc/ui/mode';
+import { useFarms, useLots, useSlots, useSlotStatus } from '@rc/data';
 import { paginate } from '@rc/domain/list';
 import { staticListState, type ListState } from './list-state';
-import { DRYER, HERO_LOT, KG_PER_SACK, SLOT, SLOTS, WEEKS, lotById, farmById, type Slot } from '@rc/domain/seed';
+import { DRYER, HERO_LOT, KG_PER_SACK, WEEKS, type Slot } from '@rc/domain/seed';
 import { dayLabel } from '@rc/domain/calendar';
 import { SectionPill, Note, ResponsiveTable, type Col } from './ui';
-import { useSlotStatus } from '@rc/data';
-import { StatusChip } from '@rc/ui';
-
-/** Seven day columns for a harvest week; L-03's slot is the hero. */
-export function weekDays(week: number) {
-    return Array.from({ length: 7 }, (_, i) => {
-        const day = week * 7 + i;
-        return {
-            day: dayLabel(day),
-            slots: SLOTS.filter((s) => s.dayIndex === day).map((s) => ({
-                id: s.id,
-                lot: s.lot,
-                sacks: s.sacks,
-                time: s.time,
-                hero: s.lot === HERO_LOT.id
-            }))
-        };
-    });
-}
 
 /** /dry — dryer capacity per day and the slots assigned to harvest dates (desktop). */
 export function DryScreen({ list, week: weekParam }: { list?: ListState; week?: number }) {
     const { t } = useI18n();
     const L = list ?? staticListState('/dry');
-    const slotQuery = useSlotStatus(SLOT.id);
-    const slotState = slotQuery.data ?? 'scheduled';
-    const heroWeek = Math.floor(SLOT.dayIndex / 7);
+    /* Gate 3: the slots (and their lots and farms) come from the repositories (mock in demo, Supabase in live). */
+    const slotsQuery = useSlots({ size: 500 });
+    const lotsQuery = useLots({ size: 500 });
+    const farmsQuery = useFarms({ size: 500 });
+    const slots = useMemo(() => slotsQuery.data?.rows ?? [], [slotsQuery.data]);
+    const lots = useMemo(() => lotsQuery.data?.rows ?? [], [lotsQuery.data]);
+    const farms = useMemo(() => farmsQuery.data?.rows ?? [], [farmsQuery.data]);
+    const lotById = useMemo(() => new Map(lots.map((l) => [l.id, l])), [lots]);
+    const farmById = useMemo(() => new Map(farms.map((f) => [f.id, f])), [farms]);
+    const farmOfSlot = (s: Slot) => {
+        const lot = lotById.get(s.lot);
+        return lot ? farmById.get(lot.farm) : undefined;
+    };
+    /* Demo shows the hero slot (L-03); live follows the earliest slot that exists. */
+    const heroSlot = slots.find((s) => s.lot === HERO_LOT.id);
+    const earliest = [...slots].sort((a, b) => a.dayIndex - b.dayIndex || a.id.localeCompare(b.id))[0];
+    const heroWeek = Math.floor(((heroSlot ?? earliest)?.dayIndex ?? 0) / 7);
     const week = weekParam !== undefined && weekParam >= 0 && weekParam < WEEKS.length ? weekParam : heroWeek;
+    const weekSlots = slots.filter((s) => Math.floor(s.dayIndex / 7) === week);
+    const focusSlot = heroSlot ?? weekSlots[0];
+    const slotQuery = useSlotStatus(focusSlot?.id ?? '');
+    const slotState = slotQuery.data ?? 'scheduled';
+    const loading = slotsQuery.isPending || lotsQuery.isPending || farmsQuery.isPending;
+    const failed = slotsQuery.isError || lotsQuery.isError || farmsQuery.isError;
+    const retry = () => {
+        void slotsQuery.refetch();
+        void lotsQuery.refetch();
+        void farmsQuery.refetch();
+    };
     const setWeek = (i: number) => L.set({ week: i + 1, page: null });
-    const weekSlots = SLOTS.filter((s) => Math.floor(s.dayIndex / 7) === week);
+    if (loading)
+        return (
+            <AppShell title="dry.title" active="dry">
+                <LoadingState rows={3} />
+            </AppShell>
+        );
+    if (failed)
+        return (
+            <AppShell title="dry.title" active="dry">
+                <ErrorState onRetry={retry} />
+            </AppShell>
+        );
+    /* Capacity and dryer label come from the slots; the seed values are the demo fallback when none exist yet. */
+    const capacity = slots[0]?.capacityPerDay ?? DRYER.capacitySacks;
+    const cap = capacity * 7;
+    const dryer = slots[0]?.dryer ?? DRYER.name;
+    /* The live schema has no dryer location yet, so the eyebrow carries the label only in live mode. */
+    const eyebrow = isLive ? dryer : t('dry.eyebrow', { dryer, place: DRYER.place });
+    const days = Array.from({ length: 7 }, (_, i) => {
+        const day = week * 7 + i;
+        return {
+            day: dayLabel(day),
+            slots: weekSlots
+                .filter((s) => s.dayIndex === day)
+                .map((s) => ({ id: s.id, lot: s.lot, sacks: s.sacks, time: s.time, hero: s.lot === HERO_LOT.id }))
+        };
+    });
+    const booked = days.reduce((s, d) => s + d.slots.reduce((a, x) => a + x.sacks, 0), 0);
+    const free = Math.max(0, cap - booked);
     const pg = paginate(weekSlots, L.page, L.size);
     const cols: Col<Slot>[] = [
         { key: 'slot', label: t('dry.col.slot'), cell: (s) => s.id },
         { key: 'lot', label: t('farm.lot'), cell: (s) => s.lot },
-        { key: 'farm', label: t('farm.id'), cell: (s) => lotById(s.lot)!.farm },
-        { key: 'harvest', label: t('farm.harvest'), cell: (s) => farmById(lotById(s.lot)!.farm)!.harvestLabel },
+        { key: 'farm', label: t('farm.id'), cell: (s) => lotById.get(s.lot)?.farm ?? '—' },
+        { key: 'harvest', label: t('farm.harvest'), cell: (s) => farmOfSlot(s)?.harvestLabel ?? '—' },
         { key: 'day', label: t('dry.col.day'), cell: (s) => s.day },
         {
             key: 'kg',
@@ -57,20 +94,16 @@ export function DryScreen({ list, week: weekParam }: { list?: ListState; week?: 
             cell: (s) => `${s.sacks} ${t('unit.sacks')}`
         }
     ];
-    const days = weekDays(week);
-    const booked = days.reduce((s, d) => s + d.slots.reduce((a, x) => a + x.sacks, 0), 0);
-    const cap = DRYER.capacitySacks * 7;
-    const free = Math.max(0, cap - booked);
     return (
-        <AppShell title="dry.title" active="dry" eyebrow={t('dry.eyebrow', { dryer: DRYER.name, place: DRYER.place })}>
+        <AppShell title="dry.title" active="dry" eyebrow={eyebrow}>
             <div className="flex flex-col gap-6 max-w-[1600px]">
                 <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
                     <BigStat
                         label="dry.stat.capacity"
-                        value={DRYER.capacitySacks}
+                        value={capacity}
                         unit={t('unit.sacks')}
                         icon="Dry"
-                        note={t('dry.note.capacity', { t: DRYER.capacityKg / 1000 })}
+                        note={t('dry.note.capacity', { t: (capacity * KG_PER_SACK) / 1000 })}
                     />
                     <BigStat
                         label="dry.stat.booked"
@@ -83,14 +116,18 @@ export function DryScreen({ list, week: weekParam }: { list?: ListState; week?: 
                         })}
                     />
                     <BigStat
-                        label={t('dry.hero.label', { lot: HERO_LOT.id })}
-                        value={SLOT.id}
+                        label={focusSlot ? t('dry.hero.label', { lot: focusSlot.lot }) : '—'}
+                        value={focusSlot?.id ?? '—'}
                         icon="Sack"
-                        note={t('dry.hero.note', {
-                            day: SLOT.day,
-                            kg: SLOT.kg.toLocaleString('en-US'),
-                            sacks: Math.ceil(SLOT.kg / KG_PER_SACK)
-                        })}
+                        note={
+                            focusSlot
+                                ? t('dry.hero.note', {
+                                      day: focusSlot.day,
+                                      kg: focusSlot.kg.toLocaleString('en-US'),
+                                      sacks: Math.ceil(focusSlot.kg / KG_PER_SACK)
+                                  })
+                                : undefined
+                        }
                     />
                 </div>
                 <div aria-live="polite">
@@ -98,19 +135,19 @@ export function DryScreen({ list, week: weekParam }: { list?: ListState; week?: 
                         <LoadingState rows={1} />
                     ) : slotQuery.isError ? (
                         <ErrorState onRetry={() => void slotQuery.refetch()} />
-                    ) : (
+                    ) : focusSlot ? (
                         <StatusChip
                             status={
                                 slotState === 'confirmed' ? 'paid' : slotState === 'move-requested' ? 'pending' : 'open'
                             }
-                            label={t('slot.' + slotState, { id: SLOT.id })}
+                            label={t('slot.' + slotState, { id: focusSlot.id })}
                         />
-                    )}
+                    ) : null}
                 </div>
                 <section aria-labelledby="dry-sec">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                         <SectionPill id="dry-sec">
-                            {t('dry.weeks')} {WEEKS[week]} · {DRYER.name}
+                            {t('dry.weeks')} {WEEKS[week]} · {dryer}
                         </SectionPill>
                         <div
                             role="radiogroup"
@@ -131,11 +168,11 @@ export function DryScreen({ list, week: weekParam }: { list?: ListState; week?: 
                             ))}
                         </div>
                     </div>
-                    <SlotTimeline days={days} capacity={DRYER.capacitySacks} />
+                    <SlotTimeline days={days} capacity={capacity} />
                     <Note className="mt-3">
                         {t('dry.free', { free: free.toLocaleString('en-US'), cap: cap.toLocaleString('en-US') })}
                     </Note>
-                    <Note className="mt-1">{t('dry.rule', { t: DRYER.capacityKg / 1000 })}</Note>
+                    <Note className="mt-1">{t('dry.rule', { t: (capacity * KG_PER_SACK) / 1000 })}</Note>
                 </section>
                 <section aria-labelledby="dry-list" className="flex flex-col gap-3">
                     <div>
