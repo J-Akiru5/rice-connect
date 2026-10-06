@@ -34,6 +34,8 @@ select pg_temp.new_user('bbbbbbb2-0000-0000-0000-000000000002', 'buyer2@example.
 select pg_temp.new_user('ddddddd1-0000-0000-0000-000000000001', 'driver1@example.com', 'driver', 'Driver One');
 select pg_temp.new_user('ddddddd2-0000-0000-0000-000000000002', 'driver2@example.com', 'driver', 'Driver Two');
 select pg_temp.new_user('eeeeeee1-0000-0000-0000-000000000001', 'admin1@example.com', 'admin', 'Admin One');
+/* Admin accounts come from RiceConnect, not sign-up metadata (M49): promote the fixture as the owner. */
+update public.profiles set role = 'admin' where id = 'eeeeeee1-0000-0000-0000-000000000001';
 
 update public.profiles set cluster_id = '11111111-1111-1111-1111-111111111111', barangay = 'Licu-an'
 where id in (

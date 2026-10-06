@@ -1,10 +1,10 @@
 'use client';
 import { AppShell, BigStat, ErrorState, Icon, LoadingState, StatusChip, ZLink, useI18n } from '@rc/ui';
 import overrides from '@rc/domain/overrides.json';
-import { FARMS, HAUL, HERO_LOT, SETTLEMENT, SLIP, SLOT, WEEKS } from '@rc/domain/seed';
+import { HAUL, HERO_LOT, SETTLEMENT, SLIP, SLOT, WEEKS } from '@rc/domain/seed';
 import { dayLabel } from '@rc/domain/calendar';
 import { peso } from '@rc/domain/money';
-import { useHaulStatus, useMyCommitments, useOrders, useSmsReplies, useSlotStatus } from '@rc/data';
+import { useFarms, useHaulStatus, useMyCommitments, useOrders, useSmsReplies, useSlotStatus } from '@rc/data';
 import { SectionPill, Note } from './ui';
 
 const t1 = (kg: number) => (Math.round(kg / 100) / 10).toFixed(1);
@@ -52,9 +52,11 @@ export function CoordinatorHomeScreen() {
     const ordersQuery = useOrders({ size: 50 });
     const commitmentsQuery = useMyCommitments();
     const repliesQuery = useSmsReplies();
-    const harvests = FARMS.filter((f) => f.harvestDay >= WEEK * 7 && f.harvestDay < WEEK * 7 + 7).sort(
-        (a, b) => a.harvestDay - b.harvestDay || a.id.localeCompare(b.id)
-    );
+    /* Gate 3: harvests come from the repositories (mock in demo, Supabase in live). */
+    const farmsQuery = useFarms({ size: 100 });
+    const harvests = (farmsQuery.data?.rows ?? [])
+        .filter((f) => f.harvestDay >= WEEK * 7 && f.harvestDay < WEEK * 7 + 7)
+        .sort((a, b) => a.harvestDay - b.harvestDay || a.id.localeCompare(b.id));
     const hStatus = haul.data ?? 'assigned';
     const waiting = hStatus === 'assigned' || hStatus === 'requested';
     const slot = slotQuery.data ?? 'scheduled';
@@ -63,7 +65,7 @@ export function CoordinatorHomeScreen() {
     const orders = riceOrders.length + commitments.length;
     const replies = repliesQuery.data ?? [];
     const lastReply = replies[replies.length - 1];
-    const live = [haul, slotQuery, ordersQuery, commitmentsQuery, repliesQuery];
+    const live = [haul, slotQuery, ordersQuery, commitmentsQuery, repliesQuery, farmsQuery];
     const loading = live.some((q) => q.isPending);
     const failed = live.some((q) => q.isError);
     const retry = () => live.forEach((q) => void q.refetch());
