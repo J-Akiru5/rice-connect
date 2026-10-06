@@ -19,7 +19,8 @@ import {
     useI18n,
     useToast
 } from '@rc/ui';
-import { useCancelOrder, useCreateOrder, useOrders } from '@rc/data';
+import { useCancelOrder, useCreateCommitment, useCreateOrder, useMyCommitments, useOrders } from '@rc/data';
+import { isLive } from '@rc/ui/mode';
 import {
     COMMITMENTS,
     DRYER,
@@ -325,7 +326,9 @@ function RiceOrders({ type }: { type: BuyerType }) {
                     )}
                 </section>
             </div>
-            <TraceChain head={mine[0] ? t('trace.order', { id: mine[0].id }) : t('orders.new.rice')} rice />
+            {!isLive && (
+                <TraceChain head={mine[0] ? t('trace.order', { id: mine[0].id }) : t('orders.new.rice')} rice />
+            )}
         </div>
     );
 }
@@ -337,9 +340,15 @@ function PalayCommitments() {
     const [from, setFrom] = useState('W3');
     const [to, setTo] = useState('W4');
     const [error, setError] = useState('');
-    const mine: LocalCommitment[] = useDemoState().commitments;
+    /* Demo keeps the local store's auto-matched record; live reads and posts through the repositories. */
+    const demoMine = useDemoState().commitments;
+    const mineQuery = useMyCommitments();
+    const createCommitment = useCreateCommitment();
+    const mine: LocalCommitment[] = isLive ? (mineQuery.data ?? []) : demoMine;
     const c01 = COMMITMENTS.find((c) => c.id === 'C-01')!;
     const m01 = MATCHES.find((m) => m.commitment === 'C-01')!;
+    if (isLive && mineQuery.isPending) return <LoadingState rows={3} />;
+    if (isLive && mineQuery.isError) return <ErrorState onRetry={() => void mineQuery.refetch()} />;
     const post = () => {
         const tn = Number(tonnes);
         const pc = Math.round(Number(price) * 100);
@@ -349,6 +358,13 @@ function PalayCommitments() {
         if (!(pc > 0)) return setError(t('orders.err.price'));
         if (i > j) return setError(t('orders.err.window'));
         const window = WEEKS.slice(i, j + 1) as string[];
+        if (isLive) {
+            void createCommitment
+                .mutateAsync({ tonnes: tn, price: pc, window: window as Week[] })
+                .then(() => setError(''))
+                .catch(() => setError(t('orders.err.post')));
+            return;
+        }
         const taken = new Set(mine.flatMap((c) => c.lots));
         const pool = UNCOMMITTED_LOTS.filter((l) => !taken.has(l.id)).map((l) => ({
             id: l.id,
@@ -429,8 +445,9 @@ function PalayCommitments() {
                     <div>
                         <SectionPill id="pc-mine">{t('orders.mine')}</SectionPill>
                     </div>
-                    <Note>{t('orders.c01')}</Note>
-                    <CommitmentCard c={c01} highlight />
+                    {/* The standing C-01 commitment and its matched lots are the demo fixture. */}
+                    {!isLive && <Note>{t('orders.c01')}</Note>}
+                    {!isLive && <CommitmentCard c={c01} highlight />}
                     {mine.map((c) => (
                         <div key={c.id} className="flex flex-col gap-2">
                             <CommitmentCard
@@ -457,32 +474,36 @@ function PalayCommitments() {
                             {t('orders.clear')}
                         </SecondaryButton>
                     )}
-                    <ResponsiveTable
-                        caption={c01.id}
-                        rows={m01.lots.map((id) => lotById(id)!)}
-                        rowKey={(l) => l.id}
-                        highlight={(l) => l.id === HERO_LOT.id}
-                        cols={[
-                            { key: 'lot', label: t('pay.col.lot'), cell: (l) => l.id },
-                            { key: 'farm', label: t('pay.col.farm'), cell: (l) => l.farm },
-                            { key: 'b', label: t('farm.barangay'), cell: (l) => farmById(l.farm)!.barangay },
-                            {
-                                key: 'h',
-                                label: t('pay.col.harvest'),
-                                cell: (l) => `${l.week} · ${farmById(l.farm)!.harvestLabel}`
-                            },
-                            {
-                                key: 'kg',
-                                label: t('pay.col.kg'),
-                                align: 'right',
-                                nowrap: true,
-                                cell: (l) => `${l.driedKg.toLocaleString('en-US')} kg`
-                            }
-                        ]}
-                    />
+                    {!isLive && (
+                        <ResponsiveTable
+                            caption={c01.id}
+                            rows={m01.lots.map((id) => lotById(id)!)}
+                            rowKey={(l) => l.id}
+                            highlight={(l) => l.id === HERO_LOT.id}
+                            cols={[
+                                { key: 'lot', label: t('pay.col.lot'), cell: (l) => l.id },
+                                { key: 'farm', label: t('pay.col.farm'), cell: (l) => l.farm },
+                                { key: 'b', label: t('farm.barangay'), cell: (l) => farmById(l.farm)!.barangay },
+                                {
+                                    key: 'h',
+                                    label: t('pay.col.harvest'),
+                                    cell: (l) => `${l.week} · ${farmById(l.farm)!.harvestLabel}`
+                                },
+                                {
+                                    key: 'kg',
+                                    label: t('pay.col.kg'),
+                                    align: 'right',
+                                    nowrap: true,
+                                    cell: (l) => `${l.driedKg.toLocaleString('en-US')} kg`
+                                }
+                            ]}
+                        />
+                    )}
                 </section>
             </div>
-            <TraceChain head={t('trace.commitment', { id: c01.id }) + ` · ${peso(c01.price)}/kg`} rice={false} />
+            {!isLive && (
+                <TraceChain head={t('trace.commitment', { id: c01.id }) + ` · ${peso(c01.price)}/kg`} rice={false} />
+            )}
         </div>
     );
 }

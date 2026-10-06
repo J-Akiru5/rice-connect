@@ -513,6 +513,11 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
         'Hindi dapat lumampas ang Mula sa Hanggang.',
         'Indi dapat molapaw ang Halin sa Tubtob.'
     ],
+    'orders.err.post': [
+        'Could not post the commitment. Try again.',
+        'Hindi na-post ang pangako. Subukan muli.',
+        'Wala na-post ang saad. Tilawan liwat.'
+    ],
     'orders.matched': [
         'Auto-matched {kg} t from {n} lots not yet committed',
         'Naitugma ang {kg} t mula sa {n} lot',
@@ -582,6 +587,9 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
         'Hindi naintindihan: sumagot ng 1 OK o 2 Ilipat',
         'Wala naintiendihan: sabat 1 OK ukon 2 Ibalhin'
     ],
+    'sms.reply.accepted': ['Accepted', 'Tinanggap', 'Ginbaton'],
+    'sms.reply.moved': ['Move requested', 'Hiniling ilipat', 'Ginpangayo ibalhin'],
+    'sms.reply.unclear': ['Not understood', 'Hindi naintindihan', 'Wala naintiendihan'],
     // coordinator home (TL/HIL drafts: needs native review)
     'nav.home': ['Home', 'Home', 'Home'],
     'home.title': ['This Week', 'Ngayong Linggo', 'Subong nga Semana'],
