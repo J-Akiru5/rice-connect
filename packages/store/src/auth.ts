@@ -14,6 +14,8 @@ export interface SignInInput {
 export interface SignUpInput extends SignInInput {
     name: string;
     profile: Record<string, string>;
+    /** The privacy notice version the person accepted; the live adapter stores it with the profile. */
+    consentVersion?: string;
 }
 export type AuthErrorCode = 'invalid_credentials' | 'account_exists' | 'network' | 'unknown';
 export type AuthResult = { ok: true; displayName: string } | { ok: false; code: AuthErrorCode };

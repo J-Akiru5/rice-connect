@@ -115,9 +115,21 @@ function SignedInAs({ role, className = '' }: { role: Role; className?: string }
 }
 
 export function TeamFooter({ className = '' }: { className?: string }) {
+    const { t } = useI18n();
     return (
-        <footer className={'px-4 md:px-8 py-4 text-[13px] font-semibold text-[var(--text-secondary)] ' + className}>
-            Team Syntaxure Labs · ISUFST
+        <footer
+            className={
+                'px-4 md:px-8 py-4 text-[13px] font-semibold text-[var(--text-secondary)] flex flex-wrap items-center gap-x-4 gap-y-1 ' +
+                className
+            }
+        >
+            <span>Team Syntaxure Labs · ISUFST</span>
+            <Link
+                href="/privacy"
+                className="inline-flex items-center min-h-[44px] md:min-h-[40px] underline underline-offset-4 text-[var(--text-accent)]"
+            >
+                {t('footer.privacy')}
+            </Link>
         </footer>
     );
 }

@@ -269,7 +269,74 @@ export const STRINGS: Dict = {
     'slip.haulslot': ['Haul · Dryer Slot', 'Hakot · Slot sa Patuyuan', 'Hakot · Slot sa Pamalahan'],
     'slip.coordinator': ['Coordinator', 'Coordinator', 'Coordinator'],
     'slip.amount': ['Amount', 'Halaga', 'Kantidad'],
-    'filter.all': ['All', 'Lahat', 'Tanan']
+    'filter.all': ['All', 'Lahat', 'Tanan'],
+    // footer + privacy notice (Phase 4; TL/HIL drafts: needs native review). The notice body follows
+    // docs/plan/08-pilot-readiness.md; the DPO name and contact are provisional until O7 is answered.
+    'footer.privacy': ['Privacy Notice', 'Paunawa sa Pagkapribado', 'Pahibalo sa Pagkapribado'],
+    'privacy.eyebrow': [
+        'RiceConnect · Data Privacy Act of 2012 (RA 10173)',
+        'RiceConnect · Data Privacy Act of 2012 (RA 10173)',
+        'RiceConnect · Data Privacy Act of 2012 (RA 10173)'
+    ],
+    'privacy.title': ['Privacy Notice', 'Paunawa sa Pagkapribado', 'Pahibalo sa Pagkapribado'],
+    'privacy.version': ['Version {version}', 'Bersyon {version}', 'Bersyon {version}'],
+    'privacy.intro': [
+        'RiceConnect is run by Team Syntaxure Labs (ISUFST) for the rice cluster in Dingle, Iloilo. This notice explains what personal data we collect in the app and by SMS, why we collect it, who can see it, and the choices you have. It follows the Data Privacy Act of 2012 (RA 10173).',
+        'Ang RiceConnect ay pinapatakbo ng Team Syntaxure Labs (ISUFST) para sa cluster ng palay sa Dingle, Iloilo. Ipinaliwanag ng paunawang ito kung anong personal na datos ang kinokolekta namin sa app at sa SMS, bakit, sino ang makakakita, at ang iyong mga pagpipilian. Sumusunod ito sa Data Privacy Act of 2012 (RA 10173).',
+        'Ang RiceConnect ginadumala sang Team Syntaxure Labs (ISUFST) para sa cluster sang humay sa Dingle, Iloilo. Ginapaliwanag sang pahibalo nga ini kon ano nga personal nga datos ang ginatipon namon sa app kag sa SMS, ngaa, sin-o ang makakita, kag ang imo mga pagpili. Nagasunod ini sa Data Privacy Act of 2012 (RA 10173).'
+    ],
+    'privacy.collect.title': ['What We Collect', 'Ang Kinokolekta Namin', 'Ang Ginatipon Namon'],
+    'privacy.collect.body': [
+        'Your name; your mobile number (or email for buyers and coordinators); your barangay; your farm area, variety and harvest week; lot weights and grades; dryer slots; haul and delivery status; orders and settlement amounts; and the SMS messages we exchange with you.',
+        'Ang iyong pangalan; numero ng mobile (o email para sa mga buyer at coordinator); barangay; lawak, klase at linggo ng ani ng iyong bukid; timbang at grado ng lot; slot sa patuyuan; katayuan ng hakot at paghatid; mga order at halaga ng settlement; at ang mga SMS na ipinagpapalitan natin.',
+        'Ang imo ngalan; numero sang mobile (ukon email para sa mga buyer kag coordinator); barangay; kalapad, klase kag semana sang alani sang imo uma; timbang kag grado sang lot; slot sa pamalahan; kahimtangan sang hakot kag paghatod; mga order kag kantidad sang settlement; kag ang mga SMS nga ginapalitan naton.'
+    ],
+    'privacy.why.title': ['Why We Collect It', 'Bakit Namin Ito Kinokolekta', 'Ngaa Ginatipon Namon Ini'],
+    'privacy.why.body': [
+        'To plan harvests, book the dryer, assign hauls, keep buyers updated, compute and pay settlements, and send you SMS updates. We do not use the data for anything else, and we never sell it.',
+        'Para magplano ng ani, mag-book ng patuyuan, magtalaga ng hakot, magbigay-alam sa mamimili, kalkulahin at bayaran ang settlement, at magpadala ng SMS. Hindi namin ginagamit ang datos sa ibang bagay, at hindi namin ito ibinebenta.',
+        'Para makaplano sang alani, makabook sang pamalahan, makatalaga sang hakot, makapahibalo sa bumalakal, makalkulo kag makabayad sang settlement, kag makapadala sang SMS. Indi namon ginagamit ang datos sa iban, kag indi namon ini ginabaligya.'
+    ],
+    'privacy.who.title': ['Who Can See It', 'Sino ang Makakakita', 'Sin-o ang Makakita'],
+    'privacy.who.body': [
+        'You see your own records. The cluster coordinator sees the cluster\u2019s farms, lots, slots, hauls and settlements. A buyer sees the lots, weights and settlement totals tied to their own orders, and never your home or mobile number. A driver sees only the haul assigned to them. RiceConnect team members see records only to fix a problem, and every administrative action is logged.',
+        'Nakikita mo ang iyong sariling talaan. Nakikita ng coordinator ng cluster ang mga bukid, lot, slot, hakot at settlement ng cluster. Nakikita ng mamimili ang mga lot, timbang at kabuuang settlement na konektado sa kanilang order, at hindi ang iyong tahanan o numero. Nakikita ng driver ang hakot na itinalaga sa kanya. Ang mga miyembro ng RiceConnect ay nakakakita ng talaan para ayusin ang problema lamang, at naka-log ang bawat aksyong administratibo.',
+        'Makita mo ang imo kaugalingon nga rekord. Makita sang coordinator sang cluster ang mga uma, lot, slot, hakot kag settlement sang cluster. Makita sang bumalakal ang mga lot, timbang kag kabilugan nga settlement nga nakaangot sa ila order, kag indi ang imo balay ukon numero. Makita sang driver ang hakot nga gin-assign sa iya. Ang mga miyembro sang RiceConnect makakita sang rekord para ayuhon ang problema lamang, kag naka-log ang kada aksyon nga administratibo.'
+    ],
+    'privacy.retention.title': ['How Long We Keep It', 'Gaano Katagal Itinatago', 'Pila Kadugay Ginatago'],
+    'privacy.retention.body': [
+        'We keep records only while the pilot and its audit need them, then delete or anonymise them. The retention periods are listed in the project\u2019s data inventory and are being confirmed with the cluster before the pilot starts.',
+        'Itinatago namin ang talaan hangga\u2019t kailangan ito ng pilot at ng audit nito, pagkatapos ay binubura o ginagawang anonymous. Ang mga tagal ng pagtatago ay nakalista sa data inventory ng proyekto at kinukumpirma pa sa cluster bago magsimula ang pilot.',
+        'Ginatago namon ang rekord samtang kinahanglan ini sang pilot kag sang audit, dayon ginapanas ukon ginahimo nga anonymous. Ang mga tagal sang pagtago nakalista sa data inventory sang proyekto kag gina-confirm pa sa cluster antes magsugod ang pilot.'
+    ],
+    'privacy.rights.title': ['Your Rights', 'Ang Iyong Mga Karapatan', 'Ang Imo Mga Kinamatarong'],
+    'privacy.rights.body': [
+        'You can ask to see, correct or delete your data, or withdraw your consent at any time, by contacting the Data Protection Officer. We answer within the time the Data Privacy Act allows. Withdrawing consent means we can no longer run your account.',
+        'Maaari mong hilingin na tingnan, itama o burahin ang iyong datos, o bawiin ang pahintulot anumang oras, sa pamamagitan ng pakikipag-ugnayan sa Data Protection Officer. Sasagot kami sa loob ng panahong pinapayagan ng Data Privacy Act. Ang pagbawi ng pahintulot ay nangangahulugang hindi na namin mapapatakbo ang iyong account.',
+        'Mahimo mo pangayuon nga tan-awon, tadlungon ukon panason ang imo datos, ukon bawi-on ang pagtugot bisan ano nga oras, paagi sa pagkontak sa Data Protection Officer. Sabton namon sa sulod sang tion nga ginatugot sang Data Privacy Act. Ang pagbawi sang pagtugot nagakahulugan nga indi na namon mapadalagan ang imo account.'
+    ],
+    'privacy.contact.title': ['Contact', 'Makipag-ugnayan', 'Kontaka Kami'],
+    'privacy.contact.body': [
+        'Data Protection Officer: to be named before the pilot. For now, contact the team at team@example.com (placeholder); the final name and contact will be published here before the pilot starts.',
+        'Data Protection Officer: pangalanan bago ang pilot. Sa ngayon, makipag-ugnayan sa team sa team@example.com (placeholder); ang huling pangalan at kontak ay ipalalathala dito bago magsimula ang pilot.',
+        'Data Protection Officer: paganganlan antes ang pilot. Sa subong, kontaka ang team sa team@example.com (placeholder); ang katapusan nga ngalan kag kontak i-publish diri antes magsugod ang pilot.'
+    ],
+    'privacy.changes.title': [
+        'Changes to This Notice',
+        'Mga Pagbabago sa Paunawang Ito',
+        'Mga Pagbag-o sa Pahibalo nga Ini'
+    ],
+    'privacy.changes.body': [
+        'If this notice changes, the version on this page changes too. The version you accepted is stored with your consent record.',
+        'Kung magbabago ang paunawang ito, magbabago rin ang bersyon sa pahinang ito. Ang bersyong tinanggap mo ay nakaimbak kasama ng iyong consent record.',
+        'Kon magbag-o ini nga pahibalo, magbag-o man ang bersyon sa sini nga pahina. Ang bersyon nga ginbaton mo naka-store upod sang imo consent record.'
+    ],
+    'privacy.back': ['Back to RiceConnect', 'Bumalik sa RiceConnect', 'Balik sa RiceConnect'],
+    'auth.consent.link': [
+        'Read the Privacy Notice',
+        'Basahin ang Paunawa sa Pagkapribado',
+        'Basaha ang Pahibalo sa Pagkapribado'
+    ]
 };
 
 /* Prototype additions live in strings.prototype.ts (EN complete; TL and HIL drafts: needs native review). */
