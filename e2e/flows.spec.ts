@@ -14,6 +14,21 @@ test.describe('critical flows', () => {
     await expect(page.getByText(/20,000\.00/).first()).toBeVisible();
   });
 
+  test('farmer: plan reads the harvest, then a repeat delivery books and cancels with Undo', async ({ page }) => {
+    await page.goto('/farmer/plan');
+    await expect(page.getByRole('heading', { name: 'My Harvest' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Harvest by Barangay and Week' })).toBeVisible();
+    await page.getByRole('button', { name: 'Book Repeat Delivery' }).click();
+    const dialog = page.getByRole('alertdialog');
+    await expect(dialog.getByText('Book a repeat delivery?')).toBeVisible();
+    await dialog.getByRole('button', { name: 'Book Repeat Delivery' }).click();
+    await expect(page.getByText('Repeat Delivery Booked').first()).toBeVisible();
+    await page.getByRole('button', { name: 'Cancel Booking' }).click();
+    await expect(page.getByText('Booking cancelled').first()).toBeVisible();
+    await page.getByRole('button', { name: 'Undo' }).click();
+    await expect(page.getByText('Repeat Delivery Booked').first()).toBeVisible();
+  });
+
   test('driver: accept, pick up, deliver', async ({ page }) => {
     await page.goto('/driver');
     await page.getByRole('button', { name: 'Accept Job' }).click();

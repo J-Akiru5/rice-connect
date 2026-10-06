@@ -145,6 +145,34 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
         'Bar: toneladang tuyo bawat linggo. Gintong guhit: Bukid {farm}, Lot {lot}.',
         'Bar: tonelada nga uga kada semana. Bulawan nga linya: Uma {farm}, Lot {lot}.'
     ],
+    // farmer plan (S-15): my harvest, the same cluster calendar, and repeat delivery
+    'plan.eyebrow.farmer': [
+        '{farm} · {barangay} · {week} · {date}',
+        '{farm} · {barangay} · {week} · {date}',
+        '{farm} · {barangay} · {week} · {date}'
+    ],
+    'plan.mine': ['My Harvest', 'Aking Ani', 'Akon nga Alani'],
+    'plan.delivery': ['Delivery', 'Paghatod', 'Paghatod'],
+    'plan.delivery.help': [
+        'The pickup is confirmed by SMS. Book another trip when the cluster needs a second run.',
+        'Kinukumpirma ang kuha sa SMS. Mag-book ng isa pang biyahe kapag kailangan ng pangalawang takbo.',
+        'Ginkumpirma ang kuha sa SMS. Mag-book sang isa pa nga biyahe kon kinahanglan sang ikadha nga dagan.'
+    ],
+    'plan.book': ['Book Repeat Delivery', 'Mag-book ng Paulit na Paghatod', 'Mag-book sang Ining Paghatod'],
+    'plan.book.title': ['Book a repeat delivery?', 'I-book ang paulit na paghatod?', 'I-book ang ining paghatod?'],
+    'plan.book.desc': [
+        'A second pickup of {sacks} sacks from {farm} to {via} on the same route.',
+        'Pangalawang kuha ng {sacks} sako mula {farm} tungo sa {via} sa parehong ruta.',
+        'Ikaduha nga kuha sang {sacks} sako halin {farm} paagi sa {via} sa amo nga ruta.'
+    ],
+    'plan.booked': ['Repeat Delivery Booked', 'Nai-book ang Paulit na Paghatod', 'Na-book ang Ining Paghatod'],
+    'plan.booked.note': [
+        'Second trip · {sacks} sacks · {via}',
+        'Ikalawang biyahe · {sacks} sako · {via}',
+        'Ikaduha nga biyahe · {sacks} sako · {via}'
+    ],
+    'plan.book.cancel': ['Cancel Booking', 'Kanselahin ang Booking', 'Kanselahon ang Booking'],
+    'plan.book.cancelled': ['Booking cancelled', 'Nakansela ang booking', 'Nakansela ang booking'],
     // market
     'market.eyebrow': [
         'Buyers post standing orders Â· the cluster fills them',

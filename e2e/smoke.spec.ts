@@ -29,6 +29,7 @@ const ROUTES = [
   '/driver',
   '/driver/login',
   '/farmer',
+  '/farmer/plan',
   '/farmer/slip',
   '/farmer/login'
 ];
