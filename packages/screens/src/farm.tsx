@@ -4,10 +4,12 @@ import { useEffect, useMemo, useState } from 'react';
 import {
     Dialog,
     EmptyState,
+    ErrorState,
     FarmProfileCard,
     Field,
     Form,
     Icon,
+    LoadingState,
     Pagination,
     SearchField,
     SecondaryButton,
@@ -20,14 +22,14 @@ import {
     useToast,
     zodResolver
 } from '@rc/ui';
+import { isLive } from '@rc/ui/mode';
 import { z } from 'zod';
-import { filterFarms, paginate, sortBy } from '@rc/domain/list';
 import { staticListState, type ListState } from './list-state';
 import { ModuleShell } from './shell';
 import { useDemoState, updateDemoState } from '@rc/store/react';
 import { addFarm } from '@rc/store';
-import { useCreateFarm, useCreatedFarms } from '@rc/data';
-import { BARANGAYS, FARMS, TOTALS, KG_PER_SACK, VARIETIES, lotOfFarm, farmById, type Farm } from '@rc/domain/seed';
+import { useCreateFarm, useCreatedFarms, useFarm, useFarms } from '@rc/data';
+import { BARANGAYS, FARMS, TOTALS, KG_PER_SACK, VARIETIES, lotOfFarm, type Farm } from '@rc/domain/seed';
 
 export type FarmState = 'default' | 'empty' | 'error' | 'success';
 const STATUSES: Farm['status'][] = ['registered', 'verified', 'cluster'];
@@ -199,7 +201,7 @@ export function FarmDetail({
                     </div>
                     <div>
                         <dt className={cap}>{t('farm.lot')}</dt>
-                        <dd className="text-[16px] font-bold">{lot.id}</dd>
+                        <dd className="text-[16px] font-bold">{lot ? lot.id : '—'}</dd>
                     </div>
                     <div className="col-span-2">
                         <dt className={cap}>{t('farm.forecast')}</dt>
@@ -237,22 +239,36 @@ export function FarmListScreen({
     const [q, setQ] = useState(L.q);
     useEffect(() => setQ(L.q), [L.q]);
     const [addOpen, setAddOpen] = useState(false);
+    /* Live mode reads the Supabase repositories (B-05); demo mode gets the same shapes from the mock repo. */
+    const farmsQuery = useFarms({
+        q: L.q || undefined,
+        status: STATUSES.includes(L.status as Farm['status']) ? (L.status as Farm['status']) : undefined,
+        barangay: BARANGAYS.includes(L.barangay as Farm['barangay']) ? (L.barangay as Farm['barangay']) : undefined,
+        page: L.page,
+        size: L.size
+    });
     const createdQuery = useCreatedFarms();
     const created = useMemo(() => createdQuery.data ?? [], [createdQuery.data]);
     const createdIds = useMemo(() => new Set(created.map((f) => f.id)), [created]);
-    const filtered = useMemo(
-        () =>
-            sortBy(
-                filterFarms([...created, ...FARMS], { q: L.q, status: L.status, barangay: L.barangay }),
-                (f) => f.id
-            ),
-        [created, L.q, L.status, L.barangay]
-    );
-    const pg = paginate(filtered, L.page, L.size);
+    const pg = {
+        rows: farmsQuery.data?.rows ?? [],
+        total: farmsQuery.data?.total ?? 0,
+        page: farmsQuery.data?.page ?? 1,
+        size: farmsQuery.data?.size ?? 20
+    };
     const selected = pg.rows.find((f) => f.id === selectedId) ?? pg.rows[0];
     const farmsAdded = useDemoState().farmsAdded;
-    const totalFarms = FARMS.length + created.length;
-    const totalHa = (TOTALS.areaTenths + created.reduce((s, f) => s + f.areaTenths, 0)) / 10;
+    const totalFarms = pg.total;
+    /* Demo shows the cluster totals; live sums the page (the plan's aggregate view lands with the dashboard work). */
+    const totalHa = isLive
+        ? pg.rows.reduce((sum, f) => sum + f.areaTenths, 0) / 10
+        : (TOTALS.areaTenths + created.reduce((s, f) => s + f.areaTenths, 0)) / 10;
+    const loading = farmsQuery.isPending || createdQuery.isPending;
+    const failed = farmsQuery.isError || createdQuery.isError;
+    const retry = () => {
+        void farmsQuery.refetch();
+        void createdQuery.refetch();
+    };
     const clearFilters = () => {
         setQ('');
         L.set({ q: '', status: '', barangay: '', page: null, farm: null });
@@ -323,7 +339,11 @@ export function FarmListScreen({
                             </label>
                         </div>
                     </div>
-                    {pg.total === 0 ? (
+                    {loading ? (
+                        <LoadingState rows={3} />
+                    ) : failed ? (
+                        <ErrorState onRetry={retry} />
+                    ) : pg.total === 0 ? (
                         <EmptyState
                             variant="filtered"
                             title="farm.noMatch"
@@ -459,10 +479,33 @@ export function FarmProfileScreen({
 }) {
     const { t } = useI18n();
     const nav = useZoneNav();
-    const farm = farmById(id)!;
-    const ownAdded = useDemoState().farmsAdded.includes(farm.id) || farm.status === 'cluster';
-    const added = forcedAdded ?? ownAdded;
+    /* Live mode reads the farm from the repositories (Gate 3 step 1b); the mock repo serves the seed. */
+    const farmQuery = useFarm(id);
+    const farm = farmQuery.data;
+    const farmsAdded = useDemoState().farmsAdded;
     const [view, setView] = useState<FarmState>(state);
+    if (farmQuery.isPending) {
+        return (
+            <ModuleShell title="farm.title" active="farms">
+                <LoadingState rows={3} />
+            </ModuleShell>
+        );
+    }
+    if (!farm || farmQuery.isError) {
+        return (
+            <ModuleShell title="farm.title" active="farms">
+                <EmptyState
+                    variant="error"
+                    title="state.farm.error.title"
+                    body="state.farm.error.body"
+                    action="error.retry"
+                    onAction={() => void farmQuery.refetch()}
+                />
+            </ModuleShell>
+        );
+    }
+    const ownAdded = farmsAdded.includes(farm.id) || farm.status === 'cluster';
+    const added = forcedAdded ?? ownAdded;
     const next = FARMS[(FARMS.indexOf(farm) + 1) % FARMS.length] ?? farm;
     if (view === 'error') {
         return (
