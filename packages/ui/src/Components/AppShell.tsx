@@ -208,8 +208,12 @@ export default function AppShell({
                         <DemoChip className="hidden md:inline-flex" />
                         <SignedInAs role={role} className="hidden md:inline-flex lg:hidden" />
                         <AccountButton role={role} />
-                        <LanguageSwitcher />
-                        <ThemeToggle iconSize={20} />
+                        {/* One render, kept together: under 768px the pair wraps as a unit to its own row
+                            instead of the theme word dropping onto a line by itself. */}
+                        <div className="flex items-center gap-3">
+                            <LanguageSwitcher />
+                            <ThemeToggle iconSize={20} />
+                        </div>
                         {actions}
                     </div>
                     <div className="md:hidden mt-2 flex items-center justify-between gap-2 flex-wrap">
