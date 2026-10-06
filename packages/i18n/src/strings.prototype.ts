@@ -1352,5 +1352,11 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
         'ANNI can make mistakes. Check important details.',
         'Maaaring magkamali si ANNI. Suriin ang mahahalagang detalye.',
         'Mahimo magsayop si ANNI. Usisaon ang importante nga detalye.'
+    ],
+    // Live sign-in note (B-04; the mock note above only shows in demo mode)
+    'auth.live': [
+        'Sign in with your RiceConnect account. Accounts are issued by the RiceConnect team.',
+        'Mag-sign in gamit ang iyong RiceConnect account. Ang mga account ay ibinibigay ng RiceConnect team.',
+        'Mag-sign in gamit ang imo RiceConnect account. Ang mga account ginahatag sang RiceConnect team.'
     ]
 };
