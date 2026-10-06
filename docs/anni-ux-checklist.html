@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ANNI UX Check — Tracker & Receipt</title>
+<style>
+  :root{
+    --ink:#10231b; --ink-2:#3c5548; --muted:#6b7f75;
+    --bg:#f3f7f2; --card:#ffffff; --line:#dbe6dd;
+    --green-900:#0b3d2e; --green-800:#14532d; --green-700:#1c6b45; --green-600:#23875a;
+    --green-050:#e8f3ec; --green-100:#d5eadd;
+    --gold:#b9891f; --gold-soft:#f6ecd2; --gold-ink:#7a5a10;
+    --amber:#b45309; --red:#b3261e; --blue:#1d4ed8;
+    --radius:20px; --shadow:0 10px 30px rgba(16,35,27,.08);
+    --max:1080px; --prose:72ch;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:16px/1.6 "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  /* faint terrace contours, full bleed */
+  .band{position:relative; width:100%; padding:clamp(28px,4.5vw,56px) clamp(20px,5vw,80px);}
+  .band::before{
+    content:""; position:absolute; inset:0; pointer-events:none; opacity:.35;
+    background:repeating-linear-gradient(180deg, transparent 0 46px, rgba(11,61,46,.05) 46px 47px);
+  }
+  .band.alt{background:#ffffff}
+  .wrap{max-width:var(--max); margin:0 auto; position:relative}
+  .prose{max-width:var(--prose)}
+  h1{font-size:clamp(30px,5.4vw,48px); line-height:1.08; letter-spacing:-.02em; margin:0 0 10px}
+  h2{font-size:clamp(22px,3.2vw,30px); line-height:1.15; letter-spacing:-.015em; margin:0 0 6px}
+  h3{font-size:clamp(17px,2.2vw,20px); margin:0 0 6px}
+  p{margin:0 0 12px}
+  .eyebrow{font-size:12px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:var(--green-700)}
+  .lede{font-size:clamp(16px,2vw,18px); color:var(--ink-2)}
+  .muted{color:var(--muted)}
+
+  /* hero */
+  .hero{background:linear-gradient(160deg,var(--green-900),var(--green-800) 55%,#0e4634); color:#eef7f1}
+  .hero::before{display:none}
+  .hero .eyebrow{color:#a9d7bd}
+  .hero h1{color:#fff}
+  .hero p{color:#d6e9dc}
+  .statgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px; margin-top:26px}
+  .stat{background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16); border-radius:16px; padding:16px 18px}
+  .stat .n{font-size:clamp(26px,3.4vw,34px); font-weight:800; letter-spacing:-.02em; font-variant-numeric:tabular-nums}
+  .stat .l{font-size:13px; font-weight:700; color:#bfdccb; text-transform:uppercase; letter-spacing:.08em}
+
+  /* nav */
+  .nav{position:sticky; top:0; z-index:50; background:rgba(255,255,255,.92); backdrop-filter:blur(10px); border-bottom:1px solid var(--line)}
+  .nav .row{max-width:var(--max); margin:0 auto; display:flex; gap:8px; flex-wrap:wrap; padding:10px clamp(20px,5vw,80px); align-items:center}
+  .nav a,.nav button{
+    appearance:none; border:2px solid var(--line); background:#fff; color:var(--ink);
+    font:inherit; font-size:13px; font-weight:800; letter-spacing:.04em; text-transform:uppercase;
+    padding:10px 14px; border-radius:999px; min-height:44px; cursor:pointer; text-decoration:none;
+    display:inline-flex; align-items:center; gap:8px;
+  }
+  .nav a:hover,.nav button:hover{border-color:var(--green-600); color:var(--green-700)}
+  .nav .grow{flex:1}
+  .pill-count{background:var(--green-050); border-radius:999px; padding:2px 8px; font-size:12px; color:var(--green-800)}
+
+  /* tracker */
+  .tracker{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:20px; margin-top:26px}
+  .tracker-top{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
+  .tracker-bar{height:14px; background:var(--green-050); border-radius:999px; overflow:hidden; margin-top:12px}
+  .tracker-fill{height:100%; width:0%; background:linear-gradient(90deg,var(--green-700),var(--green-600)); border-radius:999px; transition:width .25s ease}
+  .tracker-pct{font-weight:800; font-variant-numeric:tabular-nums}
+  .tracker-actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:14px}
+
+  /* checklist rows: clickable list buttons */
+  .list{list-style:none; margin:16px 0 0; padding:0; display:flex; flex-direction:column; gap:10px}
+  .row-item{border:1px solid var(--line); border-radius:16px; background:var(--card); transition:border-color .15s, background .15s}
+  .row-item:hover{border-color:var(--green-600); background:#fbfffc}
+  .row-item.done{background:var(--green-050); border-color:#b9dcc7}
+  .row-item label{display:flex; gap:14px; padding:14px 16px; cursor:pointer; align-items:flex-start; min-height:44px}
+  .box{
+    flex:0 0 26px; width:26px; height:26px; border:2px solid #9db4a7; border-radius:8px; margin-top:2px;
+    display:grid; place-items:center; background:#fff;
+  }
+  .box svg{width:16px; height:16px; opacity:0; transform:scale(.6); transition:.15s}
+  .row-item.done .box{background:var(--green-700); border-color:var(--green-700)}
+  .row-item.done .box svg{opacity:1; transform:none}
+  .row-item input{position:absolute; opacity:0; pointer-events:none}
+  .item-text{flex:1; min-width:0}
+  .item-text .t{font-weight:700}
+  .item-text .exp{color:var(--ink-2); font-size:14px}
+  input[type=text], input[type=date], textarea, select{
+    width:100%; font:inherit; color:var(--ink); background:#fff; border:2px solid var(--line); border-radius:12px;
+    padding:11px 13px; min-height:44px; outline-offset:2px;
+  }
+  textarea{min-height:78px; resize:vertical}
+  input:focus, textarea:focus, select:focus{border-color:var(--green-600); box-shadow:0 0 0 3px rgba(35,135,90,.18)}
+  label.field{display:block; font-size:13px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); margin-bottom:6px}
+  .qcard{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow)}
+  .qgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:14px; margin-top:16px}
+  .chips{display:flex; gap:8px; flex-wrap:wrap; margin:8px 0}
+  .chip{background:var(--green-050); color:var(--green-800); border-radius:999px; padding:4px 10px; font-size:13px; font-weight:700}
+  .seg{display:flex; gap:8px; margin-top:10px}
+  .seg button{
+    flex:1; min-height:44px; border-radius:12px; border:2px solid var(--line); background:#fff; font:inherit;
+    font-weight:800; cursor:pointer;
+  }
+  .seg button.yes.on{background:var(--green-700); border-color:var(--green-700); color:#fff}
+  .seg button.no.on{background:#fff5f5; border-color:var(--red); color:var(--red)}
+
+  /* flow */
+  .flow{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:14px 0}
+  .node{background:var(--green-050); border:1px solid #b9dcc7; color:var(--green-800); border-radius:14px; padding:10px 14px; font-weight:700; font-size:14px}
+  .arrow{color:var(--green-600); font-weight:800}
+
+  /* compare cards */
+  .cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; margin-top:16px}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow)}
+  .card h3{display:flex; align-items:center; gap:10px}
+  .tag{font-size:12px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; border-radius:999px; padding:4px 10px}
+  .tag.demo{background:var(--green-050); color:var(--green-800)}
+  .tag.live{background:var(--gold-soft); color:var(--gold-ink)}
+  .sev{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
+  .sev button{border-radius:999px; border:2px solid var(--line); background:#fff; font:inherit; font-weight:800; min-height:44px; padding:8px 14px; cursor:pointer}
+  .sev button.on{color:#fff}
+  .sev button[data-sev="1"].on{background:#4d7c66; border-color:#4d7c66}
+  .sev button[data-sev="2"].on{background:var(--blue); border-color:var(--blue)}
+  .sev button[data-sev="3"].on{background:var(--amber); border-color:var(--amber)}
+  .sev button[data-sev="4"].on{background:var(--red); border-color:var(--red)}
+
+  /* receipt */
+  .receipt{background:var(--card); border:2px dashed #b9dcc7; border-radius:var(--radius); padding:22px; margin-top:18px}
+  .receipt-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px}
+  .scoreboard{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin:12px 0 20px}
+  .score{background:var(--green-050); border-radius:14px; padding:14px}
+  .score .n{font-size:28px; font-weight:800; font-variant-numeric:tabular-nums}
+  .score .l{font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:var(--green-800)}
+  .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:18px}
+  .btn{
+    appearance:none; border:none; border-radius:999px; font:inherit; font-weight:800; letter-spacing:.04em;
+    text-transform:uppercase; font-size:13px; padding:13px 20px; min-height:44px; cursor:pointer;
+  }
+  .btn.primary{background:var(--green-800); color:#fff}
+  .btn.primary:hover{background:var(--green-700)}
+  .btn.ghost{background:#fff; border:2px solid var(--line); color:var(--ink)}
+  .foot{padding:26px clamp(20px,5vw,80px) 60px; color:var(--muted); font-size:14px}
+  .foot .wrap{display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap}
+  .toast{
+    position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px); opacity:0; pointer-events:none;
+    background:var(--green-900); color:#fff; border-radius:999px; padding:12px 20px; font-weight:700; transition:.2s; z-index:100;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%)}
+
+  @media (max-width:640px){
+    .seg{flex-direction:row}
+    .row-item label{padding:12px}
+  }
+  @media print{
+    .nav,.tracker-actions,.actions,.toast,.hero .statgrid{display:none !important}
+    .hero{background:#fff; color:#000}
+    .hero h1,.hero p,.hero .eyebrow{color:#000}
+    .band{padding:12px 0}
+    .band::before{display:none}
+    .card,.qcard,.receipt,.tracker{box-shadow:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO + TL;DR -->
+<header class="band hero">
+  <div class="wrap">
+    <div class="eyebrow">Team Syntaxure Labs · ISUFST</div>
+    <h1>ANNI UX Check — Tracker &amp; Receipt</h1>
+    <p class="lede prose">ANNI is the farm assistant: the round chat bubble at the bottom-right of every app.
+      Work through the four parts below, tick each row as you go, then fill the receipt and send it back to Jeff.
+      No technical background needed — just click, read, and write down what you see.</p>
+    <div class="statgrid">
+      <div class="stat"><div class="n" id="stat-total">33</div><div class="l">items to check</div></div>
+      <div class="stat"><div class="n" id="stat-done">0</div><div class="l">done so far</div></div>
+      <div class="stat"><div class="n">2</div><div class="l">actions to test</div></div>
+      <div class="stat"><div class="n">3</div><div class="l">languages (EN/TL/HIL)</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- NAV (clickable list buttons) -->
+<nav class="nav" aria-label="Sections">
+  <div class="row">
+    <a href="#how">Where to test</a>
+    <a href="#partA">A · Look &amp; feel <span class="pill-count" data-count="A">0/10</span></a>
+    <a href="#partB">B · Real numbers <span class="pill-count" data-count="B">0/8</span></a>
+    <a href="#partC">C · Actions <span class="pill-count" data-count="C">0/8</span></a>
+    <a href="#partD">D · Tricky cases <span class="pill-count" data-count="D">0/7</span></a>
+    <a href="#receipt">Receipt</a>
+    <span class="grow"></span>
+    <button type="button" id="reset" class="pill">Reset ticks</button>
+  </div>
+</nav>
+
+<!-- TRACKER -->
+<div class="band alt">
+  <div class="wrap">
+    <div class="tracker">
+      <div class="tracker-top">
+        <div>
+          <div class="eyebrow">Progress tracker</div>
+          <div class="tracker-pct" id="pct">0% complete</div>
+        </div>
+        <div class="muted" id="progress-note">Everything is saved automatically in this browser.</div>
+      </div>
+      <div class="tracker-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="bar">
+        <div class="tracker-fill" id="fill"></div>
+      </div>
+      <div class="tracker-actions">
+        <button class="btn ghost" type="button" id="copy-receipt">Copy receipt</button>
+        <button class="btn ghost" type="button" id="print">Print / Save PDF</button>
+        <a class="btn ghost" href="#partA" style="text-decoration:none;display:inline-flex;align-items:center">Start at Part A</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW -->
+<section class="band" id="how">
+  <div class="wrap">
+    <div class="eyebrow">Before you start</div>
+    <h2>Where to test</h2>
+    <p class="prose">There are two versions to look at. Do the reading checks on the prototype (quick, no account),
+      and the two actions on the live test version (needs the test account from Jeff). Please use a phone for the
+      phone checks and a laptop for the desktop ones, and try light and dark mode.</p>
+    <div class="cards">
+      <div class="card">
+        <h3><span class="tag demo">Prototype</span> normal website</h3>
+        <p class="muted">No account needed. ANNI reads from the simulated demo data, so the numbers in Part B work here.</p>
+      </div>
+      <div class="card">
+        <h3><span class="tag live">Live test</span> preview link from Jeff</h3>
+        <p class="muted">Sign in with the test account he gives you (<strong>dev-buyer@…</strong> to place an order,
+          <strong>dev-coordinator@…</strong> to mark a payment). Email&nbsp;+ password, the normal way.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PART A -->
+<section class="band alt" id="partA">
+  <div class="wrap">
+    <div class="eyebrow">Part A</div>
+    <h2>Look and feel</h2>
+    <p class="prose">Open ANNI, poke around, read everything twice. Tick each row when it behaves as described;
+      use the notes box in the receipt for anything that looks off.</p>
+    <ul class="list">
+      <li class="row-item" data-part="A"><label><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><input type="checkbox" data-track="A1"><span class="item-text"><span class="t">A1 · The bubble</span><span class="exp">Round head bottom-right; doesn’t cover main buttons; sits above the bottom menu on phones.</span></span></label></li>
+      <li class="row-item" data-part="A"><label><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><input type="checkbox" data-track="A2"><span class="item-text"><span class="t">A2 · Opening the panel</span><span class="exp">Clicking the head opens the chat; laptop: slides in from the right; phone: fills the screen.</span></span></label></li>
+      <li class="row-item" data-part="A"><label><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><input type="checkbox" data-track="A3"><span class="item-text"><span class="t">A3 · Closing</span><span class="exp">The X closes it; so does Escape; focus returns to the bubble.</span></span></label></li>
+      <li class="row-item" data-part="A"><label><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><input type="checkbox" data-track="A4"><span class="item-text"><span class="t">A4 · Header</span><span class="exp">ANNI name, “Farm Assistant”, and the “ANNI can make mistakes” line are readable.</span></span></label></li>
+      <li class="row-item" data-part="A"><label><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><input type="checkbox" data-track="A5"><span class="item-text"><span class="t">A5 · Composer</span><span class="exp">Text box + Send at the bottom; Send is greyed out when the box is empty.</span></span></label></li>
+      <li class="row-item" data-part="A"><label><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><input type="checkbox" data-track="A6"><span class="item-text"><span class="t">A6 · Long reply</span><span class="exp">A long answer wraps, the chat scrolls, and the composer stays visible.</span></span></label></li>
+      <li class="row-item" data-part="A"><label><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><input type="checkbox" data-track="A7"><span class="item-text"><span class="t">A7 · Dark mode</span><span class="exp">Everything still readable; no white boxes.</span></span></label></li>
+      <li class="row-item" data-part="A"><label><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><input type="checkbox" data-track="A8"><span class="item-text"><span class="t">A8 · Language switch</span><span class="exp">Using EN/TL/HIL changes the greeting, buttons and disclaimer.</span></span></label></li>
+      <li class="row-item" data-part="A"><label><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><input type="checkbox" data-track="A9"><span class="item-text"><span class="t">A9 · Phone keyboard</span><span class="exp">Tapping the box opens the keyboard and the composer stays visible.</span></span></label></li>
+      <li class="row-item" data-part="A"><label><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><input type="checkbox" data-track="A10"><span class="item-text"><span class="t">A10 · Reduced motion</span><span class="exp">With the OS “reduce motion” option on, nothing animates oddly.</span></span></label></li>
+    </ul>
+  </div>
+</section>
+
+<!-- PART B -->
+<section class="band" id="partB">
+  <div class="wrap">
+    <div class="eyebrow">Part B</div>
+    <h2>Reading real numbers</h2>
+    <p class="prose">In the <strong>prototype</strong>, ANNI should use the real demo numbers. Ask each question,
+      paste her answer, then press <em>Matches</em> or <em>Wrong</em>. Wording may differ — we care about the numbers.
+      Bonus check: ask something odd (“how many ducks are in the cluster?”) — she must admit she can’t see that.</p>
+    <div class="qgrid" id="bgrid">
+      <div class="qcard" data-b="B1"><h3>B1 · “How many farms are in the cluster?”</h3><div class="chips"><span class="chip">100 farms total</span><span class="chip">65 in the cluster</span></div><label class="field" for="ans-B1">Her answer</label><textarea id="ans-B1" data-answer="B1"></textarea><div class="seg"><button type="button" data-b-val="yes" data-b="B1">Matches</button><button type="button" data-b-val="no" data-b="B1">Wrong</button></div></div>
+      <div class="qcard" data-b="B2"><h3>B2 · “How many tonnes are we harvesting in total?”</h3><div class="chips"><span class="chip">about 411.5 t</span></div><label class="field" for="ans-B2">Her answer</label><textarea id="ans-B2" data-answer="B2"></textarea><div class="seg"><button type="button" data-b-val="yes" data-b="B2">Matches</button><button type="button" data-b-val="no" data-b="B2">Wrong</button></div></div>
+      <div class="qcard" data-b="B3"><h3>B3 · “Which week is the peak harvest?”</h3><div class="chips"><span class="chip">Week 4 (W4)</span><span class="chip">about 145 t</span></div><label class="field" for="ans-B3">Her answer</label><textarea id="ans-B3" data-answer="B3"></textarea><div class="seg"><button type="button" data-b-val="yes" data-b="B3">Matches</button><button type="button" data-b-val="no" data-b="B3">Wrong</button></div></div>
+      <div class="qcard" data-b="B4"><h3>B4 · “What harvests are there in W3?”</h3><div class="chips"><span class="chip">list of farms</span><span class="chip">barangay + tonnes</span></div><label class="field" for="ans-B4">Her answer</label><textarea id="ans-B4" data-answer="B4"></textarea><div class="seg"><button type="button" data-b-val="yes" data-b="B4">Matches</button><button type="button" data-b-val="no" data-b="B4">Wrong</button></div></div>
+      <div class="qcard" data-b="B5"><h3>B5 · “Which advances are still unpaid?”</h3><div class="chips"><span class="chip">₱80,000 advance</span><span class="chip">Lot L-03</span></div><label class="field" for="ans-B5">Her answer</label><textarea id="ans-B5" data-answer="B5"></textarea><div class="seg"><button type="button" data-b-val="yes" data-b="B5">Matches</button><button type="button" data-b-val="no" data-b="B5">Wrong</button></div></div>
+      <div class="qcard" data-b="B6"><h3>B6 · “What’s the dryer capacity this week?”</h3><div class="chips"><span class="chip">per-day capacity</span><span class="chip">free kg left</span></div><label class="field" for="ans-B6">Her answer</label><textarea id="ans-B6" data-answer="B6"></textarea><div class="seg"><button type="button" data-b-val="yes" data-b="B6">Matches</button><button type="button" data-b-val="no" data-b="B6">Wrong</button></div></div>
+      <div class="qcard" data-b="B7"><h3>B7 · “Show me the haul status.”</h3><div class="chips"><span class="chip">haul id + lot</span><span class="chip">status + driver</span></div><label class="field" for="ans-B7">Her answer</label><textarea id="ans-B7" data-answer="B7"></textarea><div class="seg"><button type="button" data-b-val="yes" data-b="B7">Matches</button><button type="button" data-b-val="no" data-b="B7">Wrong</button></div></div>
+      <div class="qcard" data-b="B8"><h3>B8 · “What are my orders?”</h3><div class="chips"><span class="chip">the order list</span><span class="chip">or “none”</span></div><label class="field" for="ans-B8">Her answer</label><textarea id="ans-B8" data-answer="B8"></textarea><div class="seg"><button type="button" data-b-val="yes" data-b="B8">Matches</button><button type="button" data-b-val="no" data-b="B8">Wrong</button></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PART C -->
+<section class="band alt" id="partC">
+  <div class="wrap">
+    <div class="eyebrow">Part C</div>
+    <h2>Doing an action</h2>
+    <p class="prose">Two actions to test on the <strong>live test version</strong>. ANNI should never do anything by
+      herself — she proposes, you confirm. Follow the flow marks.</p>
+
+    <div class="card" style="margin-top:16px">
+      <h3>C1 · Place a buyer order <span class="tag live">live · buyer account</span></h3>
+      <div class="flow" aria-hidden="true">
+        <span class="node">You ask</span><span class="arrow">→</span>
+        <span class="node">Summary box</span><span class="arrow">→</span>
+        <span class="node">You confirm</span><span class="arrow">→</span>
+        <span class="node">Order placed + Undo</span>
+      </div>
+      <p class="muted">Ask: “Place an order for 40 sacks of restaurant rice for W3.” A summary should show sacks,
+        type, week and the <strong>total price</strong> before anything happens.</p>
+      <ul class="list">
+        <li class="row-item" data-part="C"><label><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><input type="checkbox" data-track="C1a"><span class="item-text"><span class="t">C1a · Summary shows all four details</span><span class="exp">Sacks, type, week and total price.</span></span></label></li>
+        <li class="row-item" data-part="C"><label><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><input type="checkbox" data-track="C1b"><span class="item-text"><span class="t">C1b · Cancel does nothing</span><span class="exp">Closing the summary without confirming orders nothing.</span></span></label></li>
+        <li class="row-item" data-part="C"><label><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><input type="checkbox" data-track="C1c"><span class="item-text"><span class="t">C1c · Confirm places the order</span><span class="exp">A green toast says the order was placed.</span></span></label></li>
+        <li class="row-item" data-part="C"><label><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><input type="checkbox" data-track="C1d"><span class="item-text"><span class="t">C1d · Undo works</span><span class="exp">The toast has Undo and it removes the order.</span></span></label></li>
+      </ul>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h3>C2 · Mark paid <span class="tag live">live · coordinator account</span></h3>
+      <div class="flow" aria-hidden="true">
+        <span class="node">You ask</span><span class="arrow">→</span>
+        <span class="node">Warning box</span><span class="arrow">→</span>
+        <span class="node">You type the lot code</span><span class="arrow">→</span>
+        <span class="node">Marked paid</span>
+      </div>
+      <p class="muted">Ask: “Mark the settlement for lot L-03 as paid.” This one genuinely cannot be undone —
+        that is intended. The box should make you work a little: type the lot code to unlock Confirm, and Escape must not close it.</p>
+      <ul class="list">
+        <li class="row-item" data-part="C"><label><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><input type="checkbox" data-track="C2a"><span class="item-text"><span class="t">C2a · Confirm stays locked until typed</span><span class="exp">Confirm is greyed out before the code is typed.</span></span></label></li>
+        <li class="row-item" data-part="C"><label><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><input type="checkbox" data-track="C2b"><span class="item-text"><span class="t">C2b · Escape does not close it</span><span class="exp">Pressing Escape leaves the warning open.</span></span></label></li>
+        <li class="row-item" data-part="C"><label><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><input type="checkbox" data-track="C2c"><span class="item-text"><span class="t">C2c · Typing the code unlocks Confirm</span><span class="exp">After typing the lot code, Confirm becomes active.</span></span></label></li>
+        <li class="row-item" data-part="C"><label><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><input type="checkbox" data-track="C2d"><span class="item-text"><span class="t">C2d · Toast confirms it</span><span class="exp">A toast says the settlement was marked paid.</span></span></label></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- PART D -->
+<section class="band" id="partD">
+  <div class="wrap">
+    <div class="eyebrow">Part D</div>
+    <h2>Tricky cases</h2>
+    <p class="prose">These are the ones that separate “works” from “safe”. Tick when ANNI behaves as described.</p>
+    <ul class="list">
+      <li class="row-item" data-part="D"><label><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><input type="checkbox" data-track="D1"><span class="item-text"><span class="t">D1 · Asks for someone’s phone number or full name</span><span class="exp">She refuses and explains she can’t share personal details.</span></span></label></li>
+      <li class="row-item" data-part="D"><label><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><input type="checkbox" data-track="D2"><span class="item-text"><span class="t">D2 · Go offline, then ask a question</span><span class="exp">A friendly message (not a blank panel); your message isn’t lost.</span></span></label></li>
+      <li class="row-item" data-part="D"><label><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><input type="checkbox" data-track="D3"><span class="item-text"><span class="t">D3 · Very long question (a paragraph)</span><span class="exp">It still sends; layout doesn’t break.</span></span></label></li>
+      <li class="row-item" data-part="D"><label><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><input type="checkbox" data-track="D4"><span class="item-text"><span class="t">D4 · Ask in Tagalog</span><span class="exp">“Ilan ang mga bukid sa cluster?” — she answers in Tagalog with the right numbers.</span></span></label></li>
+      <li class="row-item" data-part="D"><label><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><input type="checkbox" data-track="D5"><span class="item-text"><span class="t">D5 · Ask in Hiligaynon</span><span class="exp">She answers in Hiligaynon (best effort — still flags for native review).</span></span></label></li>
+      <li class="row-item" data-part="D"><label><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><input type="checkbox" data-track="D6"><span class="item-text"><span class="t">D6 · Signed out on the live version</span><span class="exp">A signed-out visitor can’t get ANNI to order or pay anything.</span></span></label></li>
+      <li class="row-item" data-part="D"><label><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><input type="checkbox" data-track="D7"><span class="item-text"><span class="t">D7 · Double-click Send quickly</span><span class="exp">Only one message is sent.</span></span></label></li>
+    </ul>
+
+    <div class="card" style="margin-top:18px">
+      <h3>How to write a finding</h3>
+      <p class="muted">what you did → what you expected → what happened → where (screen/version) → severity → screenshot name.</p>
+      <div class="sev" aria-label="Severity scale">
+        <span class="chip">1 cosmetic</span><span class="chip">2 annoying</span><span class="chip">3 serious (can’t finish / wrong data)</span><span class="chip">4 dangerous (wrong action / personal data)</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RECEIPT -->
+<section class="band alt" id="receipt">
+  <div class="wrap">
+    <div class="eyebrow">Return this to Jeff</div>
+    <h2>The receipt</h2>
+    <p class="prose">The scores below fill themselves from your ticks. Add your details, mark the worst severity,
+      list the top issues, choose a verdict, then press <strong>Copy receipt</strong> and paste it into a message to Jeff
+      (or <strong>Print / Save PDF</strong>).</p>
+
+    <div class="receipt">
+      <div class="scoreboard">
+        <div class="score"><div class="n" id="score-A">0/10</div><div class="l">Part A</div></div>
+        <div class="score"><div class="n" id="score-B">0/8</div><div class="l">Part B answered &amp; matched</div></div>
+        <div class="score"><div class="n" id="score-C">0/8</div><div class="l">Part C actions</div></div>
+        <div class="score"><div class="n" id="score-D">0/7</div><div class="l">Part D</div></div>
+        <div class="score"><div class="n" id="score-issues">0</div><div class="l">issues written</div></div>
+      </div>
+
+      <div class="receipt-grid">
+        <div><label class="field" for="r-name">Tester name</label><input type="text" id="r-name" data-receipt="name"></div>
+        <div><label class="field" for="r-date">Date tested</label><input type="date" id="r-date" data-receipt="date"></div>
+        <div><label class="field" for="r-version">Version(s) tested</label>
+          <select id="r-version" data-receipt="version">
+            <option value="">Choose…</option>
+            <option>Prototype (demo)</option>
+            <option>Live preview</option>
+            <option>Both</option>
+          </select></div>
+        <div><label class="field" for="r-device">Browser + device</label><input type="text" id="r-device" data-receipt="device" placeholder="e.g. Chrome on Windows, Safari on iPhone"></div>
+      </div>
+
+      <div style="margin-top:18px">
+        <div class="field" style="margin-bottom:6px">Worst issue severity found</div>
+        <div class="sev" id="sev" aria-label="Worst severity">
+          <button type="button" data-sev="1">1 · Cosmetic</button>
+          <button type="button" data-sev="2">2 · Annoying</button>
+          <button type="button" data-sev="3">3 · Serious</button>
+          <button type="button" data-sev="4">4 · Dangerous</button>
+        </div>
+      </div>
+
+      <div class="receipt-grid" style="margin-top:18px">
+        <div><label class="field" for="r-i1">Top issue 1</label><textarea id="r-i1" data-receipt="i1"></textarea></div>
+        <div><label class="field" for="r-i2">Top issue 2</label><textarea id="r-i2" data-receipt="i2"></textarea></div>
+        <div><label class="field" for="r-i3">Top issue 3</label><textarea id="r-i3" data-receipt="i3"></textarea></div>
+        <div><label class="field" for="r-smile">Anything that made you smile or cringe</label><textarea id="r-smile" data-receipt="smile"></textarea></div>
+        <div><label class="field" for="r-missing">Anything missing that a farmer would need</label><textarea id="r-missing" data-receipt="missing"></textarea></div>
+        <div>
+          <div class="field" style="margin-bottom:6px">Overall: ready to ship?</div>
+          <div class="seg" id="verdict">
+            <button type="button" data-verdict="ready">Ready</button>
+            <button type="button" data-verdict="fixes">Ready with fixes</button>
+            <button type="button" data-verdict="not">Not ready</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" type="button" id="copy-receipt-2">Copy receipt</button>
+        <button class="btn ghost" type="button" id="print-2">Print / Save PDF</button>
+        <button class="btn ghost" type="button" id="clear-all">Clear everything</button>
+      </div>
+      <p class="muted" style="margin-top:12px">Signed: <span id="sig">—</span> · this line fills from the tester name and date.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>ANNI UX Check · Team Syntaxure Labs · ISUFST</span>
+    <span>Prototype · simulated data only</span>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  var KEY = 'anni-ux-tracker-v1';
+  var PARTS = { A: 10, B: 8, C: 8, D: 7 };
+  var TOTAL = 33;
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { return {}; }
+  }
+  function save(s) {
+    try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {}
+  }
+  var state = load();
+  state.checks = state.checks || {};
+  state.b = state.b || {};
+  state.receipt = state.receipt || {};
+
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('input[data-track]'));
+  var bButtons = Array.prototype.slice.call(document.querySelectorAll('.seg button[data-b-val]'));
+  var answers = Array.prototype.slice.call(document.querySelectorAll('textarea[data-answer]'));
+  var receiptInputs = Array.prototype.slice.call(document.querySelectorAll('[data-receipt]'));
+  var sevButtons = Array.prototype.slice.call(document.querySelectorAll('#sev button[data-sev]'));
+  var verdictButtons = Array.prototype.slice.call(document.querySelectorAll('#verdict button[data-verdict]'));
+
+  function partDone(part) {
+    var done = 0;
+    if (part === 'B') {
+      for (var k in state.b) { if (state.b[k]) done++; }
+    } else {
+      boxes.forEach(function (b) {
+        var id = b.getAttribute('data-track');
+        if (id.charAt(0) === part && b.checked) done++;
+      });
+    }
+    return done;
+  }
+
+  function update() {
+    var done = Object.keys(PARTS).reduce(function (sum, p) { return sum + partDone(p); }, 0);
+    var pct = Math.round((100 * done) / TOTAL);
+    document.getElementById('fill').style.width = pct + '%';
+    document.getElementById('pct').textContent = pct + '% complete';
+    document.getElementById('bar').setAttribute('aria-valuenow', String(pct));
+    document.getElementById('stat-done').textContent = String(done);
+    document.getElementById('score-A').textContent = partDone('A') + '/10';
+    document.getElementById('score-B').textContent = partDone('B') + '/8';
+    document.getElementById('score-C').textContent = partDone('C') + '/8';
+    document.getElementById('score-D').textContent = partDone('D') + '/7';
+    document.querySelectorAll('[data-count]').forEach(function (el) {
+      var p = el.getAttribute('data-count');
+      el.textContent = partDone(p) + '/' + PARTS[p];
+    });
+    var issues = ['i1', 'i2', 'i3'].filter(function (k) { return (state.receipt[k] || '').trim().length > 0; }).length;
+    document.getElementById('score-issues').textContent = String(issues);
+    var name = state.receipt.name || '—';
+    var date = state.receipt.date || '—';
+    document.getElementById('sig').textContent = name + ' · ' + date;
+  }
+
+  boxes.forEach(function (b) {
+    var id = b.getAttribute('data-track');
+    b.checked = !!state.checks[id];
+    b.closest('.row-item').classList.toggle('done', b.checked);
+    b.addEventListener('change', function () {
+      state.checks[id] = b.checked;
+      b.closest('.row-item').classList.toggle('done', b.checked);
+      save(state);
+      update();
+    });
+  });
+
+  bButtons.forEach(function (btn) {
+    var id = btn.getAttribute('data-b');
+    var val = btn.getAttribute('data-b-val');
+    var on = state.b[id] === val;
+    btn.classList.toggle('on', on);
+    btn.addEventListener('click', function () {
+      state.b[id] = state.b[id] === val ? '' : val;
+      document.querySelectorAll('.seg button[data-b="' + id + '"]').forEach(function (other) {
+        other.classList.toggle('on', state.b[id] === other.getAttribute('data-b-val'));
+      });
+      save(state);
+      update();
+    });
+  });
+
+  answers.forEach(function (t) {
+    var id = t.getAttribute('data-answer');
+    t.value = state.receipt['ans' + id] || '';
+    t.addEventListener('input', function () {
+      state.receipt['ans' + id] = t.value;
+      save(state);
+    });
+  });
+
+  receiptInputs.forEach(function (el) {
+    var key = el.getAttribute('data-receipt');
+    el.value = state.receipt[key] || '';
+    el.addEventListener('input', function () {
+      state.receipt[key] = el.value;
+      save(state);
+      update();
+    });
+    el.addEventListener('change', function () {
+      state.receipt[key] = el.value;
+      save(state);
+      update();
+    });
+  });
+
+  sevButtons.forEach(function (btn) {
+    var sev = btn.getAttribute('data-sev');
+    btn.classList.toggle('on', state.receipt.severity === sev);
+    btn.addEventListener('click', function () {
+      state.receipt.severity = state.receipt.severity === sev ? '' : sev;
+      sevButtons.forEach(function (o) { o.classList.toggle('on', state.receipt.severity === o.getAttribute('data-sev')); });
+      save(state);
+    });
+  });
+
+  verdictButtons.forEach(function (btn) {
+    var v = btn.getAttribute('data-verdict');
+    btn.classList.toggle('on', state.receipt.verdict === v);
+    btn.addEventListener('click', function () {
+      state.receipt.verdict = v;
+      verdictButtons.forEach(function (o) { o.classList.toggle('on', state.receipt.verdict === o.getAttribute('data-verdict')); });
+      save(state);
+    });
+  });
+
+  function toast(msg) {
+    var el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(function () { el.classList.remove('show'); }, 2200);
+  }
+
+  function receiptText() {
+    var r = state.receipt;
+    var lines = [];
+    lines.push('ANNI UX CHECK — RECEIPT');
+    lines.push('Tester: ' + (r.name || '—'));
+    lines.push('Date: ' + (r.date || '—'));
+    lines.push('Version(s): ' + (r.version || '—'));
+    lines.push('Browser/device: ' + (r.device || '—'));
+    lines.push('');
+    lines.push('Part A (look & feel): ' + partDone('A') + '/10');
+    lines.push('Part B (real numbers): ' + partDone('B') + '/8 answered & matched');
+    lines.push('Part C (actions): ' + partDone('C') + '/8');
+    lines.push('Part D (tricky cases): ' + partDone('D') + '/7');
+    lines.push('Worst severity: ' + (r.severity || '—') + ' (1 cosmetic … 4 dangerous)');
+    lines.push('');
+    ['ansB1','ansB2','ansB3','ansB4','ansB5','ansB6','ansB7','ansB8'].forEach(function (k, i) {
+      var v = (r[k] || '').replace(/\s+/g, ' ').trim();
+      lines.push('B' + (i + 1) + ' answer: ' + (v || '—') + '  [' + (state.b['B' + (i + 1)] === 'yes' ? 'matches' : state.b['B' + (i + 1)] === 'no' ? 'wrong' : 'not marked') + ']');
+    });
+    lines.push('');
+    lines.push('Top issues:');
+    lines.push('1. ' + (r.i1 || '—'));
+    lines.push('2. ' + (r.i2 || '—'));
+    lines.push('3. ' + (r.i3 || '—'));
+    lines.push('Smile/cringe: ' + (r.smile || '—'));
+    lines.push('Missing for farmers: ' + (r.missing || '—'));
+    lines.push('Verdict: ' + (r.verdict === 'ready' ? 'Ready to ship' : r.verdict === 'fixes' ? 'Ready with fixes' : r.verdict === 'not' ? 'Not ready' : '—'));
+    return lines.join('\n');
+  }
+
+  function copyReceipt() {
+    var text = receiptText();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { toast('Receipt copied — paste it to Jeff'); },
+        function () { fallbackCopy(text); });
+    } else { fallbackCopy(text); }
+  }
+  function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); toast('Receipt copied — paste it to Jeff'); }
+    catch (e) { toast('Copy not available — use Print / Save PDF'); }
+    document.body.removeChild(ta);
+  }
+
+  document.getElementById('copy-receipt').addEventListener('click', copyReceipt);
+  document.getElementById('copy-receipt-2').addEventListener('click', copyReceipt);
+  document.getElementById('print').addEventListener('click', function () { window.print(); });
+  document.getElementById('print-2').addEventListener('click', function () { window.print(); });
+
+  document.getElementById('reset').addEventListener('click', function () {
+    boxes.forEach(function (b) { b.checked = false; b.closest('.row-item').classList.remove('done'); });
+    state.checks = {};
+    save(state);
+    update();
+    toast('Ticks cleared (receipt notes kept)');
+  });
+
+  document.getElementById('clear-all').addEventListener('click', function () {
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    window.location.reload();
+  });
+
+  update();
+})();
+</script>
+</body>
+</html>
