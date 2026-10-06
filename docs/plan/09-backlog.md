@@ -82,7 +82,7 @@ One ticket per screen, each with the same acceptance criteria: built on the kits
 
 ## Phase 3: backend
 
-**Status (6 Oct 2026, `develop`):** B-01 scaffold + cloud dev project migrated; B-02 schema; B-03 RLS + 30 pgTAP assertions; B-04 `SupabaseAuthAdapter` + live session/guard; B-05 repositories behind the D-04 interfaces (simplifications recorded in `docs/DECISIONS.md` M48); B-06 audit triggers; B-09 security headers — all done and CI-green. B-07 `SmsAdapter` interface + mock shipped, provider and inbound webhook pending **O8**. B-08 declined by the owner (no error tracking, **O6**, M46). B-10 restore rehearsal is an owner/team action. Gate 3 now depends on the live browser smoke: the screen conversion is complete (farm, coordinator home, pay, dry, haul, plan, market, buyer and SMS all read the data layer; exceptions and remaining live gaps in `docs/BLOCKERS.md`), and the live runs against the dev/staging Supabase projects still have to be done before real data.
+**Status (6 Oct 2026, `develop`):** B-01 scaffold + cloud dev project migrated; B-02 schema; B-03 RLS + 30 pgTAP assertions; B-04 `SupabaseAuthAdapter` + live session/guard; B-05 repositories behind the D-04 interfaces (simplifications recorded in `docs/DECISIONS.md` M48); B-06 audit triggers; B-09 security headers — all done and CI-green. B-07 `SmsAdapter` interface + mock shipped, provider and inbound webhook pending **O8**. B-08 declined by the owner (no error tracking, **O6**, M46). B-10 restore rehearsal is an owner/team action. Gate 3 now depends on the gated live smokes (`e2e/gate3-live.spec.ts`, `e2e/anni-live.spec.ts`; see `docs/HANDOVER.md`) run from a network that can reach Supabase: the screen conversion is complete (farm, coordinator home, pay, dry, haul, plan, market, buyer and SMS all read the data layer; exceptions and remaining live gaps in `docs/BLOCKERS.md`), and the live runs against the dev/staging Supabase projects still have to be done before real data.
 
 | ID | Ticket | Size | Model |
 |---|---|---|---|
@@ -100,6 +100,8 @@ One ticket per screen, each with the same acceptance criteria: built on the kits
 ## Phase 4: readiness
 
 Every item in [08-pilot-readiness.md](08-pilot-readiness.md) becomes a ticket with the owner named.
+
+**Status (7 Oct 2026):** the repository side is built — privacy notice + footer link + consent capture at sign-up (M52), data inventory, DSR procedure and script, incident runbook, printable paper fallback pack and per-role onboarding guides; the items needing the owner, the DPO, native review or the second usability round remain open in the checklist and `docs/BLOCKERS.md`. SMS readiness still waits on **O8**.
 
 ## Known issues to fold into the tickets above
 
