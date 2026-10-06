@@ -13,6 +13,7 @@
         "build": "echo source package"
     },
     "dependencies": {
+        "@rc/ai": "workspace:*",
         "@rc/data": "workspace:*",
         "@rc/domain": "workspace:*",
         "@rc/i18n": "workspace:*",

@@ -13,7 +13,7 @@ export const AnniBodySchema = z.object({
     messages: z.array(AnniMessageSchema).min(1).max(20)
 });
 export type AnniMessage = z.infer<typeof AnniMessageSchema>;
-export type AnniErrorCode = 'validation' | 'not_configured' | 'provider' | 'forbidden';
+export type AnniErrorCode = 'validation' | 'not_configured' | 'provider' | 'forbidden' | 'rate_limited';
 export type AnniResult = { ok: true; text: string; proposal?: AnniProposal } | { ok: false; code: AnniErrorCode };
 
 export const AnniProposalSchema = z.discriminatedUnion('kind', [

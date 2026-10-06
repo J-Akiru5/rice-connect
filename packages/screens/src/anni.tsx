@@ -1,7 +1,18 @@
 'use client';
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
-import { Dialog, Icon, PrimaryButton, TextInput, useI18n, useZone, type Zone } from '@rc/ui';
-import { AnniChatError, useAnniChat, type AnniChatMessage } from '@rc/data';
+import { AlertDialog, Dialog, Icon, PrimaryButton, TextInput, useI18n, useToast, useZone, type Zone } from '@rc/ui';
+import {
+    AnniChatError,
+    useAnniChat,
+    useCancelOrder,
+    useCreateOrder,
+    useMarkPaid,
+    type AnniChatMessage
+} from '@rc/data';
+import { makeRiceOrder } from '@rc/domain/buyers';
+import { peso } from '@rc/domain/money';
+import type { AnniProposal } from '@rc/ai/anni';
+import type { SessionRole } from '@rc/store';
 
 /* ANNI, the RiceConnect Farm Assistant (out-of-plan owner request, docs/DECISIONS.md M42). Floating head
    bubble bottom-right; opens a side panel on desktop and a full-height sheet on mobile. Advice-only: the
@@ -19,6 +30,7 @@ const HEAD: Record<Zone, string> = {
     driver: '/driver/brand/anni/anni-head.png',
     farmer: '/farmer/brand/anni/anni-head.png'
 };
+const ROLE: Record<Zone, SessionRole> = { main: 'coordinator', buyer: 'buyer', driver: 'driver', farmer: 'farmer' };
 
 type ChatMessage = { who: 'user' | 'anni'; text: string };
 
@@ -36,10 +48,15 @@ function Bubble({ who, children }: { who: 'user' | 'anni'; children: ReactNode }
 
 export function AnniDock() {
     const { t } = useI18n();
+    const toast = useToast();
     const zone = useZone();
     const chat = useAnniChat(ENDPOINT[zone]);
+    const createOrder = useCreateOrder();
+    const cancelOrder = useCancelOrder();
+    const markPaid = useMarkPaid();
     const [open, setOpen] = useState(false);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
+    const [proposal, setProposal] = useState<AnniProposal | null>(null);
     const [text, setText] = useState('');
     const [error, setError] = useState<string | null>(null);
     const uid = useId();
@@ -55,9 +72,14 @@ export function AnniDock() {
                 messages: history.map<AnniChatMessage>((m) => ({
                     role: m.who === 'user' ? 'user' : 'anni',
                     text: m.text
-                }))
+                })),
+                role: ROLE[zone]
             });
-            setMessages([...history, { who: 'anni', text: reply }]);
+            if (reply.proposal) {
+                setProposal(reply.proposal);
+                return;
+            }
+            setMessages([...history, { who: 'anni', text: reply.text }]);
         } catch (e) {
             setError(
                 e instanceof AnniChatError && e.code === 'not_configured' ? t('anni.notConfigured') : t('anni.error')
@@ -167,6 +189,61 @@ export function AnniDock() {
                     </PrimaryButton>
                 </form>
             </Dialog>
+            {proposal?.kind === 'create_order' &&
+                (() => {
+                    const p = proposal.params;
+                    const order = makeRiceOrder(p.type, p.sacks, p.week, 1);
+                    return (
+                        <AlertDialog
+                            open
+                            onOpenChange={(o) => {
+                                if (!o) setProposal(null);
+                            }}
+                            title={t('anni.order.title')}
+                            description={t('anni.order.body', {
+                                sacks: p.sacks,
+                                type: t(`buyer.type.${p.type}`),
+                                week: p.week,
+                                total: peso(order.total)
+                            })}
+                            confirmLabel={t('anni.order.confirm')}
+                            onConfirm={() => {
+                                setProposal(null);
+                                void createOrder
+                                    .mutateAsync({ type: p.type, sacks: p.sacks, week: p.week })
+                                    .then((o) =>
+                                        toast.show(t('anni.order.done', { id: o.id, total: peso(o.total) }), {
+                                            label: t('action.undo'),
+                                            onClick: () => {
+                                                void cancelOrder.mutateAsync({ id: o.id });
+                                            }
+                                        })
+                                    )
+                                    .catch(() => toast.show(t('anni.action.failed')));
+                            }}
+                        />
+                    );
+                })()}
+            {proposal?.kind === 'mark_paid' && (
+                <AlertDialog
+                    open
+                    onOpenChange={(o) => {
+                        if (!o) setProposal(null);
+                    }}
+                    title={t('anni.paid.title')}
+                    description={t('anni.paid.body', { lot: proposal.params.lotId })}
+                    confirmLabel={t('anni.paid.confirm')}
+                    typedWord={proposal.params.lotId}
+                    onConfirm={() => {
+                        const lotId = proposal.params.lotId;
+                        setProposal(null);
+                        void markPaid
+                            .mutateAsync({ lotId })
+                            .then(() => toast.show(t('anni.paid.done', { lot: lotId })))
+                            .catch(() => toast.show(t('anni.action.failed')));
+                    }}
+                />
+            )}
         </>
     );
 }
