@@ -1,12 +1,14 @@
 'use client';
-import { useState } from 'react';
-import { ZLink, useZoneNav } from '@rc/ui';
+import { useMemo, useState } from 'react';
 import {
     AlertDialog,
     AppShell,
+    ASSETS,
     BigStat,
     EmptyState,
+    ErrorState,
     Icon,
+    LoadingState,
     Pagination,
     PrimaryButton,
     SecondaryButton,
@@ -15,38 +17,42 @@ import {
     StatusChip,
     useI18n,
     useToast,
-    ASSETS
+    ZLink,
+    useZoneNav
 } from '@rc/ui';
-import { useMarkPaid, useSettlementPaid } from '@rc/data';
+import { isLive } from '@rc/ui/mode';
+import { useFarm, useHaul, useLot, useLots, useMarkPaid, useSettlement, useSettlementPaid, useSlots } from '@rc/data';
 import { paginate } from '@rc/domain/list';
 import { staticListState, type ListState } from './list-state';
-import {
-    COMMITMENTS,
-    DRYER,
-    HAUL,
-    HERO_FARM,
-    HERO_LOT,
-    MATCHES,
-    SETTLEMENT,
-    SLIP,
-    SLOT,
-    farmById,
-    lotById
-} from '@rc/domain/seed';
+import { COMMITMENTS, HERO_LOT, commitmentOfLot, farmById } from '@rc/domain/seed';
 import { settle } from '@rc/domain/settlement';
 import { peso, rate } from '@rc/domain/money';
 import { SectionPill, Note, ResponsiveTable, type Col } from './ui';
+
+/** Repository errors carry a typed code; the screens treat `not_found` as the not-found state. */
+const codeOf = (error: unknown) =>
+    error && typeof error === 'object' && 'code' in error ? String((error as { code?: unknown }).code) : '';
 
 /** /pay — lots matched to commitments; only the weighed lot (L-03) settles (desktop; stacked cards when narrow). Paginated. */
 export function PayListScreen({ state = 'default', list }: { state?: 'default' | 'empty'; list?: ListState }) {
     const { t } = useI18n();
     const nav = useZoneNav();
     const L = list ?? staticListState('/pay');
-    const rows = MATCHES.flatMap((m) => m.lots.map((id) => ({ lot: lotById(id)!, commitment: m.commitment }))).sort(
-        (a, b) =>
-            Number(b.lot.actual) - Number(a.lot.actual) ||
-            a.lot.dayIndex - b.lot.dayIndex ||
-            a.lot.id.localeCompare(b.lot.id)
+    /* Gate 3: the lots come from the repositories (mock in demo, Supabase in live). */
+    const lotsQuery = useLots({ size: 500 });
+    /* Demo keeps the seed's matched-lots story; live has no lot→commitment link yet, so every repository lot shows. */
+    const rows = useMemo(
+        () =>
+            (lotsQuery.data?.rows ?? [])
+                .filter((lot) => isLive || commitmentOfLot(lot.id))
+                .map((lot) => ({ lot, commitment: commitmentOfLot(lot.id) }))
+                .sort(
+                    (a, b) =>
+                        Number(b.lot.actual) - Number(a.lot.actual) ||
+                        a.lot.dayIndex - b.lot.dayIndex ||
+                        a.lot.id.localeCompare(b.lot.id)
+                ),
+        [lotsQuery.data]
     );
     const pg = paginate(rows, L.page, L.size);
     type Row = (typeof rows)[number];
@@ -69,13 +75,13 @@ export function PayListScreen({ state = 'default', list }: { state?: 'default' |
                 )
         },
         { key: 'farm', label: t('pay.col.farm'), cell: ({ lot }) => lot.farm },
-        { key: 'commitment', label: t('pay.col.commitment'), cell: (r) => r.commitment },
+        { key: 'commitment', label: t('pay.col.commitment'), cell: (r) => r.commitment ?? '—' },
         {
             key: 'harvest',
             label: t('pay.col.harvest'),
             cell: ({ lot }) => {
-                const f = farmById(lot.farm)!;
-                return `${f.harvestWeek} · ${f.harvestLabel}`;
+                const f = farmById(lot.farm);
+                return f ? `${f.harvestWeek} · ${f.harvestLabel}` : lot.week;
             }
         },
         {
@@ -106,6 +112,19 @@ export function PayListScreen({ state = 'default', list }: { state?: 'default' |
     return (
         <AppShell title="pay.title" eyebrow="pay.eyebrow" active="pay">
             {state === 'empty' ? (
+                <EmptyState
+                    variant="empty"
+                    title="state.pay.empty.title"
+                    body="state.pay.empty.body"
+                    action="state.pay.empty.action"
+                    onAction={() => nav('/dry')}
+                    className="max-w-[640px]"
+                />
+            ) : lotsQuery.isPending ? (
+                <LoadingState rows={3} />
+            ) : lotsQuery.isError ? (
+                <ErrorState onRetry={() => void lotsQuery.refetch()} />
+            ) : pg.total === 0 ? (
                 <EmptyState
                     variant="empty"
                     title="state.pay.empty.title"
@@ -153,13 +172,42 @@ function Rec({ k, children }: { k: string; children: React.ReactNode }) {
 }
 
 /** /pay/[lotId] — lot record, settlement, the advance SMS and the A6 slip with its print view (desktop). */
-export function PayLotScreen({ state = 'default' }: { state?: 'default' | 'error' | 'success' }) {
+export function PayLotScreen({
+    lotId = HERO_LOT.id,
+    state = 'default'
+}: {
+    lotId?: string;
+    state?: 'default' | 'error' | 'success';
+}) {
     const { t } = useI18n();
     const toast = useToast();
-    const paid = useSettlementPaid(HERO_LOT.id);
+    /* Gate 3: the record, the slip and the paid badge come from the repositories; the seed only fills display
+       fields the database does not carry yet (the lot→commitment link), guarded below. */
+    const lotQuery = useLot(lotId);
+    const slipQuery = useSettlement(lotId);
+    const paid = useSettlementPaid(lotId);
     const markPaid = useMarkPaid();
+    const lot = lotQuery.data;
+    const slip = slipQuery.data;
+    /* The mapper uses H-0 / D-0 when a settlement has no haul or slot yet. */
+    const haulQuery = useHaul(slip && slip.haul !== 'H-0' ? slip.haul : '');
+    const farmQuery = useFarm(slip?.farm ?? '');
+    const slotsQuery = useSlots({ size: 200 });
+    const farm = farmQuery.data;
+    const haul = haulQuery.data;
+    const slot = slip ? slotsQuery.data?.rows.find((s) => s.id === slip.slot) : undefined;
+    const commitmentId = commitmentOfLot(lotId);
+    const c = commitmentId ? COMMITMENTS.find((x) => x.id === commitmentId) : undefined;
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [view, setView] = useState(state);
+    const loading = lotQuery.isPending || slipQuery.isPending || paid.isPending;
+    const failed = lotQuery.isError || slipQuery.isError || paid.isError;
+    const notFound = [lotQuery.error, slipQuery.error, paid.error].some((e) => codeOf(e) === 'not_found');
+    const retry = () => {
+        void lotQuery.refetch();
+        void slipQuery.refetch();
+        void paid.refetch();
+    };
     const paidDate = paid.data
         ? new Date(paid.data).toLocaleDateString('en-PH', {
               timeZone: 'Asia/Manila',
@@ -168,13 +216,21 @@ export function PayLotScreen({ state = 'default' }: { state?: 'default' | 'error
               year: 'numeric'
           })
         : null;
-    const c = COMMITMENTS.find((x) => x.id === MATCHES.find((m) => m.lots.includes(HERO_LOT.id))!.commitment)!;
-    const s = SETTLEMENT;
     const shell = (body: React.ReactNode) => (
-        <AppShell title="pay.title" eyebrow={t('pay.eyebrow.lot', { lot: HERO_LOT.id })} active="pay">
+        <AppShell title="pay.title" eyebrow={t('pay.eyebrow.lot', { lot: lotId })} active="pay">
             {body}
         </AppShell>
     );
+    if (loading) return shell(<LoadingState rows={3} className="max-w-[640px]" />);
+    if (failed || !slip)
+        return shell(
+            <ErrorState
+                variant={notFound ? 'notFound' : 'error'}
+                onRetry={notFound ? undefined : retry}
+                className="max-w-[640px]"
+            />
+        );
+    const s = settle(slip.kg);
     if (view === 'error')
         return shell(
             <EmptyState
@@ -190,8 +246,11 @@ export function PayLotScreen({ state = 'default' }: { state?: 'default' | 'error
         return shell(
             <EmptyState
                 variant="success"
-                title={t('state.pay.success.title', { advance: peso(s.advance) })}
-                body={t('state.pay.success.body', { farm: HERO_FARM.id, balance: peso(s.balance) })}
+                title={t('state.pay.success.title', { advance: peso(slip.advance) })}
+                body={t('state.pay.success.body', {
+                    farm: farm?.id ?? slip.farm,
+                    balance: peso(slip.balance)
+                })}
                 className="max-w-[640px]"
             />
         );
@@ -207,25 +266,25 @@ export function PayLotScreen({ state = 'default' }: { state?: 'default' | 'error
                         {t('pay.back')}
                     </ZLink>
                 </div>
-                <SectionPill>{t('pay.section.lot', { lot: HERO_LOT.id, farm: HERO_FARM.id })}</SectionPill>
+                <SectionPill>{t('pay.section.lot', { lot: lotId, farm: slip.farm })}</SectionPill>
                 <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))]">
                     <BigStat
                         label="pay.stat.net"
-                        value={peso(s.net)}
+                        value={peso(slip.net)}
                         size="md"
                         icon="Pay"
-                        note={t('pay.note.net', { kg: s.kg.toLocaleString('en-US'), net: peso(s.rates.net) })}
+                        note={t('pay.note.net', { kg: slip.kg.toLocaleString('en-US'), net: peso(s.rates.net) })}
                     />
                     <BigStat
                         label="pay.stat.advance"
-                        value={peso(s.advance)}
+                        value={peso(slip.advance)}
                         size="md"
                         icon="Advance"
                         note="pay.note.advance"
                     />
                     <BigStat
                         label="pay.stat.balance"
-                        value={peso(s.balance)}
+                        value={peso(slip.balance)}
                         size="md"
                         icon="Clock"
                         note="pay.note.balance"
@@ -233,7 +292,7 @@ export function PayLotScreen({ state = 'default' }: { state?: 'default' | 'error
                 </div>
                 <div className="glass-panel rounded-[1.5rem] p-5 flex flex-col gap-3">
                     <div className="flex flex-wrap gap-2">
-                        <StatusChip status="delivered" label={t('pay.badge.delivered', { haul: HAUL.id })} />
+                        <StatusChip status="delivered" label={t('pay.badge.delivered', { haul: slip.haul })} />
                         {paidDate ? (
                             <StatusChip status="paid" label={t('pay.paidOn', { date: paidDate })} />
                         ) : (
@@ -272,15 +331,15 @@ export function PayLotScreen({ state = 'default' }: { state?: 'default' | 'error
                         onOpenChange={setConfirmOpen}
                         title={t('pay.confirm.title')}
                         description={t('pay.confirm.body', {
-                            amount: peso(s.net),
-                            farm: HERO_FARM.id,
-                            lot: HERO_LOT.id
+                            amount: peso(slip.net),
+                            farm: farm?.id ?? slip.farm,
+                            lot: lotId
                         })}
                         confirmLabel={t('pay.markPaid')}
                         onConfirm={() => {
                             void markPaid
-                                .mutateAsync({ lotId: HERO_LOT.id })
-                                .then(() => toast.show(t('pay.paidToast', { lot: HERO_LOT.id })));
+                                .mutateAsync({ lotId })
+                                .then(() => toast.show(t('pay.paidToast', { lot: lotId })));
                         }}
                     />
                 </div>
@@ -289,31 +348,22 @@ export function PayLotScreen({ state = 'default' }: { state?: 'default' | 'error
                         {t('pay.record')}
                     </h3>
                     <dl className="mt-1 grid gap-x-6 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
-                        <Rec k="pay.rec.farm">
-                            {HERO_FARM.id} · {HERO_FARM.barangay}
-                        </Rec>
-                        <Rec k="pay.rec.harvest">
-                            {HERO_FARM.harvestWeek} · {HERO_FARM.harvestLabel}
-                        </Rec>
+                        <Rec k="pay.rec.farm">{farm ? `${farm.id} · ${farm.barangay}` : slip.farm}</Rec>
+                        <Rec k="pay.rec.harvest">{farm ? `${farm.harvestWeek} · ${farm.harvestLabel}` : '—'}</Rec>
                         <Rec k="pay.rec.weight">
-                            {HERO_LOT.driedKg.toLocaleString('en-US')} {t('unit.kg')} · {HERO_LOT.sacks}{' '}
-                            {t('unit.sacks')}
+                            {lot
+                                ? `${lot.driedKg.toLocaleString('en-US')} ${t('unit.kg')} · ${lot.sacks} ${t('unit.sacks')}`
+                                : '—'}
                         </Rec>
-                        <Rec k="pay.rec.quality">
-                            {HERO_LOT.grade} · {HERO_LOT.mc}
-                        </Rec>
-                        <Rec k="pay.rec.buyer">
-                            {c.id} · {c.buyer}
-                        </Rec>
+                        <Rec k="pay.rec.quality">{lot ? `${lot.grade} · ${lot.mc}` : '—'}</Rec>
+                        <Rec k="pay.rec.buyer">{c ? `${c.id} · ${c.buyer}` : '—'}</Rec>
                         <Rec k="pay.rec.haul">
-                            {HAUL.id} · {HAUL.driver?.name} · {HAUL.driver?.plate}
+                            {haul
+                                ? `${haul.id}${haul.driver ? ` · ${haul.driver.name} · ${haul.driver.plate}` : ''}`
+                                : slip.haul}
                         </Rec>
-                        <Rec k="pay.rec.slot">
-                            {SLOT.id} · {DRYER.name} · {SLOT.day}
-                        </Rec>
-                        <Rec k="pay.rec.slip">
-                            {SLIP.id} · {SLIP.date}
-                        </Rec>
+                        <Rec k="pay.rec.slot">{slot ? `${slot.id} · ${slot.dryer} · ${slot.day}` : slip.slot}</Rec>
+                        <Rec k="pay.rec.slip">{`${slip.id} · ${slip.date}`}</Rec>
                     </dl>
                 </section>
                 <section aria-labelledby="pay-sms">
@@ -328,8 +378,8 @@ export function PayLotScreen({ state = 'default' }: { state?: 'default' | 'error
                 <div className="slip-stage bg-[var(--gray-300)] rounded-2xl p-6 flex justify-center overflow-x-auto">
                     <div className="shadow-[var(--shadow-popover)] print:shadow-none">
                         <SettlementSlip
-                            slip={SLIP}
-                            farmer={HERO_FARM.name}
+                            slip={slip}
+                            farmer={farm?.name ?? ''}
                             logoSrc={ASSETS.logoMono}
                             className="print-slip"
                         />
