@@ -20,6 +20,7 @@ export {
     useFarm,
     useFarms,
     useHaul,
+    useHauls,
     useHaulStatus,
     useLot,
     useLots,

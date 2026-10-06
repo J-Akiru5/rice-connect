@@ -6,6 +6,7 @@ import {
     type DirectoryRole,
     type FarmDraft,
     type FarmQuery,
+    type HaulQuery,
     type ListQuery,
     type SessionRole
 } from '@rc/store';
@@ -34,6 +35,8 @@ export const useSlots = (q: ListQuery = {}) =>
 export const useSlotStatus = (id: string) =>
     useQuery({ queryKey: keys.slots.status(id), queryFn: () => getRepos().slots.status(id), enabled: id.length > 0 });
 
+export const useHauls = (q: HaulQuery = {}) =>
+    useQuery({ queryKey: keys.hauls.list(q), queryFn: () => getRepos().hauls.list(q) });
 export const useHaul = (id: string) =>
     useQuery({ queryKey: keys.hauls.one(id), queryFn: () => getRepos().hauls.get(id), enabled: id.length > 0 });
 export const useHaulStatus = (id: string) =>

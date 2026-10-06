@@ -614,6 +614,11 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
         'Walang naghihintay: nasa driver na ang {id}.',
         'Wala sang nagahulat: yara na sa driver ang {id}.'
     ],
+    'home.noHaulRequests': [
+        'No haul requests this week.',
+        'Walang hiling na hakot ngayong linggo.',
+        'Wala sang pangayo nga hakot subong nga semana.'
+    ],
     'home.openHaul': ['Open Logistics', 'Buksan ang Logistics', 'Buksan ang Logistics'],
     'home.advances': ['Advances Due', 'Paunang Bayad na Dapat Ibigay', 'Abanse nga Dapat Ihatag'],
     'home.advanceLine': [

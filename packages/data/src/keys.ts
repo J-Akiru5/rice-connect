@@ -1,4 +1,4 @@
-import type { FarmQuery, ListQuery } from '@rc/store';
+import type { FarmQuery, HaulQuery, ListQuery } from '@rc/store';
 
 /** Query-key factory: one place for every cache key, so mutations invalidate the right lists. */
 export const keys = {
@@ -21,6 +21,7 @@ export const keys = {
     },
     hauls: {
         all: ['hauls'] as const,
+        list: (q: HaulQuery = {}) => ['hauls', 'list', q] as const,
         one: (id: string) => ['hauls', 'one', id] as const,
         status: (id: string) => ['hauls', 'status', id] as const
     },
