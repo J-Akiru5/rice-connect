@@ -38,6 +38,7 @@ export {
     EndCard,
     Terraces
 } from './Components/Enactus';
+export { BarChart, ProgressBar, StatusDistribution, chartFill } from './Components/Charts';
 export { I18nProvider, useI18n, translate, fill, STRINGS, LANGS, T, tx } from '@rc/i18n';
 export type { Lang } from '@rc/i18n';
 export { setAssets, ASSETS } from './lib/assets';

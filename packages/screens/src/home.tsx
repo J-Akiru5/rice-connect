@@ -1,10 +1,32 @@
 'use client';
-import { AppShell, BigStat, ErrorState, Icon, LoadingState, StatusChip, ZLink, useI18n } from '@rc/ui';
+import {
+    AppShell,
+    BarChart,
+    BigStat,
+    ErrorState,
+    Icon,
+    LoadingState,
+    ProgressBar,
+    StatusChip,
+    StatusDistribution,
+    ZLink,
+    useI18n
+} from '@rc/ui';
 import overrides from '@rc/domain/overrides.json';
 import { HERO_LOT, SETTLEMENT, SLIP, SLOT, WEEKS } from '@rc/domain/seed';
 import { dayLabel } from '@rc/domain/calendar';
 import { peso } from '@rc/domain/money';
-import { useFarms, useHauls, useHaulStatus, useMyCommitments, useOrders, useSmsReplies, useSlotStatus } from '@rc/data';
+import {
+    useCommitments,
+    useFarms,
+    useHauls,
+    useHaulStatus,
+    useHaulStatuses,
+    useMyCommitments,
+    useOrders,
+    useSmsReplies,
+    useSlotStatus
+} from '@rc/data';
 import { SectionPill, Note } from './ui';
 
 const t1 = (kg: number) => (Math.round(kg / 100) / 10).toFixed(1);
@@ -55,11 +77,16 @@ export function CoordinatorHomeScreen() {
     const ordersQuery = useOrders({ size: 50 });
     const commitmentsQuery = useMyCommitments();
     const repliesQuery = useSmsReplies();
-    /* Gate 3: harvests come from the repositories (mock in demo, Supabase in live). */
+    /* Gate 3: harvests and the dashboard come from the repositories (mock in demo, Supabase in live). */
     const farmsQuery = useFarms({ size: 100 });
-    const harvests = (farmsQuery.data?.rows ?? [])
+    const boardQuery = useCommitments({ size: 20 });
+    const farms = farmsQuery.data?.rows ?? [];
+    const harvests = farms
         .filter((f) => f.harvestDay >= WEEK * 7 && f.harvestDay < WEEK * 7 + 7)
         .sort((a, b) => a.harvestDay - b.harvestDay || a.id.localeCompare(b.id));
+    const hauls = haulsQuery.data?.rows ?? [];
+    const haulIds = hauls.map((h) => h.id);
+    const statusesQuery = useHaulStatuses(haulIds);
     const hStatus = haulQuery.data ?? 'assigned';
     const waiting = Boolean(haul) && (hStatus === 'assigned' || hStatus === 'requested');
     const slot = slotQuery.data ?? 'scheduled';
@@ -68,13 +95,27 @@ export function CoordinatorHomeScreen() {
     const orders = riceOrders.length + commitments.length;
     const replies = repliesQuery.data ?? [];
     const lastReply = replies[replies.length - 1];
-    /* The status query stays disabled while the list has no haul, so it is not part of the loading gate. */
-    const live = [haulsQuery, slotQuery, ordersQuery, commitmentsQuery, repliesQuery, farmsQuery];
-    const loading = live.some((q) => q.isPending) || (Boolean(haul) && haulQuery.isPending);
-    const failed = live.some((q) => q.isError) || (Boolean(haul) && haulQuery.isError);
+    const weekKg = WEEKS.map((w) => farms.filter((f) => f.harvestWeek === w).reduce((s, f) => s + f.driedKg, 0));
+    const board = boardQuery.data?.rows ?? [];
+    const statusSegments = (['requested', 'assigned', 'accepted', 'pickedup', 'delivered'] as const).map((s) => ({
+        status: s,
+        label: t('status.' + s),
+        value: (statusesQuery.data ?? []).filter((x) => x.status === s).length
+    }));
+    /* Disabled queries (no haul yet) stay out of the loading gate: their isPending never settles. */
+    const live = [haulsQuery, slotQuery, ordersQuery, commitmentsQuery, repliesQuery, farmsQuery, boardQuery];
+    const loading =
+        live.some((q) => q.isPending) ||
+        (Boolean(haul) && haulQuery.isPending) ||
+        (haulIds.length > 0 && statusesQuery.isPending);
+    const failed =
+        live.some((q) => q.isError) ||
+        (Boolean(haul) && haulQuery.isError) ||
+        (haulIds.length > 0 && statusesQuery.isError);
     const retry = () => {
         live.forEach((q) => void q.refetch());
         if (haul) void haulQuery.refetch();
+        if (haulIds.length > 0) void statusesQuery.refetch();
     };
     const gate = (content: React.ReactNode) =>
         loading ? <LoadingState rows={2} /> : failed ? <ErrorState onRetry={retry} /> : content;
@@ -102,6 +143,37 @@ export function CoordinatorHomeScreen() {
                     />
                     <BigStat label="home.stat.orders" value={orders} icon="Orders" note={t('home.note.orders')} />
                 </div>
+                <section aria-labelledby="h-dash" className="glass-panel rounded-[1.5rem] p-5">
+                    <h2 id="h-dash" className="eyebrow">
+                        {t('home.charts')}
+                    </h2>
+                    {gate(
+                        <div className="mt-4 grid gap-6 [grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr))]">
+                            <BarChart
+                                title={t('home.chart.harvest')}
+                                data={WEEKS.map((w, i) => ({ label: w, value: Number(t1(weekKg[i] ?? 0)) }))}
+                                unit={t('unit.t')}
+                            />
+                            <div className="min-w-0 flex flex-col gap-4">
+                                <h3 className="eyebrow">{t('home.chart.commitments')}</h3>
+                                {board.length === 0 ? (
+                                    <Note>{t('chart.noData')}</Note>
+                                ) : (
+                                    board.map((c) => (
+                                        <ProgressBar
+                                            key={c.id}
+                                            title={c.id}
+                                            value={c.filled}
+                                            max={c.tonnes}
+                                            unit={t('unit.t')}
+                                        />
+                                    ))
+                                )}
+                            </div>
+                            <StatusDistribution title={t('home.chart.hauls')} segments={statusSegments} />
+                        </div>
+                    )}
+                </section>
                 <div className="cq-two">
                     <Panel
                         id="h-harvest"

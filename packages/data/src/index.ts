@@ -22,6 +22,7 @@ export {
     useHaul,
     useHauls,
     useHaulStatus,
+    useHaulStatuses,
     useLot,
     useLots,
     useMyCommitments,

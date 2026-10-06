@@ -23,7 +23,8 @@ export const keys = {
         all: ['hauls'] as const,
         list: (q: HaulQuery = {}) => ['hauls', 'list', q] as const,
         one: (id: string) => ['hauls', 'one', id] as const,
-        status: (id: string) => ['hauls', 'status', id] as const
+        status: (id: string) => ['hauls', 'status', id] as const,
+        statuses: (ids: readonly string[]) => ['hauls', 'statuses', [...ids]] as const
     },
     commitments: {
         all: ['commitments'] as const,

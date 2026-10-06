@@ -41,6 +41,16 @@ export const useHaul = (id: string) =>
     useQuery({ queryKey: keys.hauls.one(id), queryFn: () => getRepos().hauls.get(id), enabled: id.length > 0 });
 export const useHaulStatus = (id: string) =>
     useQuery({ queryKey: keys.hauls.status(id), queryFn: () => getRepos().hauls.status(id), enabled: id.length > 0 });
+/** Statuses for a short list of hauls (the dashboard distribution); no request when the list is empty. */
+export const useHaulStatuses = (ids: readonly string[]) =>
+    useQuery({
+        queryKey: keys.hauls.statuses(ids),
+        queryFn: async () => {
+            const repo = getRepos();
+            return Promise.all(ids.map(async (id) => ({ id, status: await repo.hauls.status(id) })));
+        },
+        enabled: ids.length > 0
+    });
 
 export const useCommitments = (q: ListQuery = {}) =>
     useQuery({ queryKey: keys.commitments.list(q), queryFn: () => getRepos().commitments.list(q) });

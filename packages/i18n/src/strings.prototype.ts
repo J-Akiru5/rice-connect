@@ -627,6 +627,13 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
         'Walang hiling na hakot ngayong linggo.',
         'Wala sang pangayo nga hakot subong nga semana.'
     ],
+    'home.charts': ['Cluster Dashboard', 'Dashboard ng Cluster', 'Dashboard sang Cluster'],
+    'home.chart.harvest': ['Harvest by Week', 'Ani Kada Linggo', 'Alani Kada Semana'],
+    'home.chart.commitments': ['Commitment Fill', 'Puno ng Pangako', 'Puno sang Saad'],
+    'home.chart.hauls': ['Haul Status', 'Katayuan ng Hakot', 'Kahimtangan sang Hakot'],
+    'chart.label': ['Item', 'Item', 'Item'],
+    'chart.value': ['Value', 'Halaga', 'Bili'],
+    'chart.noData': ['No data yet', 'Wala pang datos', 'Wala pa sang datos'],
     'home.openHaul': ['Open Logistics', 'Buksan ang Logistics', 'Buksan ang Logistics'],
     'home.advances': ['Advances Due', 'Paunang Bayad na Dapat Ibigay', 'Abanse nga Dapat Ihatag'],
     'home.advanceLine': [
