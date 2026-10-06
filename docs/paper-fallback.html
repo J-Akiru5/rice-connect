@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RiceConnect paper fallback pack</title>
+<style>
+  :root { --ink:#0a2e24; --muted:#4b5563; --line:#9ca3af; --brand:#024635; --gold:#de9f24; --bg:#ffffff; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 "Plus Jakarta Sans", system-ui, sans-serif; }
+  main { max-width: 1040px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 28px; margin: 0 0 4px; letter-spacing: -.02em; }
+  h2 { font-size: 20px; margin: 28px 0 8px; padding-top: 8px; border-top: 3px solid var(--brand); }
+  .chip { display:inline-block; background: var(--gold); color:#000; font-weight:800; font-size:12px; letter-spacing:.08em; text-transform:uppercase; padding:4px 10px; border-radius:999px; }
+  .note { color: var(--muted); font-size: 13px; }
+  table { width:100%; border-collapse: collapse; margin-top: 8px; }
+  th, td { border:1px solid var(--line); padding:6px 8px; text-align:left; vertical-align:top; height:34px; }
+  th { font-size:11px; text-transform:uppercase; letter-spacing:.06em; background:#f3f6f4; }
+  .box { display:inline-block; width:16px; height:16px; border:2px solid var(--ink); border-radius:3px; }
+  .fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px 16px; margin:8px 0 0; }
+  .fields div { border-bottom:1px solid var(--line); padding:6px 2px; }
+  .fields b { font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); display:block; }
+  .sign { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px; margin-top:28px; }
+  .sign div { border-top:1px solid var(--ink); padding-top:4px; font-size:13px; }
+  @media print { body { color:#000; } h2 { break-before: page; } table, .fields { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<main>
+<span class="chip">Paper fallback · keep for the audit</span>
+<h1>RiceConnect paper fallback pack</h1>
+<p class="note">Team Syntaxure Labs · ISUFST. Use these sheets when the app or SMS is down. Write in pen, one sheet per day. Keep them dry and hand them to the coordinator at day's end; they are the audit trail until the records are entered into the app.</p>
+
+<h2>1. Dryer slot sheet (week ____, date __________)</h2>
+<p class="note">Capacity per day: ______ sacks. Only the coordinator writes here. Move a lot only by crossing it out and writing the new day beside it, never by erasing.</p>
+<table>
+<thead><tr><th>Slot</th><th>Day</th><th>Lot</th><th>Farm</th><th>Sacks</th><th>kg</th><th>Arrived <span class="box"></span></th><th>Notes / moved to</th></tr></thead>
+<tbody>
+<tr><td>D-______</td><td></td><td>L-______</td><td>F-______</td><td></td><td></td><td></td><td></td></tr>
+<tr><td>D-______</td><td></td><td>L-______</td><td>F-______</td><td></td><td></td><td></td><td></td></tr>
+<tr><td>D-______</td><td></td><td>L-______</td><td>F-______</td><td></td><td></td><td></td><td></td></tr>
+<tr><td>D-______</td><td></td><td>L-______</td><td>F-______</td><td></td><td></td><td></td><td></td></tr>
+<tr><td>D-______</td><td></td><td>L-______</td><td>F-______</td><td></td><td></td><td></td><td></td></tr>
+<tr><td>D-______</td><td></td><td>L-______</td><td>F-______</td><td></td><td></td><td></td><td></td></tr>
+</tbody>
+</table>
+
+<h2>2. Haul sheet (date __________)</h2>
+<p class="note">One row per haul. Tick the status when it happens; write the time next to the tick.</p>
+<table>
+<thead><tr><th>Haul</th><th>Lot</th><th>Farm / barangay</th><th>Sacks</th><th>Driver / plate</th><th>Pickup</th><th>Assigned</th><th>Accepted</th><th>Picked up</th><th>Delivered</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>H-______</td><td>L-______</td><td></td><td></td><td></td><td></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td></td></tr>
+<tr><td>H-______</td><td>L-______</td><td></td><td></td><td></td><td></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td></td></tr>
+<tr><td>H-______</td><td>L-______</td><td></td><td></td><td></td><td></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td></td></tr>
+<tr><td>H-______</td><td>L-______</td><td></td><td></td><td></td><td></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td><span class="box"></span></td><td></td></tr>
+</tbody>
+</table>
+
+<h2>3. Settlement slip (paper copy)</h2>
+<div class="fields">
+  <div><b>Farm / lot</b>&nbsp;</div>
+  <div><b>Date</b>&nbsp;</div>
+  <div><b>Dried weight (kg)</b>&nbsp;</div>
+  <div><b>Sacks</b>&nbsp;</div>
+  <div><b>Quoted rate (₱/kg)</b>&nbsp;</div>
+  <div><b>Drying + margin (₱/kg)</b>&nbsp;</div>
+  <div><b>Net rate (₱/kg)</b>&nbsp;</div>
+  <div><b>Net to farmer (₱)</b>&nbsp;</div>
+  <div><b>Advance 80% (₱)</b></div>
+  <div><b>Advance sent (date)</b>&nbsp;</div>
+  <div><b>Balance 20% (₱)</b></div>
+  <div><b>Balance paid (date)</b>&nbsp;</div>
+</div>
+<p class="note">Compute exactly as the app does: net = weight × (quoted − drying − margin); advance = 80% of net within 24 hours; balance when the buyer pays. The buyer's sourcing fee is paid by the buyer and is never deducted from the farmer.</p>
+<div class="sign">
+  <div>Farmer / representative signature</div>
+  <div>Coordinator signature</div>
+</div>
+</main>
+</body>
+</html>

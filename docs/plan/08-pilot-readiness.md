@@ -2,6 +2,8 @@
 
 Nothing on this list is optional. Real farmers' names, mobile numbers, farm locations and payments are personal information under the **Data Privacy Act of 2012 (RA 10173)**. Items marked *verify* depend on rules the team should confirm with the National Privacy Commission's published issuances or a lawyer; this plan is not legal advice.
 
+**Status (7 Oct 2026):** the items marked `(repo)` are built in this repository and verified by CI/browser as noted; the pilot still needs the owner/DPO/team sign-off, the names and periods, O7 (DPO), O8 (SMS), and B-10 (restore rehearsal) before this gate can close. See `docs/BLOCKERS.md` and `docs/DECISIONS.md` (M52).
+
 ## People and accountability
 
 - [ ] A named **Data Protection Officer** (or compliance officer) for the pilot, with contact details published in the privacy notice. (Open question O7.)
@@ -10,13 +12,13 @@ Nothing on this list is optional. Real farmers' names, mobile numbers, farm loca
 
 ## Privacy and consent
 
-- [ ] **Privacy notice** in EN, TL and HIL, written plainly: what is collected, why, who sees it, how long it is kept, and how to ask for access, correction or deletion. Shown at sign-up and reachable from every page footer.
-- [ ] **Consent capture** at sign-up, stored in the `consents` table with the notice version, the channel (app, SMS, paper) and the time. Farmers who join by SMS or on paper get the notice read to them, and the coordinator records consent with the same fields.
-- [ ] **Data inventory**: every field collected, its purpose, who can read it (matches the RLS table in [03-architecture.md](03-architecture.md#row-level-security-who-sees-what)) and its retention period.
-- [ ] **Minimum data**: no field without a purpose. No national ID numbers, no photos of people, no exact home locations; farm locations at barangay level unless a task needs more.
-- [ ] **Data subject requests**: a written procedure, and an admin screen or script, to export, correct or delete one person's data.
+- [x] (repo) **Privacy notice** in EN, TL and HIL, written plainly: what is collected, why, who sees it, how long it is kept, and how to ask for access, correction or deletion. Shown at sign-up and reachable from every page footer. (`/privacy`, footer link, version `2026-10-07`; DPO contact and retention still provisional.)
+- [x] (repo) **Consent capture** at sign-up, stored in the `consents` table with the notice version, the channel (app, SMS, paper) and the time. Farmers who join by SMS or on paper get the notice read to them, and the coordinator records consent with the same fields. (App channel: sign-up metadata + `handle_new_user` trigger, pgTAP-tested. SMS/paper capture is the coordinator's manual entry; no screen yet.)
+- [x] (repo) **Data inventory**: every field collected, its purpose, who can read it (matches the RLS table in [03-architecture.md](03-architecture.md#row-level-security-who-sees-what)) and its retention period. (`docs/DATA-INVENTORY.md`; retention periods proposed, to confirm.)
+- [x] (repo) **Minimum data**: no field without a purpose. No national ID numbers, no photos of people, no exact home locations; farm locations at barangay level unless a task needs more. (Enforced by the schema and the app; no coordinates stored.)
+- [x] (repo) **Data subject requests**: a written procedure, and an admin screen or script, to export, correct or delete one person's data. (`docs/DSR.md` + `scripts/dsr.mjs`; erase = withdraw + anonymise until the DPO decides on hard deletion.)
 - [ ] **Registration with the National Privacy Commission** checked against the current registration criteria (*verify*: NPC Circular 2022-04 sets who must register).
-- [ ] **Breach procedure**: who decides, who notifies the NPC and the affected people, and within what time (*verify*: NPC rules require notifying the Commission within 72 hours of knowledge of a qualifying breach).
+- [~] **Breach procedure**: who decides, who notifies the NPC and the affected people, and within what time (*verify*: NPC rules require notifying the Commission within 72 hours of knowledge of a qualifying breach). (Draft in `docs/RUNBOOK.md`; DPO to verify the wording/criteria and name the people.)
 
 ## Security
 
@@ -37,10 +39,10 @@ Nothing on this list is optional. Real farmers' names, mobile numbers, farm loca
 
 ## Operations
 
-- [ ] **Paper fallback** for every step the app handles (slot list, haul sheet, slip), so the cluster can run a day without the app.
-- [ ] Onboarding script and a one-page guide per role, in the user's language, tested in the Phase 2 usability round.
+- [x] (repo) **Paper fallback** for every step the app handles (slot list, haul sheet, slip), so the cluster can run a day without the app. (`docs/paper-fallback.html`, printable.)
+- [~] (repo) Onboarding script and a one-page guide per role, in the user's language, tested in the Phase 2 usability round. (`docs/guides/onboarding.html`; EN done, TL/HIL drafts pending S-13 native review, usability round still pending.)
 - [ ] Support channel (a phone number staffed by the team during pilot hours) printed on the guides.
-- [ ] Incident runbook: site down, SMS not sending, wrong payment shown, suspected data leak; each with who acts and how.
+- [x] (repo) Incident runbook: site down, SMS not sending, wrong payment shown, suspected data leak; each with who acts and how. (`docs/RUNBOOK.md`; names/phones to fill.)
 - [ ] Pilot success criteria agreed with the cluster in writing before day one.
 
 ## Product
