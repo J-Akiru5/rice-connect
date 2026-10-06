@@ -131,17 +131,23 @@ export function DryScreen({ list, week: weekParam }: { list?: ListState; week?: 
                     />
                 </div>
                 <div aria-live="polite">
-                    {slotQuery.isPending ? (
-                        <LoadingState rows={1} />
-                    ) : slotQuery.isError ? (
-                        <ErrorState onRetry={() => void slotQuery.refetch()} />
-                    ) : focusSlot ? (
-                        <StatusChip
-                            status={
-                                slotState === 'confirmed' ? 'paid' : slotState === 'move-requested' ? 'pending' : 'open'
-                            }
-                            label={t('slot.' + slotState, { id: focusSlot.id })}
-                        />
+                    {focusSlot ? (
+                        slotQuery.isPending ? (
+                            <LoadingState rows={1} />
+                        ) : slotQuery.isError ? (
+                            <ErrorState onRetry={() => void slotQuery.refetch()} />
+                        ) : (
+                            <StatusChip
+                                status={
+                                    slotState === 'confirmed'
+                                        ? 'paid'
+                                        : slotState === 'move-requested'
+                                          ? 'pending'
+                                          : 'open'
+                                }
+                                label={t('slot.' + slotState, { id: focusSlot.id })}
+                            />
+                        )
                     ) : null}
                 </div>
                 <section aria-labelledby="dry-sec">
