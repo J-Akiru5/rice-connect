@@ -79,6 +79,11 @@ One ticket per screen, each with the same acceptance criteria: built on the kits
 | S-12 | Route guards in live mode | Signed out → role sign-in with return link; wrong role → forbidden state. | Kimi 3 |
 | S-13 | Native review of TL/HIL for farmer and driver screens | Glossary file; every string signed off or flagged. | Team |
 | S-14 | Second usability round | Same scripts; no severity 3–4 findings (Gate 2). | Team |
+| S-15 | Farmer plan (`/farmer/plan`): own harvest week, the cluster calendar with the farm's row in gold, book a repeat delivery | Summary + confirm, then Undo on cancel; the nav item and its route ship together (no dead links); state matrix; strings EN/TL/HIL. | Claude Sonnet |
+| S-16 | Central milling (`/farmer/milling`): slot, dryer and sack request for the farmer's lot | Uses `MILLING`/`DRYER_SLOTS` as they are (derived, not new figures); confirm or move the slot through `useSetSlotStatus` (the write the SMS replies use) with Undo, recovery and sack weights stay labelled assumed; nav grows with its route. | Claude Sonnet |
+| S-17 | Contract price & variety (`/farmer/price`): the commitment's grade, MC and price beside the rice variety | Four tabs stay (SMS, Plan, Milling, Slip) and Price rides in the shared More sheet; assumed numbers stay labelled from `overrides.json`. | Claude Sonnet |
+| S-18 | Driver: jobs list at `/`, the job card at `/haul/driver/jobs/{id}` | Nav down to two items (`jobs` + SMS); accept/decline on the list, pickup/delivery on the card; `/haul/driver/jobs/{id}` redirects to the new path; no repository changes. | Claude Sonnet |
+| S-19 | Fix the double-encoded characters in `strings.prototype.ts` | 168 `Â·` (should be `·`), 3 `Â©` and 15 `â€¦` (should be `…`) render as mojibake in the farm summary, the plan eyebrow, the sidebar and the marketing copy — pre-existing at `ebee5b7`, not introduced by S-15–S-18. Text-only repair, no key or translation changes, then refresh the affected visual baselines. | Claude Sonnet |
 
 ## Phase 3: backend
 
