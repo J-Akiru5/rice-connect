@@ -348,6 +348,19 @@ export function createSupabaseRepos(client: SupabaseClient): Repos {
             }
             return rowToHaul(row, lot, farm, driver, profile, vehicle);
         },
+        async list(q) {
+            let query = client
+                .from('hauls')
+                .select('id')
+                .order('id')
+                .limit(q?.size ?? 20);
+            if (q?.status) query = query.eq('status', q.status);
+            const { data, error } = await query;
+            must(error);
+            const rows: Haul[] = [];
+            for (const r of (data ?? []) as Row[]) rows.push(await hauls.get(s(r.id)));
+            return { rows, total: rows.length, page: 1, size: q?.size ?? 20 };
+        },
         async status(id) {
             const { data, error } = await client.from('hauls').select('status').eq('id', id).maybeSingle();
             must(error);
@@ -522,6 +535,23 @@ export function createSupabaseRepos(client: SupabaseClient): Repos {
                 throw new RepoError('forbidden', `Settlement ${lotId} cannot be paid`, lotId);
             }
             return s((data as Row).paid_at);
+        },
+        async advancesDue() {
+            const { data, error } = await client
+                .from('settlements')
+                .select('lot_id, advance_centavos, paid_at, lots(dried_kg)')
+                .limit(20);
+            must(error);
+            return ((data ?? []) as Row[]).map((r) => {
+                const lot = (Array.isArray(r.lots) ? r.lots[0] : r.lots) as Row | null;
+                const derived = settle(n(lot?.dried_kg));
+                return {
+                    lotId: s(r.lot_id),
+                    net: derived.net,
+                    advance: n(r.advance_centavos),
+                    paid: r.paid_at != null
+                };
+            });
         }
     };
 

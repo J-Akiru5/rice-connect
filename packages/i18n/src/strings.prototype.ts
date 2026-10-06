@@ -1,11 +1,11 @@
-/* STRINGS added for the prototype screens. [EN, TL, HIL].
+﻿/* STRINGS added for the prototype screens. [EN, TL, HIL].
    EN is complete. TL and HIL are DRAFTS. Draft: needs native review before any farmer, driver or judge reads them
    as final. Title Case for labels (CSS uppercases), sentence case for sentences. */
 export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     // chrome
     'theme.dark': ['Dark', 'Madilim', 'Madulom'],
     'theme.light': ['Light', 'Maliwanag', 'Masanag'],
-    'role.coordinator': ['Coordinator · Cluster 1', 'Coordinator · Cluster 1', 'Coordinator · Cluster 1'],
+    'role.coordinator': ['Coordinator Â· Cluster 1', 'Coordinator Â· Cluster 1', 'Coordinator Â· Cluster 1'],
     'role.buyer': ['Buyer (simulated)', 'Mamimili (simulated)', 'Bumalakal (simulated)'],
     'role.driver': ['Driver (simulated)', 'Driver (simulated)', 'Driver (simulated)'],
     'unit.sacks': ['sacks', 'sako', 'sako'],
@@ -14,7 +14,7 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     'unit.ha': ['ha', 'ha', 'ha'],
     'unit.km': ['km', 'km', 'km'],
     'unit.perKg': ['/kg', '/kg', '/kg'],
-    'unit.pesoPerKg': ['₱/kg', '₱/kg', '₱/kg'],
+    'unit.pesoPerKg': ['â‚±/kg', 'â‚±/kg', 'â‚±/kg'],
     'unit.lot': ['Lot', 'Lot', 'Lot'],
     'env.demo': ['Demo', 'Demo', 'Demo'],
     'env.staging': ['Staging', 'Staging', 'Staging'],
@@ -95,9 +95,9 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     // components
     'market.filled': ['Filled', 'Napunan', 'Napuno'],
     'market.filledof': [
-        '{filled} of {tonnes} t filled · {pct}%',
-        '{filled} sa {tonnes} t napunan · {pct}%',
-        '{filled} sa {tonnes} t napuno · {pct}%'
+        '{filled} of {tonnes} t filled Â· {pct}%',
+        '{filled} sa {tonnes} t napunan Â· {pct}%',
+        '{filled} sa {tonnes} t napuno Â· {pct}%'
     ],
     'cal.total': ['Total', 'Kabuuan', 'Kabilugan'],
     'cal.farms': ['{n} farms', '{n} bukid', '{n} ka uma'],
@@ -105,24 +105,24 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     // farm list + profile
     'farm.list': ['Cluster 1 Farms', 'Mga Bukid ng Cluster 1', 'Mga Uma sang Cluster 1'],
     'farm.search': ['Search Farms', 'Maghanap ng Bukid', 'Mangita sang Uma'],
-    'farm.summary': ['{n} farms · {ha} ha', '{n} bukid · {ha} ha', '{n} ka uma · {ha} ha'],
+    'farm.summary': ['{n} farms Â· {ha} ha', '{n} bukid Â· {ha} ha', '{n} ka uma Â· {ha} ha'],
     'farm.open': ['Open {id}', 'Buksan ang {id}', 'Buksan ang {id}'],
     'farm.back': ['All Farms', 'Lahat ng Bukid', 'Tanan nga Uma'],
     'farm.harvest': ['Harvest', 'Ani', 'Alani'],
-    'farm.harvestLine': ['{week} · {date}', '{week} · {date}', '{week} · {date}'],
+    'farm.harvestLine': ['{week} Â· {date}', '{week} Â· {date}', '{week} Â· {date}'],
     'farm.forecast': ['Forecast, Dried', 'Tantiya, Tuyo', 'Banta, Uga'],
     'farm.lot': ['Lot', 'Lot', 'Lot'],
     'farm.viewPlan': ['View in Plan', 'Tingnan sa Plano', 'Tan-awa sa Plano'],
     // plan
     'plan.eyebrow': [
-        'Cluster 1 · {barangays} · W1-W4 from {start}',
-        'Cluster 1 · {barangays} · W1-W4 mula {start}',
-        'Cluster 1 · {barangays} · W1-W4 halin {start}'
+        'Cluster 1 Â· {barangays} Â· W1-W4 from {start}',
+        'Cluster 1 Â· {barangays} Â· W1-W4 mula {start}',
+        'Cluster 1 Â· {barangays} Â· W1-W4 halin {start}'
     ],
     'plan.note.farms': [
-        '{b} barangays · {split} farms',
-        '{b} barangay · {split} bukid',
-        '{b} ka barangay · {split} ka uma'
+        '{b} barangays Â· {split} farms',
+        '{b} barangay Â· {split} bukid',
+        '{b} ka barangay Â· {split} ka uma'
     ],
     'plan.note.area': ['Average {avg} ha per farm', 'Karaniwang {avg} ha bawat bukid', 'Average {avg} ha kada uma'],
     'plan.note.tonnes': [
@@ -131,9 +131,9 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
         'Uga. Basa {wet} t sa {yield} kg/ha, {loss}% kapierdi, x{factor}'
     ],
     'plan.note.peak': [
-        '{t} t dried · book dryer slots early',
-        '{t} t tuyo · mag-book ng patuyuan nang maaga',
-        '{t} t uga · mag-book sang pamalahan sing temprano'
+        '{t} t dried Â· book dryer slots early',
+        '{t} t tuyo Â· mag-book ng patuyuan nang maaga',
+        '{t} t uga Â· mag-book sang pamalahan sing temprano'
     ],
     'plan.caption': [
         'Dried palay tonnes by barangay and harvest week (forecast)',
@@ -147,9 +147,9 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     ],
     // market
     'market.eyebrow': [
-        'Buyers post standing orders · the cluster fills them',
-        'Nagpo-post ng order ang mamimili · pinupunan ng cluster',
-        'Nagapost sang order ang bumalakal · ginapun-an sang cluster'
+        'Buyers post standing orders Â· the cluster fills them',
+        'Nagpo-post ng order ang mamimili Â· pinupunan ng cluster',
+        'Nagapost sang order ang bumalakal Â· ginapun-an sang cluster'
     ],
     'market.filters': ['Filter Commitments', 'I-filter ang Pangako', 'I-filter ang Saad'],
     'market.group.grade': ['Grade', 'Grado', 'Grado'],
@@ -161,9 +161,9 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
         '{id}: grado, MC kag presyo banta lang'
     ],
     'market.lotline': [
-        'Dried · {grade} · {mc} · {week}',
-        'Tuyo · {grade} · {mc} · {week}',
-        'Uga · {grade} · {mc} · {week}'
+        'Dried Â· {grade} Â· {mc} Â· {week}',
+        'Tuyo Â· {grade} Â· {mc} Â· {week}',
+        'Uga Â· {grade} Â· {mc} Â· {week}'
     ],
     'market.fills': [
         'Matched to {id}: {filled} t of {tonnes} t across {n} lots, including {lot}.',
@@ -178,7 +178,7 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     'market.col.matched': ['Matched', 'Tugma', 'Nagtupong'],
     'market.col.lots': ['Lots', 'Lot', 'Lot'],
     // dry
-    'dry.eyebrow': ['{dryer} · {place}', '{dryer} · {place}', '{dryer} · {place}'],
+    'dry.eyebrow': ['{dryer} Â· {place}', '{dryer} Â· {place}', '{dryer} Â· {place}'],
     'dry.note.capacity': ['{t} t per day (assumed)', '{t} t bawat araw (tantiya)', '{t} t kada adlaw (banta)'],
     'dry.note.booked': [
         '{pct}% of {cap} this week',
@@ -187,9 +187,9 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     ],
     'dry.hero.label': ['Lot {lot} Slot', 'Slot ng Lot {lot}', 'Slot sang Lot {lot}'],
     'dry.hero.note': [
-        '{day} · {kg} kg · {sacks} sacks',
-        '{day} · {kg} kg · {sacks} sako',
-        '{day} · {kg} kg · {sacks} ka sako'
+        '{day} Â· {kg} kg Â· {sacks} sacks',
+        '{day} Â· {kg} kg Â· {sacks} sako',
+        '{day} Â· {kg} kg Â· {sacks} ka sako'
     ],
     'dry.weeks': ['Harvest Week', 'Linggo ng Ani', 'Semana sang Alani'],
     'dry.free': [
@@ -229,12 +229,12 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     'haul.assign': ['Assign', 'Italaga', 'I-assign'],
     'haul.busy': ['Busy', 'Abala', 'Okupado'],
     'haul.free': ['Available', 'Bakante', 'Bakante'],
-    'haul.trips': ['{n} trip(s) · {price}', '{n} biyahe · {price}', '{n} ka biyahe · {price}'],
+    'haul.trips': ['{n} trip(s) Â· {price}', '{n} biyahe Â· {price}', '{n} ka biyahe Â· {price}'],
     'haul.overridden': ['Coordinator override', 'Pinalitan ng coordinator', 'Ginbaylo sang coordinator'],
     'haul.overrideNote': [
-        'Override history: {from} → {to}',
-        'Kasaysayan ng pagpalit: {from} → {to}',
-        'Kasaysayan sang pagkambyo: {from} → {to}'
+        'Override history: {from} â†’ {to}',
+        'Kasaysayan ng pagpalit: {from} â†’ {to}',
+        'Kasaysayan sang pagkambyo: {from} â†’ {to}'
     ],
     'haul.reassigned': [
         'Haul {id} reassigned to {driver}',
@@ -255,8 +255,12 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     'haul.done': ['Delivered. Thank you!', 'Naihatid na. Salamat!', 'Naihatod na. Salamat!'],
     'haul.cost': ['Haul Cost', 'Gastos sa Hakot', 'Gasto sa Hakot'],
     // pay
-    'pay.eyebrow': ['Orders · Pay', 'Mga Order · Bayad', 'Mga Order · Bayad'],
-    'pay.eyebrow.lot': ['Orders · Pay · Lot {lot}', 'Mga Order · Bayad · Lot {lot}', 'Mga Order · Bayad · Lot {lot}'],
+    'pay.eyebrow': ['Orders Â· Pay', 'Mga Order Â· Bayad', 'Mga Order Â· Bayad'],
+    'pay.eyebrow.lot': [
+        'Orders Â· Pay Â· Lot {lot}',
+        'Mga Order Â· Bayad Â· Lot {lot}',
+        'Mga Order Â· Bayad Â· Lot {lot}'
+    ],
     'pay.list.title': [
         'Lots Matched to Commitments',
         'Mga Lot na Itinugma sa Pangako',
@@ -278,18 +282,18 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     'pay.estimate': ['Estimate', 'Tantiya', 'Banta'],
     'pay.open': ['Open Lot {lot}', 'Buksan ang Lot {lot}', 'Buksan ang Lot {lot}'],
     'pay.record': ['Lot Record', 'Talaan ng Lot', 'Rekord sang Lot'],
-    'pay.rec.farm': ['Farm · Barangay', 'Bukid · Barangay', 'Uma · Barangay'],
+    'pay.rec.farm': ['Farm Â· Barangay', 'Bukid Â· Barangay', 'Uma Â· Barangay'],
     'pay.rec.harvest': ['Harvest', 'Ani', 'Alani'],
     'pay.rec.weight': ['Dried Weight', 'Timbang na Tuyo', 'Timbang nga Uga'],
-    'pay.rec.quality': ['Grade · Moisture', 'Grado · Halumigmig', 'Grado · Kahalumigmigon'],
-    'pay.rec.buyer': ['Commitment · Buyer', 'Pangako · Mamimili', 'Saad · Bumalakal'],
-    'pay.rec.haul': ['Haul · Driver', 'Hakot · Driver', 'Hakot · Driver'],
+    'pay.rec.quality': ['Grade Â· Moisture', 'Grado Â· Halumigmig', 'Grado Â· Kahalumigmigon'],
+    'pay.rec.buyer': ['Commitment Â· Buyer', 'Pangako Â· Mamimili', 'Saad Â· Bumalakal'],
+    'pay.rec.haul': ['Haul Â· Driver', 'Hakot Â· Driver', 'Hakot Â· Driver'],
     'pay.rec.slot': ['Dryer Slot', 'Slot sa Patuyuan', 'Slot sa Pamalahan'],
     'pay.rec.slip': ['Slip', 'Resibo', 'Resibo'],
     'pay.viewSms': ['View SMS', 'Tingnan ang SMS', 'Tan-awa ang SMS'],
     'pay.back': ['All Lots', 'Lahat ng Lot', 'Tanan nga Lot'],
     // sms
-    'sms.all.title': ['SMS to Farmer · Lot {lot}', 'SMS sa Magsasaka · Lot {lot}', 'SMS sa Mangunguma · Lot {lot}'],
+    'sms.all.title': ['SMS to Farmer Â· Lot {lot}', 'SMS sa Magsasaka Â· Lot {lot}', 'SMS sa Mangunguma Â· Lot {lot}'],
     'sms.ascii': [
         'Plain ASCII on purpose: every message stays GSM-7, so each one is a single 160-character SMS.',
         'Sadyang plain ASCII: GSM-7 ang bawat mensahe, kaya isang 160-character na SMS lang ang bawat isa.',
@@ -311,9 +315,9 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     'demo.pause': ['Pause', 'I-pause', 'I-pause'],
     'demo.restart': ['Restart', 'Ulitin', 'Liwaton'],
     'demo.keys': [
-        'Arrows step · Space pauses · R restarts',
-        'Arrow: hakbang · Space: hinto · R: ulit',
-        'Arrow: lakat · Space: untat · R: liwat'
+        'Arrows step Â· Space pauses Â· R restarts',
+        'Arrow: hakbang Â· Space: hinto Â· R: ulit',
+        'Arrow: lakat Â· Space: untat Â· R: liwat'
     ],
     'demo.controls': ['Demo Controls', 'Kontrol ng Demo', 'Kontrol sang Demo'],
     'end.title': [
@@ -324,9 +328,9 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     // responsive shell + pagination (TL/HIL drafts: needs native review)
     'nav.more': ['More', 'Iba Pa', 'Iban Pa'],
     'sms.inbox': [
-        "Farmer {farm}'s Phone · Messages",
-        'Telepono ng Magsasaka {farm} · Mga Mensahe',
-        'Telepono sang Mangunguma {farm} · Mga Mensahe'
+        "Farmer {farm}'s Phone Â· Messages",
+        'Telepono ng Magsasaka {farm} Â· Mga Mensahe',
+        'Telepono sang Mangunguma {farm} Â· Mga Mensahe'
     ],
     'list.showing': [
         'Showing {from}-{to} of {total}',
@@ -411,11 +415,11 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     ],
     'supply.title': ['Cluster Supply', 'Suplay ng Cluster', 'Suplay sang Cluster'],
     'supply.eyebrow': [
-        'Cluster 1 · simulated forecast',
-        'Cluster 1 · simulated na tantiya',
-        'Cluster 1 · simulated nga banta'
+        'Cluster 1 Â· simulated forecast',
+        'Cluster 1 Â· simulated na tantiya',
+        'Cluster 1 Â· simulated nga banta'
     ],
-    'supply.map': ['Supply Map · {week}', 'Mapa ng Suplay · {week}', 'Mapa sang Suplay · {week}'],
+    'supply.map': ['Supply Map Â· {week}', 'Mapa ng Suplay Â· {week}', 'Mapa sang Suplay Â· {week}'],
     'supply.table': [
         'Supply by Barangay and Week',
         'Suplay ayon sa Barangay at Linggo',
@@ -435,20 +439,20 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
         'Mula sa {miller}, sa {pct}% milling recovery (tantiya)',
         'Halin sa {miller}, sa {pct}% milling recovery (banta)'
     ],
-    'supply.note.price': ['Per kg · {sack} kg sacks', 'Kada kg · {sack} kg na sako', 'Kada kg · {sack} kg nga sako'],
+    'supply.note.price': ['Per kg Â· {sack} kg sacks', 'Kada kg Â· {sack} kg na sako', 'Kada kg Â· {sack} kg nga sako'],
     'supply.cta.palay': ['Post a Commitment', 'Mag-post ng Pangako', 'Mag-post sang Saad'],
     'supply.cta.rice': ['Order Rice', 'Umorder ng Bigas', 'Mag-order sang Bugas'],
     'supply.col.week': ['{week}', '{week}', '{week}'],
     'orders.title': ['My Orders', 'Aking mga Order', 'Akon nga mga Order'],
-    'orders.eyebrow': ['Buyer · simulated', 'Mamimili · simulated', 'Bumalakal · simulated'],
+    'orders.eyebrow': ['Buyer Â· simulated', 'Mamimili Â· simulated', 'Bumalakal Â· simulated'],
     'orders.new.rice': ['Order Milled Rice', 'Umorder ng Bigas', 'Mag-order sang Bugas'],
     'orders.new.palay': ['Post a Commitment', 'Mag-post ng Pangako', 'Mag-post sang Saad'],
     'orders.sacks': ['Sacks ({kg} kg each)', 'Sako ({kg} kg bawat isa)', 'Sako ({kg} kg kada isa)'],
     'orders.week': ['Delivery Week', 'Linggo ng Hatid', 'Semana sang Hatod'],
     'orders.total': [
-        '{kg} kg · {total} at {price}/kg (assumed)',
-        '{kg} kg · {total} sa {price}/kg (tantiya)',
-        '{kg} kg · {total} sa {price}/kg (banta)'
+        '{kg} kg Â· {total} at {price}/kg (assumed)',
+        '{kg} kg Â· {total} sa {price}/kg (tantiya)',
+        '{kg} kg Â· {total} sa {price}/kg (banta)'
     ],
     'orders.available': ['Available: {kg} kg', 'Makukuha: {kg} kg', 'Mabakal: {kg} kg'],
     'orders.place': ['Place Order', 'Ilagay ang Order', 'Ibutang ang Order'],
@@ -479,9 +483,9 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
         'Ibutang ang una nga order sa ibabaw. Sa sini lang nga browser naka-save (prototype).'
     ],
     'orders.line': [
-        '{sacks} sacks · {kg} kg · {week} · {total}',
-        '{sacks} sako · {kg} kg · {week} · {total}',
-        '{sacks} ka sako · {kg} kg · {week} · {total}'
+        '{sacks} sacks Â· {kg} kg Â· {week} Â· {total}',
+        '{sacks} sako Â· {kg} kg Â· {week} Â· {total}',
+        '{sacks} ka sako Â· {kg} kg Â· {week} Â· {total}'
     ],
     'orders.clear': ['Clear My Orders', 'Burahin ang Aking Order', 'Panason ang Akon nga Order'],
     'orders.tonnes': ['Tonnes of Dried Palay', 'Tonelada ng Tuyong Palay', 'Tonelada sang Uga nga Palay'],
@@ -489,9 +493,9 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     'orders.from': ['Window From', 'Mula Linggo', 'Halin Semana'],
     'orders.to': ['Window To', 'Hanggang Linggo', 'Tubtob Semana'],
     'orders.gradeFixed': [
-        'Grade 1 · 14% MC (the cluster forecast grade, assumed)',
-        'Grade 1 · 14% MC (tantiyang grado ng cluster)',
-        'Grade 1 · 14% MC (banta nga grado sang cluster)'
+        'Grade 1 Â· 14% MC (the cluster forecast grade, assumed)',
+        'Grade 1 Â· 14% MC (tantiyang grado ng cluster)',
+        'Grade 1 Â· 14% MC (banta nga grado sang cluster)'
     ],
     'orders.post': ['Post and Auto-Match', 'I-post at Itugma', 'I-post kag Itupong'],
     'orders.err.tonnes': [
@@ -523,26 +527,30 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     'trace.order': ['Your order {id}', 'Iyong order {id}', 'Imo nga order {id}'],
     'trace.commitment': ['Your commitment {id}', 'Iyong pangako {id}', 'Imo nga saad {id}'],
     'trace.milled': [
-        'Milled rice lot {id} · {kg} kg at {miller}',
-        'Lot ng bigas {id} · {kg} kg sa {miller}',
-        'Lot sang bugas {id} · {kg} kg sa {miller}'
+        'Milled rice lot {id} Â· {kg} kg at {miller}',
+        'Lot ng bigas {id} Â· {kg} kg sa {miller}',
+        'Lot sang bugas {id} Â· {kg} kg sa {miller}'
     ],
     'trace.palay': [
-        'Palay lot {id} · {kg} kg · {grade} · {mc}',
-        'Lot ng palay {id} · {kg} kg · {grade} · {mc}',
-        'Lot sang palay {id} · {kg} kg · {grade} · {mc}'
+        'Palay lot {id} Â· {kg} kg Â· {grade} Â· {mc}',
+        'Lot ng palay {id} Â· {kg} kg Â· {grade} Â· {mc}',
+        'Lot sang palay {id} Â· {kg} kg Â· {grade} Â· {mc}'
     ],
     'trace.farm': [
-        'Farm {id} · {barangay} · harvest {date}',
-        'Bukid {id} · {barangay} · ani {date}',
-        'Uma {id} · {barangay} · alani {date}'
+        'Farm {id} Â· {barangay} Â· harvest {date}',
+        'Bukid {id} Â· {barangay} Â· ani {date}',
+        'Uma {id} Â· {barangay} Â· alani {date}'
     ],
-    'trace.haul': ['Haul {id} · {plate} · {km} km', 'Hakot {id} · {plate} · {km} km', 'Hakot {id} · {plate} · {km} km'],
-    'trace.dryer': ['Dryer slot {id} · {day}', 'Slot sa patuyuan {id} · {day}', 'Slot sa pamalahan {id} · {day}'],
+    'trace.haul': [
+        'Haul {id} Â· {plate} Â· {km} km',
+        'Hakot {id} Â· {plate} Â· {km} km',
+        'Hakot {id} Â· {plate} Â· {km} km'
+    ],
+    'trace.dryer': ['Dryer slot {id} Â· {day}', 'Slot sa patuyuan {id} Â· {day}', 'Slot sa pamalahan {id} Â· {day}'],
     'trace.paid': [
-        'Farmer paid: advance {advance} within 24 h · slip {slip}',
-        'Bayad sa magsasaka: paunang {advance} sa loob ng 24 oras · resibo {slip}',
-        'Bayad sa mangunguma: abanse {advance} sa sulod sang 24 oras · resibo {slip}'
+        'Farmer paid: advance {advance} within 24 h Â· slip {slip}',
+        'Bayad sa magsasaka: paunang {advance} sa loob ng 24 oras Â· resibo {slip}',
+        'Bayad sa mangunguma: abanse {advance} sa sulod sang 24 oras Â· resibo {slip}'
     ],
     'trace.note': [
         'Shown for lot {lot}, the one lot in the simulation that has been weighed and paid.',
@@ -578,9 +586,9 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     'nav.home': ['Home', 'Home', 'Home'],
     'home.title': ['This Week', 'Ngayong Linggo', 'Subong nga Semana'],
     'home.eyebrow': [
-        'Coordinator · Cluster 1 · {week} · today {date} (simulated)',
-        'Coordinator · Cluster 1 · {week} · ngayon {date} (simulated)',
-        'Coordinator · Cluster 1 · {week} · subong {date} (simulated)'
+        'Coordinator Â· Cluster 1 Â· {week} Â· today {date} (simulated)',
+        'Coordinator Â· Cluster 1 Â· {week} Â· ngayon {date} (simulated)',
+        'Coordinator Â· Cluster 1 Â· {week} Â· subong {date} (simulated)'
     ],
     'home.stat.harvests': ['Harvests This Week', 'Ani Ngayong Linggo', 'Alani Subong nga Semana'],
     'home.stat.hauls': [
@@ -641,9 +649,9 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
         'Ginpangayo sang mangunguma nga ibalhin ang slot {id}'
     ],
     'slip.viewer': [
-        'Farmer {farm} · Slip {slip} (simulated)',
-        'Magsasaka {farm} · Resibo {slip} (simulated)',
-        'Mangunguma {farm} · Resibo {slip} (simulated)'
+        'Farmer {farm} Â· Slip {slip} (simulated)',
+        'Magsasaka {farm} Â· Resibo {slip} (simulated)',
+        'Mangunguma {farm} Â· Resibo {slip} (simulated)'
     ],
     'slip.view': ['View the Slip', 'Tingnan ang Resibo', 'Tan-awa ang Resibo'],
     // marketing site (TL/HIL drafts: needs native review)
@@ -749,9 +757,9 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     ],
     'mk.step.pay.h': ['Pay', 'Bayad', 'Bayad'],
     'mk.step.pay.p': [
-        'Quoted price − drying − coordination margin = net to the farmer; 80% advance within 24 hours, balance when the buyer pays.',
-        'Presyong inalok − patuyo − bayad sa koordinasyon = neto sa magsasaka; 80% paunang bayad sa loob ng 24 oras, natitira kapag nagbayad ang mamimili.',
-        'Gintanyag nga presyo − pamala − bayad sa koordinasyon = neto sa mangunguma; 80% abanse sa sulod sang 24 oras, nabilin kon magbayad ang bumalakal.'
+        'Quoted price âˆ’ drying âˆ’ coordination margin = net to the farmer; 80% advance within 24 hours, balance when the buyer pays.',
+        'Presyong inalok âˆ’ patuyo âˆ’ bayad sa koordinasyon = neto sa magsasaka; 80% paunang bayad sa loob ng 24 oras, natitira kapag nagbayad ang mamimili.',
+        'Gintanyag nga presyo âˆ’ pamala âˆ’ bayad sa koordinasyon = neto sa mangunguma; 80% abanse sa sulod sang 24 oras, nabilin kon magbayad ang bumalakal.'
     ],
     'mk.domains.eyebrow': ['The Four Domains', 'Ang Apat na Bahagi', 'Ang Apat ka Bahin'],
     'mk.domains.title': ['One Cluster, Four Jobs', 'Isang Cluster, Apat na Trabaho', 'Isa ka Cluster, Apat ka Obra'],
@@ -963,16 +971,16 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
         'SMS Lang ang Kinahanglan sang Mangunguma'
     ],
     'mk.badge.lang': [
-        'English · Tagalog · Hiligaynon',
-        'English · Tagalog · Hiligaynon',
-        'English · Tagalog · Hiligaynon'
+        'English Â· Tagalog Â· Hiligaynon',
+        'English Â· Tagalog Â· Hiligaynon',
+        'English Â· Tagalog Â· Hiligaynon'
     ],
     'mk.badge.place': ['Dingle, Iloilo', 'Dingle, Iloilo', 'Dingle, Iloilo'],
     'mk.tracker.title': ['Harvest Tracker', 'Tracker ng Ani', 'Tracker sang Alani'],
-    'mk.tracker.week': ['Cluster 1 · {w}', 'Cluster 1 · {w}', 'Cluster 1 · {w}'],
+    'mk.tracker.week': ['Cluster 1 Â· {w}', 'Cluster 1 Â· {w}', 'Cluster 1 Â· {w}'],
     'mk.tracker.matched': ['Buyer Matched', 'May Mamimili Na', 'May Bumalakal Na'],
     'mk.tracker.open': ['Open for Buyers', 'Bukas sa Mamimili', 'Bukas sa Bumalakal'],
-    'mk.tracker.lotLine': ['Farm {farm} · {brgy}', 'Bukid {farm} · {brgy}', 'Uma {farm} · {brgy}'],
+    'mk.tracker.lotLine': ['Farm {farm} Â· {brgy}', 'Bukid {farm} Â· {brgy}', 'Uma {farm} Â· {brgy}'],
     'mk.tracker.foot': [
         "Simulated lots from the prototype's seeded data",
         'Simulated na lot mula sa seeded na datos ng prototype',
@@ -990,9 +998,9 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
         'Simulated ang kada uma, mangunguma, presyo kag petsa diri. Yara lang sa imo browser ang mga demo action.'
     ],
     'mk.foot.rights': [
-        '© 2026 Team Syntaxure Labs · ISUFST',
-        '© 2026 Team Syntaxure Labs · ISUFST',
-        '© 2026 Team Syntaxure Labs · ISUFST'
+        'Â© 2026 Team Syntaxure Labs Â· ISUFST',
+        'Â© 2026 Team Syntaxure Labs Â· ISUFST',
+        'Â© 2026 Team Syntaxure Labs Â· ISUFST'
     ],
     // simulated sign-in: one page per app, one demo identity each (M22)
     'login.eyebrow': ['Simulated Sign-In', 'Simulated na Pag-sign In', 'Simulated nga Pag-sign In'],
@@ -1019,7 +1027,7 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     'auth.f.buyerType': ['Buyer Type', 'Uri ng Mamimili', 'Klase sang Bumalakal'],
     'auth.f.vehicle': ['Vehicle', 'Sasakyan', 'Salakyan'],
     'auth.f.barangay': ['Barangay', 'Barangay', 'Barangay'],
-    'auth.select': ['Choose…', 'Pumili…', 'Magpili…'],
+    'auth.select': ['Chooseâ€¦', 'Pumiliâ€¦', 'Magpiliâ€¦'],
     'auth.mobile.hint': [
         '11 digits, starting with 09.',
         '11 digit, nagsisimula sa 09.',
@@ -1034,8 +1042,8 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
         'Nagauyon ako nga gamiton sang RiceConnect ini nga mga detalye para sa akon account, suno sa Data Privacy Act of 2012 (RA 10173).'
     ],
     'auth.cta.signup': ['Create Account', 'Gumawa ng Account', 'Maghimo sang Account'],
-    'auth.busy.signin': ['Signing In…', 'Nagsa-sign In…', 'Ginasign In…'],
-    'auth.busy.signup': ['Creating Account…', 'Ginagawa ang Account…', 'Ginahimo ang Account…'],
+    'auth.busy.signin': ['Signing Inâ€¦', 'Nagsa-sign Inâ€¦', 'Ginasign Inâ€¦'],
+    'auth.busy.signup': ['Creating Accountâ€¦', 'Ginagawa ang Accountâ€¦', 'Ginahimo ang Accountâ€¦'],
     'auth.new.q': ['New to RiceConnect?', 'Bago sa RiceConnect?', 'Bag-o sa RiceConnect?'],
     'auth.have.q': ['Already have an account?', 'May account ka na?', 'May account ka na?'],
     'auth.admin.invite': [
@@ -1140,7 +1148,7 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     'nav.users': ['Users', 'Mga User', 'Mga User'],
     'nav.config': ['Settings', 'Settings', 'Settings'],
     'nav.activity': ['Activity', 'Aktibidad', 'Aktibidad'],
-    'admin.eyebrow': ['Super Admin · All Apps', 'Super Admin · Lahat ng App', 'Super Admin · Tanan nga App'],
+    'admin.eyebrow': ['Super Admin Â· All Apps', 'Super Admin Â· Lahat ng App', 'Super Admin Â· Tanan nga App'],
     'admin.overview.title': ['Overview', 'Buod', 'Sumaryo'],
     'admin.stat.farms': ['Farms', 'Bukid', 'Uma'],
     'admin.stat.farms.sub': ['{n} in Cluster 1', '{n} sa Cluster 1', '{n} sa Cluster 1'],
@@ -1339,9 +1347,9 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
         'Kamusta! Ako si ANNI. Pamangkot parte sa ani, pagpamala, paghakot ukon pagbaligya. Mahimo ko ipaliwanag ang isa ka screen, pero usisaon ang importante nga detalye.'
     ],
     'anni.inputLabel': ['Message ANNI', 'Mensahe kay ANNI', 'Mensahe kay ANNI'],
-    'anni.placeholder': ['Ask about your farm…', 'Magtanong tungkol sa bukid…', 'Pamangkot parte sa uma…'],
+    'anni.placeholder': ['Ask about your farmâ€¦', 'Magtanong tungkol sa bukidâ€¦', 'Pamangkot parte sa umaâ€¦'],
     'anni.send': ['Send', 'Ipadala', 'Ipadala'],
-    'anni.thinking': ['ANNI is thinking…', 'Nag-iisip si ANNI…', 'Nagapamalandong si ANNI…'],
+    'anni.thinking': ['ANNI is thinkingâ€¦', 'Nag-iisip si ANNIâ€¦', 'Nagapamalandong si ANNIâ€¦'],
     'anni.error': [
         'ANNI could not answer. Check your connection and try again.',
         'Hindi makasagot si ANNI. Suriin ang koneksyon at subukan muli.',
@@ -1352,5 +1360,44 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
         'ANNI can make mistakes. Check important details.',
         'Maaaring magkamali si ANNI. Suriin ang mahahalagang detalye.',
         'Mahimo magsayop si ANNI. Usisaon ang importante nga detalye.'
+    ],
+    // Live sign-in note (B-04; the mock note above only shows in demo mode)
+    'auth.live': [
+        'Sign in with your RiceConnect account. Accounts are issued by the RiceConnect team.',
+        'Mag-sign in gamit ang iyong RiceConnect account. Ang mga account ay ibinibigay ng RiceConnect team.',
+        'Mag-sign in gamit ang imo RiceConnect account. Ang mga account ginahatag sang RiceConnect team.'
+    ],
+    'anni.order.title': ['Place this order?', 'Ilagay ang order na ito?', 'Ibutang ini nga order?'],
+    'anni.order.body': [
+        '{sacks} sacks of {type} for {week}. Total {total}.',
+        '{sacks} sako ng {type} para sa {week}. Kabuuan {total}.',
+        '{sacks} ka sako sang {type} para sa {week}. Kabuuan {total}.'
+    ],
+    'anni.order.confirm': ['Place Order', 'Ilagay ang Order', 'Ibutang ang Order'],
+    'anni.order.done': [
+        'Order {id} placed ({total}).',
+        'Naipasok ang order {id} ({total}).',
+        'Nasulod ang order {id} ({total}).'
+    ],
+    'anni.paid.title': [
+        'Mark this settlement paid?',
+        'Markahan na bayad ang settlement?',
+        'Markahan nga bayad ang settlement?'
+    ],
+    'anni.paid.body': [
+        'Lot {lot}: the balance is released to the farmer. This cannot be undone.',
+        'Lot {lot}: ilalabas na ang natitirang bayad sa magsasaka. Hindi na ito maibabalik.',
+        'Lot {lot}: igwa na ang nabilin nga bayad sa mangunguma. Indi na ini maibalik.'
+    ],
+    'anni.paid.confirm': ['Mark Paid', 'Markahan na Bayad', 'Markahan nga Bayad'],
+    'anni.paid.done': [
+        'Settlement {lot} marked paid.',
+        'Na-markahan na bayad ang settlement {lot}.',
+        'Na-markahan nga bayad ang settlement {lot}.'
+    ],
+    'anni.action.failed': [
+        'The action did not complete. Try again from the screen.',
+        'Hindi natapos ang aksyon. Subukan muli mula sa screen.',
+        'Wala natapos ang aksyon. Tilawan liwat halin sa screen.'
     ]
 };

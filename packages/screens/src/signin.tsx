@@ -26,6 +26,7 @@ import {
     useZoneNav,
     type Resolver
 } from '@rc/ui';
+import { isDemo } from '@rc/ui/mode';
 import type { SessionRole } from '@rc/store';
 import { checkConsent, checkIdentifier, checkPassword, checkRequired, toE164 } from '@rc/domain/auth-form';
 import { BUYER_TYPES } from '@rc/domain/buyers';
@@ -243,7 +244,7 @@ export function AuthScreen({ role, mode }: { role: SessionRole; mode: AuthMode }
                         </div>
                         <p className="m-0 flex items-start gap-2 rounded-2xl border-2 border-[color:var(--glass-border-strong)] bg-[var(--glass-fill-strong)] px-4 py-3 text-[14px] leading-5 font-semibold">
                             <Icon name="Info" size={20} className="shrink-0 mt-px text-[var(--info)]" />
-                            <span>{t('auth.mock', { id: tx(t, a.id) })}</span>
+                            <span>{isDemo ? t('auth.mock', { id: tx(t, a.id) }) : t('auth.live')}</span>
                         </p>
                         {current ? (
                             <div className="glass-panel rounded-[1.5rem] p-5 flex flex-col gap-4">
