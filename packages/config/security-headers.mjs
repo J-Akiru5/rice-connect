@@ -4,6 +4,9 @@
 // Dev adds 'unsafe-eval' and http/ws origins because Next's dev overlay needs them.
 export function securityHeaders({ dev = process.env.NODE_ENV !== 'production' } = {}) {
     const supabase = 'https://*.supabase.co wss://*.supabase.co';
+    /* The buyer supply map (MapLibre) loads its style/tiles/glyphs from OpenFreeMap; without this the map
+       only shows its offline note and logs console errors. */
+    const openfreemap = 'https://tiles.openfreemap.org';
     /* Vercel injects its preview toolbar/feedback from vercel.live (scripts, iframe, API and a pusher socket). */
     const vercel = 'https://vercel.live';
     const csp = [
@@ -12,7 +15,7 @@ export function securityHeaders({ dev = process.env.NODE_ENV !== 'production' } 
         "style-src 'self' 'unsafe-inline'",
         `img-src 'self' data: blob: ${vercel}`,
         "font-src 'self'",
-        `connect-src 'self' ${supabase} ${vercel} wss://ws-us3.pusher.com${dev ? ' http: https: ws: wss:' : ''}`,
+        `connect-src 'self' ${supabase} ${openfreemap} ${vercel} wss://ws-us3.pusher.com${dev ? ' http: https: ws: wss:' : ''}`,
         `frame-src ${vercel}`,
         "worker-src 'self' blob:",
         "frame-ancestors 'none'",

@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { LocalCommitment } from '@rc/store';
 import { useDemoState, updateDemoState } from '@rc/store/react';
 import { ZLink } from '@rc/ui';
@@ -19,7 +19,16 @@ import {
     useI18n,
     useToast
 } from '@rc/ui';
-import { useCancelOrder, useCreateOrder, useOrders } from '@rc/data';
+import {
+    useCancelOrder,
+    useCommitments,
+    useCreateCommitment,
+    useCreateOrder,
+    useLots,
+    useMyCommitments,
+    useOrders
+} from '@rc/data';
+import { isLive } from '@rc/ui/mode';
 import {
     COMMITMENTS,
     DRYER,
@@ -49,9 +58,8 @@ import { SectionPill, Note, ResponsiveTable } from './ui';
 
 const t1 = (kg: number) => (Math.round(kg / 100) / 10).toFixed(1);
 const fieldCls =
-    'min-h-[44px] px-4 rounded-[2rem] bg-[var(--glass-fill-strong)] text-[var(--ink)] border-2 border-[color:var(--text-muted)] font-bold text-[16px] w-full tabular';
-const labelCls =
-    'block text-[12px] leading-4 font-extrabold uppercase tracking-[0.1em] text-[var(--text-muted)] mb-1.5';
+    'min-h-[48px] px-4 rounded-[2rem] bg-[var(--glass-fill-strong)] text-[var(--ink)] border-2 border-[color:var(--text-muted)] font-bold text-[17px] w-full tabular';
+const labelCls = 'block text-[14px] leading-5 font-extrabold uppercase tracking-[0.08em] text-[var(--text-muted)] mb-2';
 
 /* Orders and commitments live in the demo store (@rc/store): this browser only, synced across tabs. */
 
@@ -99,8 +107,8 @@ export function TraceChain({ head, rice }: { head: string; rice: boolean }) {
         }
     ];
     return (
-        <section id="trace" aria-label={t('trace.title')} className="glass-panel rounded-[1.5rem] p-5">
-            <h3 className="eyebrow">{t('trace.title')}</h3>
+        <section id="trace" aria-label={t('trace.title')} className="panel-solid rounded-[1.5rem] p-6">
+            <h3 className="eyebrow !text-[14px]">{t('trace.title')}</h3>
             <ol className="mt-3 flex flex-col gap-0">
                 {steps.map((s, i) => (
                     <li key={i} className="relative flex items-start gap-3 pb-4 last:pb-0">
@@ -113,7 +121,7 @@ export function TraceChain({ head, rice }: { head: string; rice: boolean }) {
                         <span className="relative z-10 shrink-0 w-11 h-11 rounded-full flex items-center justify-center bg-[var(--fill-strong)] text-[var(--on-fill-strong)]">
                             <Icon name={s.icon} size={20} />
                         </span>
-                        <span className="pt-2.5 text-[15px] leading-6 font-bold tabular break-words">
+                        <span className="pt-2.5 text-[16px] leading-6 font-bold tabular break-words">
                             {s.href ? (
                                 <ZLink href={s.href} className="text-[var(--text-accent)] underline underline-offset-4">
                                     {s.text}
@@ -125,7 +133,7 @@ export function TraceChain({ head, rice }: { head: string; rice: boolean }) {
                     </li>
                 ))}
             </ol>
-            <Note className="mt-3">{t('trace.note', { lot: HERO_LOT.id })}</Note>
+            <Note className="mt-4 !text-[16px] !leading-6">{t('trace.note', { lot: HERO_LOT.id })}</Note>
         </section>
     );
 }
@@ -182,12 +190,12 @@ function RiceOrders({ type }: { type: BuyerType }) {
     if (ordersQuery.isPending) return <LoadingState rows={3} />;
     if (ordersQuery.isError) return <ErrorState onRetry={() => void ordersQuery.refetch()} />;
     const stepButton =
-        'inline-flex items-center justify-center min-h-[44px] min-w-[44px] rounded-full border-2 border-[color:var(--text-muted)] text-[var(--ink)]';
+        'inline-flex items-center justify-center min-h-[48px] min-w-[48px] rounded-full border-2 border-[color:var(--text-muted)] text-[var(--ink)]';
     return (
         <div className="cq-two">
             <div className="flex flex-col gap-4">
-                <section aria-labelledby="ro-new" className="glass-panel rounded-[1.5rem] p-5 flex flex-col gap-4">
-                    <h2 id="ro-new" className="eyebrow">
+                <section aria-labelledby="ro-new" className="panel-solid rounded-[1.5rem] p-6 flex flex-col gap-4">
+                    <h2 id="ro-new" className="eyebrow !text-[14px]">
                         {step === 'review' ? t('orders.summary') : t('orders.new.rice')}
                     </h2>
                     {step === 'compose' ? (
@@ -204,7 +212,7 @@ function RiceOrders({ type }: { type: BuyerType }) {
                                     >
                                         <Icon name="Minus" size={20} />
                                     </button>
-                                    <span className="text-[24px] leading-8 font-extrabold tabular min-w-[3ch] text-center">
+                                    <span className="text-[28px] leading-9 font-extrabold tabular min-w-[3ch] text-center">
                                         {sacks}
                                     </span>
                                     <button
@@ -216,7 +224,7 @@ function RiceOrders({ type }: { type: BuyerType }) {
                                     >
                                         <Icon name="Plus" size={20} />
                                     </button>
-                                    <span className="text-[15px] font-bold text-[var(--text-secondary)]">
+                                    <span className="text-[16px] font-bold text-[var(--text-secondary)]">
                                         {t('unit.sacks')}
                                     </span>
                                 </div>
@@ -238,8 +246,8 @@ function RiceOrders({ type }: { type: BuyerType }) {
                                     ))}
                                 </Tabs>
                             </div>
-                            <p className="m-0 text-[16px] font-extrabold tabular">{totalLine}</p>
-                            <p className="m-0 text-[14px] font-semibold text-[var(--text-secondary)] tabular">
+                            <p className="m-0 text-[17px] leading-7 font-extrabold tabular">{totalLine}</p>
+                            <p className="m-0 text-[16px] leading-6 font-semibold text-[var(--text-secondary)] tabular">
                                 {t('orders.available', { kg: available.toLocaleString('en-US') })}
                             </p>
                             <InputError message={error} />
@@ -250,17 +258,17 @@ function RiceOrders({ type }: { type: BuyerType }) {
                     ) : (
                         <>
                             <div className="flex flex-col gap-2 tabular">
-                                <div className="flex justify-between gap-3 text-[15px] font-bold">
+                                <div className="flex justify-between gap-3 text-[16px] font-bold">
                                     <span>{t('orders.week')}</span>
                                     <span>{week}</span>
                                 </div>
-                                <div className="flex justify-between gap-3 text-[15px] font-bold">
+                                <div className="flex justify-between gap-3 text-[16px] font-bold">
                                     <span>{t('buyer.type.' + type)}</span>
                                     <span>
                                         {sacks} {t('unit.sacks')}
                                     </span>
                                 </div>
-                                <p className="m-0 mt-1 text-[18px] leading-7 font-extrabold">{totalLine}</p>
+                                <p className="m-0 mt-1 text-[20px] leading-7 font-extrabold">{totalLine}</p>
                             </div>
                             <InputError message={error} />
                             <div className="flex flex-wrap gap-2">
@@ -290,13 +298,13 @@ function RiceOrders({ type }: { type: BuyerType }) {
                                 {mine.map((o) => (
                                     <li
                                         key={o.id}
-                                        className="glass-panel rounded-[1.5rem] p-4 flex flex-wrap items-center justify-between gap-3"
+                                        className="panel-solid rounded-[1.5rem] p-5 flex flex-wrap items-center justify-between gap-4"
                                     >
                                         <div className="min-w-0">
-                                            <div className="text-[16px] font-extrabold">
+                                            <div className="text-[17px] font-extrabold">
                                                 {o.id} · {t('buyer.type.' + o.type)}
                                             </div>
-                                            <div className="text-[15px] font-bold tabular break-words">
+                                            <div className="text-[16px] font-bold tabular break-words">
                                                 {t('orders.line', {
                                                     sacks: o.sacks,
                                                     kg: o.kg.toLocaleString('en-US'),
@@ -325,7 +333,9 @@ function RiceOrders({ type }: { type: BuyerType }) {
                     )}
                 </section>
             </div>
-            <TraceChain head={mine[0] ? t('trace.order', { id: mine[0].id }) : t('orders.new.rice')} rice />
+            {!isLive && (
+                <TraceChain head={mine[0] ? t('trace.order', { id: mine[0].id }) : t('orders.new.rice')} rice />
+            )}
         </div>
     );
 }
@@ -337,9 +347,54 @@ function PalayCommitments() {
     const [from, setFrom] = useState('W3');
     const [to, setTo] = useState('W4');
     const [error, setError] = useState('');
-    const mine: LocalCommitment[] = useDemoState().commitments;
+    /* Demo keeps the local store's auto-matched record; live reads and posts through the repositories. */
+    const demoMine = useDemoState().commitments;
+    const mineQuery = useMyCommitments();
+    const createCommitment = useCreateCommitment();
+    /* Live cards show the stored rows (real grade/price) and derive fills from the same auto-match the
+       coordinator board uses; the mapper leaves moisture as a dash until the schema stores it. */
+    const boardQuery = useCommitments({ size: 200 });
+    const lotsQuery = useLots({ size: 500 });
+    const board = boardQuery.data?.rows ?? [];
+    const lots = lotsQuery.data?.rows ?? [];
+    const liveMatches = useMemo(
+        () =>
+            isLive && board.length > 0
+                ? autoMatch(
+                      board.map((x) => ({
+                          id: x.id,
+                          tonnes: x.tonnes,
+                          grade: x.grade,
+                          mcPct: x.mcPct,
+                          window: x.window
+                      })),
+                      lots.map((l) => ({
+                          id: l.id,
+                          week: l.week,
+                          dayIndex: l.dayIndex,
+                          driedKg: l.driedKg,
+                          grade: l.grade,
+                          mcPct: l.mcPct
+                      }))
+                  )
+                : [],
+        [board, lots]
+    );
+    const mine: LocalCommitment[] = isLive ? (mineQuery.data ?? []) : demoMine;
     const c01 = COMMITMENTS.find((c) => c.id === 'C-01')!;
     const m01 = MATCHES.find((m) => m.commitment === 'C-01')!;
+    if (isLive && (mineQuery.isPending || boardQuery.isPending || lotsQuery.isPending))
+        return <LoadingState rows={3} />;
+    if (isLive && (mineQuery.isError || boardQuery.isError || lotsQuery.isError))
+        return (
+            <ErrorState
+                onRetry={() => {
+                    void mineQuery.refetch();
+                    void boardQuery.refetch();
+                    void lotsQuery.refetch();
+                }}
+            />
+        );
     const post = () => {
         const tn = Number(tonnes);
         const pc = Math.round(Number(price) * 100);
@@ -349,6 +404,13 @@ function PalayCommitments() {
         if (!(pc > 0)) return setError(t('orders.err.price'));
         if (i > j) return setError(t('orders.err.window'));
         const window = WEEKS.slice(i, j + 1) as string[];
+        if (isLive) {
+            void createCommitment
+                .mutateAsync({ tonnes: tn, price: pc, window: window as Week[] })
+                .then(() => setError(''))
+                .catch(() => setError(t('orders.err.post')));
+            return;
+        }
         const taken = new Set(mine.flatMap((c) => c.lots));
         const pool = UNCOMMITTED_LOTS.filter((l) => !taken.has(l.id)).map((l) => ({
             id: l.id,
@@ -371,8 +433,8 @@ function PalayCommitments() {
     return (
         <div className="cq-two">
             <div className="flex flex-col gap-4">
-                <section aria-labelledby="pc-new" className="glass-panel rounded-[1.5rem] p-5 flex flex-col gap-4">
-                    <h2 id="pc-new" className="eyebrow">
+                <section aria-labelledby="pc-new" className="panel-solid rounded-[1.5rem] p-6 flex flex-col gap-4">
+                    <h2 id="pc-new" className="eyebrow !text-[14px]">
                         {t('orders.new.palay')}
                     </h2>
                     <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr))]">
@@ -417,7 +479,7 @@ function PalayCommitments() {
                             </select>
                         </label>
                     </div>
-                    <p className="m-0 text-[14px] font-semibold text-[var(--text-secondary)]">
+                    <p className="m-0 text-[16px] leading-6 font-semibold text-[var(--text-secondary)] max-w-[70ch]">
                         {t('orders.gradeFixed')}
                     </p>
                     <InputError message={error} />
@@ -429,60 +491,77 @@ function PalayCommitments() {
                     <div>
                         <SectionPill id="pc-mine">{t('orders.mine')}</SectionPill>
                     </div>
-                    <Note>{t('orders.c01')}</Note>
-                    <CommitmentCard c={c01} highlight />
-                    {mine.map((c) => (
-                        <div key={c.id} className="flex flex-col gap-2">
-                            <CommitmentCard
-                                c={{
-                                    id: c.id,
-                                    buyer: t('orders.you'),
-                                    tonnes: c.tonnes,
-                                    grade: HERO_LOT.grade,
-                                    mc: HERO_LOT.mc,
-                                    price: c.price,
-                                    week:
-                                        c.window.length > 1
-                                            ? `${c.window[0] ?? ''}-${c.window[c.window.length - 1] ?? ''}`
-                                            : (c.window[0] ?? ''),
-                                    filled: Math.round(c.kg / 100) / 10,
-                                    status: c.kg >= c.tonnes * 1000 ? 'full' : 'open'
-                                }}
-                            />
-                            <Note className="px-2">{t('orders.matched', { kg: t1(c.kg), n: c.lots.length })}</Note>
-                        </div>
-                    ))}
-                    {mine.length > 0 && (
+                    {/* The standing C-01 commitment and its matched lots are the demo fixture. */}
+                    {!isLive && <Note className="!text-[16px] !leading-6">{t('orders.c01')}</Note>}
+                    {!isLive && <CommitmentCard c={c01} highlight className="panel-solid" />}
+                    {mine.map((c) => {
+                        const row = board.find((x) => x.id === c.id);
+                        const match = liveMatches.find((m) => m.commitment === c.id);
+                        const filledKg = isLive ? (match?.kg ?? 0) : c.kg;
+                        const lotsN = isLive ? (match?.lots.length ?? 0) : c.lots.length;
+                        const tonnes = row?.tonnes ?? c.tonnes;
+                        return (
+                            <div key={c.id} className="flex flex-col gap-2">
+                                <CommitmentCard
+                                    className="panel-solid"
+                                    c={{
+                                        id: c.id,
+                                        buyer: t('orders.you'),
+                                        tonnes,
+                                        /* Live shows what the repository stores; demo keeps its pinned hero values. */
+                                        grade: isLive ? (row?.grade ?? '—') : HERO_LOT.grade,
+                                        mc: isLive ? (row?.mc ?? '—') : HERO_LOT.mc,
+                                        price: row?.price ?? c.price,
+                                        week:
+                                            c.window.length > 1
+                                                ? `${c.window[0] ?? ''}-${c.window[c.window.length - 1] ?? ''}`
+                                                : (c.window[0] ?? ''),
+                                        filled: Math.round(filledKg / 100) / 10,
+                                        status: filledKg >= tonnes * 1000 ? 'full' : 'open'
+                                    }}
+                                />
+                                <Note className="px-2 !text-[16px] !leading-6">
+                                    {t('orders.matched', { kg: t1(filledKg), n: lotsN })}
+                                </Note>
+                            </div>
+                        );
+                    })}
+                    {!isLive && mine.length > 0 && (
                         <SecondaryButton icon="X" onClick={clear} className="self-start">
                             {t('orders.clear')}
                         </SecondaryButton>
                     )}
-                    <ResponsiveTable
-                        caption={c01.id}
-                        rows={m01.lots.map((id) => lotById(id)!)}
-                        rowKey={(l) => l.id}
-                        highlight={(l) => l.id === HERO_LOT.id}
-                        cols={[
-                            { key: 'lot', label: t('pay.col.lot'), cell: (l) => l.id },
-                            { key: 'farm', label: t('pay.col.farm'), cell: (l) => l.farm },
-                            { key: 'b', label: t('farm.barangay'), cell: (l) => farmById(l.farm)!.barangay },
-                            {
-                                key: 'h',
-                                label: t('pay.col.harvest'),
-                                cell: (l) => `${l.week} · ${farmById(l.farm)!.harvestLabel}`
-                            },
-                            {
-                                key: 'kg',
-                                label: t('pay.col.kg'),
-                                align: 'right',
-                                nowrap: true,
-                                cell: (l) => `${l.driedKg.toLocaleString('en-US')} kg`
-                            }
-                        ]}
-                    />
+                    {!isLive && (
+                        <ResponsiveTable
+                            surface="solid"
+                            caption={c01.id}
+                            rows={m01.lots.map((id) => lotById(id)!)}
+                            rowKey={(l) => l.id}
+                            highlight={(l) => l.id === HERO_LOT.id}
+                            cols={[
+                                { key: 'lot', label: t('pay.col.lot'), cell: (l) => l.id },
+                                { key: 'farm', label: t('pay.col.farm'), cell: (l) => l.farm },
+                                { key: 'b', label: t('farm.barangay'), cell: (l) => farmById(l.farm)!.barangay },
+                                {
+                                    key: 'h',
+                                    label: t('pay.col.harvest'),
+                                    cell: (l) => `${l.week} · ${farmById(l.farm)!.harvestLabel}`
+                                },
+                                {
+                                    key: 'kg',
+                                    label: t('pay.col.kg'),
+                                    align: 'right',
+                                    nowrap: true,
+                                    cell: (l) => `${l.driedKg.toLocaleString('en-US')} kg`
+                                }
+                            ]}
+                        />
+                    )}
                 </section>
             </div>
-            <TraceChain head={t('trace.commitment', { id: c01.id }) + ` · ${peso(c01.price)}/kg`} rice={false} />
+            {!isLive && (
+                <TraceChain head={t('trace.commitment', { id: c01.id }) + ` · ${peso(c01.price)}/kg`} rice={false} />
+            )}
         </div>
     );
 }

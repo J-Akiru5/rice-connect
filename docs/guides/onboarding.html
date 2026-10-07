@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RiceConnect onboarding guides</title>
+<style>
+  :root { --ink:#0a2e24; --muted:#4b5563; --line:#d1d5db; --brand:#024635; --gold:#de9f24; --bg:#f8faf9; --card:#ffffff; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --ink:#ecfdf5; --muted:#c4d3cd; --line:#1a5240; --brand:#6ee7b7; --bg:#04130f; --card:#0b231c; } }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 "Plus Jakarta Sans", system-ui, sans-serif; }
+  main { max-width: 1040px; margin:0 auto; padding:32px 16px 64px; }
+  h1 { font-size:clamp(26px,4vw,36px); margin:0 0 8px; letter-spacing:-.02em; }
+  h2 { font-size:22px; margin:36px 0 10px; padding-top:8px; border-top:2px solid var(--line); }
+  h3 { font-size:17px; margin:20px 0 6px; }
+  .chip { display:inline-block; background:var(--gold); color:#000; font-weight:800; font-size:12px; letter-spacing:.08em; text-transform:uppercase; padding:4px 10px; border-radius:999px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin:10px 0; }
+  .card b { display:block; }
+  ol, ul { margin:8px 0 0; padding-left:22px; }
+  .grid { display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr)); }
+  .note { color:var(--muted); font-size:14px; }
+  .callout { background:var(--card); border-left:6px solid var(--brand); border-radius:10px; padding:12px 16px; margin:14px 0; }
+  @media print { body { background:#fff; color:#000; } h2 { break-before:page; } }
+</style>
+</head>
+<body>
+<main>
+<span class="chip">Onboarding · one page per role</span>
+<h1>RiceConnect onboarding guides</h1>
+<p class="note">Team Syntaxure Labs · ISUFST. Print one page per person, in their language where possible. Tagalog and Hiligaynon lines below are drafts pending native review (S-13); the team reads them aloud until reviewed.</p>
+<div class="callout"><b>Support:</b> call or text __________ (staffed during pilot hours, ____–____). If the app misbehaves, stop and call; the paper fallback keeps the day running.</div>
+
+<h2>Coordinator</h2>
+<ol>
+  <li><b>Sign in</b> at the coordinator page with your email and password. Change the password if you were given a temporary one.</li>
+  <li><b>Start the day on Home.</b> It lists this week's harvests, any haul waiting for a driver, advances due and new buyer orders.</li>
+  <li><b>Register a farm</b> when a farmer joins: Add Farm, name, barangay, area, variety, harvest week. One farm, one farmer.</li>
+  <li><b>Weigh and record a lot</b> when palay arrives; the lot number follows the farm.</li>
+  <li><b>Book the dryer</b> from Dry: check free capacity before assigning a slot; never overbook a day.</li>
+  <li><b>Assign the haul</b> from Logistics: the app suggests the nearest driver whose vehicle fits; you can override, and the override stays in the history.</li>
+  <li><b>Mark paid</b> from Orders once the advance or balance is actually sent. This is irreversible in the app: confirm the amount with the slip first.</li>
+  <li><b>Answer replies</b> from SMS: "1 OK" confirms the slot, "2 Move" asks to move it.</li>
+</ol>
+<p class="note">If the app is down: use the paper slot sheet, haul sheet and slip from the fallback pack, and enter them when service returns.</p>
+
+<h2>Farmer</h2>
+<ol>
+  <li>The account is made for you by the coordinator; you get SMS from RiceConnect, not an app to install.</li>
+  <li>When you get a message about your lot and dryer slot, <b>reply 1</b> to agree, or <b>reply 2</b> to ask to move it.</li>
+  <li>You also get a message when the advance is sent, and another when the balance is released.</li>
+  <li>Keep your slip (paper or the printed copy from the coordinator). It shows the net amount, the 80% advance and the 20% balance.</li>
+  <li>If a message looks wrong, call the support number before the harvest.</li>
+</ol>
+<p class="note">Draft lines: "Sagot 1 kung sang-ayon, 2 kung gusto ilipat." / "Sabat 1 kon nagauyon, 2 kon gusto ibalhin."</p>
+
+<h2>Driver</h2>
+<ol>
+  <li><b>Sign in</b> with your mobile number and password.</li>
+  <li>Your job card shows the haul, the pickup date, the sacks and what you earn. <b>Accept</b> when you can take it, or <b>Decline</b> and the coordinator assigns another driver.</li>
+  <li>At the farm, press <b>Mark Picked Up</b>; at the dryer or buyer, press <b>Mark Delivered</b>.</li>
+  <li>No signal? The app keeps the step as "Not sent yet" and sends it when the signal returns. Do not press twice.</li>
+  <li>If the load is not ready, call the coordinator instead of waiting.</li>
+</ol>
+<p class="note">Draft lines: "Kunin" / "Kuhaa" for accept; "Ihatid" / "Ihatod" for deliver.</p>
+
+<h2>Buyer</h2>
+<ol>
+  <li><b>Sign in</b> with your email and password, and choose what you buy as: Miller, Retailer, Market Seller or Restaurant.</li>
+  <li>The Supply page shows what the cluster expects per week, and the map shows supply per barangay.</li>
+  <li><b>Order rice</b>: choose sacks and week, review the summary, place the order. You have a short Undo window after placing.</li>
+  <li><b>Track</b> the order from Orders: it traces back to the lot and the farm code (no farmer identity).</li>
+  <li>Millers post a standing commitment (tonnes, price, weeks) instead of a rice order.</li>
+</ol>
+</main>
+</body>
+</html>

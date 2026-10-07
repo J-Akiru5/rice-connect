@@ -34,13 +34,19 @@ const NAV: Record<Role, Item[]> = {
         { key: 'supply', icon: 'Market', href: '/buyer' },
         { key: 'myorders', icon: 'Orders', href: '/buyer/orders' }
     ],
+    /* Driver (docs/DECISIONS.md M53): the jobs list at /haul/driver and the SMS inbox, nothing else. */
     driver: [
-        { key: 'logistics', icon: 'Logistics', href: '/haul/driver', sub: 'haul' },
+        { key: 'jobs', icon: 'Logistics', href: '/haul/driver', sub: 'haul' },
         { key: 'sms', icon: 'Sms', href: '/sms' }
     ],
-    /* Farmer (docs/DECISIONS.md M23): the SMS inbox and the settlement slip. */
+    /* Farmer (docs/DECISIONS.md M53): the SMS inbox, the harvest plan with its delivery
+       booking, central milling and the settlement slip. Four tabs fit; the contract price
+       page rides in the More sheet, which splitNav() opens from the fifth item on. */
     farmer: [
         { key: 'sms', icon: 'Sms', href: '/sms' },
+        { key: 'plan', icon: 'Plan', href: '/farmer/plan' },
+        { key: 'milling', icon: 'Sack', href: '/farmer/milling' },
+        { key: 'price', icon: 'Market', href: '/farmer/price' },
         { key: 'slip', icon: 'Pay', href: '/slip' }
     ],
     /* Super admin (prototype addition, docs/DECISIONS.md M20): read-only overview of every app. */
@@ -55,9 +61,18 @@ const NAV: Record<Role, Item[]> = {
 const TABS: Record<Role, string[]> = {
     coordinator: ['home', 'farms', 'logistics', 'orders'],
     buyer: ['supply', 'myorders'],
-    driver: ['logistics', 'sms'],
-    farmer: ['sms', 'slip'],
+    driver: ['jobs', 'sms'],
+    farmer: ['sms', 'plan', 'milling', 'slip'],
     admin: ['overview', 'users', 'config', 'activity']
+};
+/* One split for both shells, so the sidebar, the tab bar and the phone frame always agree (WCAG 3.2.3). */
+const splitNav = (role: Role) => {
+    const nav = NAV[role];
+    return {
+        nav,
+        tabs: nav.filter((n) => TABS[role].includes(n.key)),
+        rest: nav.filter((n) => !TABS[role].includes(n.key))
+    };
 };
 const ROLE_LABEL: Record<Role, string> = {
     coordinator: 'role.coordinator',
@@ -67,6 +82,58 @@ const ROLE_LABEL: Record<Role, string> = {
     admin: 'role.admin'
 };
 const isActive = (n: Item, active: string) => active === n.key || active === n.sub;
+
+/** The "More" sheet holds every nav item that is not a bottom tab. One implementation for the responsive
+    shell and the phone frame, so the two can never drift apart again. */
+function MoreSheet({
+    rest,
+    active,
+    open,
+    onOpenChange
+}: {
+    rest: Item[];
+    active: string;
+    open: boolean;
+    onOpenChange: (o: boolean) => void;
+}) {
+    const { t } = useI18n();
+    return (
+        <Dialog
+            open={open}
+            onOpenChange={(o) => !o && onOpenChange(false)}
+            title={t('nav.more')}
+            hideTitle
+            maxWidth="sm"
+            closeButton={false}
+            className="!p-0"
+        >
+            <div className="p-4 flex flex-col gap-2">
+                <div className="flex items-center justify-between gap-2">
+                    <h2 className="eyebrow">{t('nav.more')}</h2>
+                    <button
+                        type="button"
+                        onClick={() => onOpenChange(false)}
+                        className="inline-flex items-center gap-1.5 min-h-[44px] px-3 rounded-full border-2 border-[color:var(--text-muted)] text-[13px] font-extrabold uppercase tracking-[0.06em]"
+                    >
+                        <Icon name="X" size={24} />
+                        {t('haul.close')}
+                    </button>
+                </div>
+                {rest.map((n) => (
+                    <NavLink
+                        key={n.key}
+                        href={n.href}
+                        icon={n.icon}
+                        active={isActive(n, active)}
+                        onClick={() => onOpenChange(false)}
+                    >
+                        <span>{t('nav.' + n.key)}</span>
+                    </NavLink>
+                ))}
+            </div>
+        </Dialog>
+    );
+}
 
 /** Sign Out (signed in) or Log In (signed out) for this app's own simulated sign-in (docs/DECISIONS.md M22). */
 export function AccountButton({ role }: { role: Role }) {
@@ -115,9 +182,21 @@ function SignedInAs({ role, className = '' }: { role: Role; className?: string }
 }
 
 export function TeamFooter({ className = '' }: { className?: string }) {
+    const { t } = useI18n();
     return (
-        <footer className={'px-4 md:px-8 py-4 text-[13px] font-semibold text-[var(--text-secondary)] ' + className}>
-            Team Syntaxure Labs · ISUFST
+        <footer
+            className={
+                'px-4 md:px-8 py-4 text-[13px] font-semibold text-[var(--text-secondary)] flex flex-wrap items-center gap-x-4 gap-y-1 ' +
+                className
+            }
+        >
+            <span>Team Syntaxure Labs · ISUFST</span>
+            <Link
+                href="/privacy"
+                className="inline-flex items-center min-h-[44px] md:min-h-[40px] underline underline-offset-4 text-[var(--text-accent)]"
+            >
+                {t('footer.privacy')}
+            </Link>
         </footer>
     );
 }
@@ -138,9 +217,7 @@ export default function AppShell({
     title = tx(t, title);
     eyebrow = tx(t, eyebrow);
     const [more, setMore] = useState(false);
-    const nav = NAV[role];
-    const tabs = nav.filter((n) => TABS[role].includes(n.key));
-    const rest = nav.filter((n) => !TABS[role].includes(n.key));
+    const { nav, tabs, rest } = splitNav(role);
     const moreActive = rest.some((n) => isActive(n, active));
     return (
         <div className="rc-ground min-h-screen w-full md:flex">
@@ -208,8 +285,12 @@ export default function AppShell({
                         <DemoChip className="hidden md:inline-flex" />
                         <SignedInAs role={role} className="hidden md:inline-flex lg:hidden" />
                         <AccountButton role={role} />
-                        <LanguageSwitcher />
-                        <ThemeToggle iconSize={20} />
+                        {/* One render, kept together: under 768px the pair wraps as a unit to its own row
+                            instead of the theme word dropping onto a line by itself. */}
+                        <div className="flex items-center gap-3">
+                            <LanguageSwitcher />
+                            <ThemeToggle iconSize={20} />
+                        </div>
                         {actions}
                     </div>
                     <div className="md:hidden mt-2 flex items-center justify-between gap-2 flex-wrap">
@@ -260,40 +341,7 @@ export default function AppShell({
                     </button>
                 )}
             </nav>
-            <Dialog
-                open={more}
-                onOpenChange={(o) => !o && setMore(false)}
-                title={t('nav.more')}
-                hideTitle
-                maxWidth="sm"
-                closeButton={false}
-                className="!p-0"
-            >
-                <div className="p-4 flex flex-col gap-2">
-                    <div className="flex items-center justify-between gap-2">
-                        <h2 className="eyebrow">{t('nav.more')}</h2>
-                        <button
-                            type="button"
-                            onClick={() => setMore(false)}
-                            className="inline-flex items-center gap-1.5 min-h-[44px] px-3 rounded-full border-2 border-[color:var(--text-muted)] text-[13px] font-extrabold uppercase tracking-[0.06em]"
-                        >
-                            <Icon name="X" size={24} />
-                            {t('haul.close')}
-                        </button>
-                    </div>
-                    {rest.map((n) => (
-                        <NavLink
-                            key={n.key}
-                            href={n.href}
-                            icon={n.icon}
-                            active={isActive(n, active)}
-                            onClick={() => setMore(false)}
-                        >
-                            <span>{t('nav.' + n.key)}</span>
-                        </NavLink>
-                    ))}
-                </div>
-            </Dialog>
+            <MoreSheet rest={rest} active={active} open={more} onOpenChange={setMore} />
         </div>
     );
 }
@@ -307,18 +355,11 @@ export function PhoneShell({
 }: PropsWithChildren<{ role?: Role; active?: string; title: ReactNode }>) {
     const { t } = useI18n();
     title = tx(t, title);
-    const tabs =
-        role === 'driver'
-            ? [
-                  { key: 'logistics', icon: 'Truck', label: 'nav.haul', href: '/haul/driver' },
-                  { key: 'sms', icon: 'Sms', label: 'nav.sms', href: '/sms' }
-              ]
-            : [
-                  { key: 'farms', icon: 'Farm', label: 'nav.farms', href: '/farm' },
-                  { key: 'logistics', icon: 'Truck', label: 'nav.haul', href: '/haul' },
-                  { key: 'orders', icon: 'Pay', label: 'nav.pay', href: '/pay' },
-                  { key: 'sms', icon: 'Sms', label: 'nav.sms', href: '/sms' }
-              ];
+    /* Same list as the responsive shell, one split (docs/DECISIONS.md M53): the frame used to carry its own
+       copy of the tabs, which put coordinator tabs on the farmer's phone and a different label on the driver. */
+    const [more, setMore] = useState(false);
+    const { tabs, rest } = splitNav(role);
+    const moreActive = rest.some((n) => isActive(n, active));
     return (
         <div className="rc-ground min-h-full flex flex-col">
             <header className="glass-panel !rounded-none !shadow-none px-4 pt-2 pb-3 border-b border-[color:var(--glass-border)]">
@@ -341,21 +382,37 @@ export function PhoneShell({
             <nav
                 aria-label="Main"
                 className="glass-panel !rounded-none sticky bottom-0 z-40 grid border-t border-[color:var(--glass-border)]"
-                style={{ gridTemplateColumns: `repeat(${tabs.length},1fr)` }}
+                style={{ gridTemplateColumns: `repeat(${tabs.length + (rest.length ? 1 : 0)},minmax(0,1fr))` }}
             >
-                {tabs.map((tb) => (
+                {tabs.map((n) => (
                     <Link
-                        key={tb.key}
-                        href={tb.href}
-                        aria-current={active === tb.key ? 'page' : undefined}
-                        className={`flex flex-col items-center justify-center gap-1 min-h-[60px] text-[12px] font-extrabold ${active === tb.key ? 'text-[var(--text-accent)]' : 'text-[var(--text-secondary)]'}`}
+                        key={n.key}
+                        href={n.href}
+                        aria-current={isActive(n, active) ? 'page' : undefined}
+                        className={`flex flex-col items-center justify-center gap-1 min-h-[60px] px-1 text-center text-[12px] leading-4 font-extrabold break-words ${isActive(n, active) ? 'text-[var(--text-accent)]' : 'text-[var(--text-secondary)]'}`}
                     >
-                        <Icon name={tb.icon} size={24} />
-                        {t(tb.label)}
-                        {active === tb.key && <span className="mt-0.5 w-6 h-1 rounded-full bg-[var(--text-accent)]" />}
+                        <Icon name={n.icon} size={24} />
+                        {t('nav.' + n.key)}
+                        {isActive(n, active) && (
+                            <span className="mt-0.5 w-6 h-1 rounded-full bg-[var(--text-accent)]" />
+                        )}
                     </Link>
                 ))}
+                {rest.length > 0 && (
+                    <button
+                        type="button"
+                        onClick={() => setMore(true)}
+                        aria-haspopup="dialog"
+                        aria-expanded={more}
+                        className={`flex flex-col items-center justify-center gap-1 min-h-[60px] px-1 text-center text-[12px] leading-4 font-extrabold break-words ${moreActive ? 'text-[var(--text-accent)]' : 'text-[var(--text-secondary)]'}`}
+                    >
+                        <Icon name="Plus" size={24} />
+                        {t('nav.more')}
+                        {moreActive && <span className="mt-0.5 w-6 h-1 rounded-full bg-[var(--text-accent)]" />}
+                    </button>
+                )}
             </nav>
+            <MoreSheet rest={rest} active={active} open={more} onOpenChange={setMore} />
         </div>
     );
 }

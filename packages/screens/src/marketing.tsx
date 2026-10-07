@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import {
     ACCOUNTS,
     ApplicationLogo,
@@ -18,8 +18,14 @@ import { FARMS, LOTS, TOTALS, WEEKS, commitmentOfLot, farmById } from '@rc/domai
 import { BARANGAYS, MUNICIPALITY } from '@rc/domain/params';
 
 /* Public marketing site (apps/main "/" and "/launch"; derived, not in canvas). Built only from the design system:
-   glass panels, tokens, line icons + a word. Every claim carries a label: Model (how the cluster is designed to work),
-   Simulated (numbers from the prototype's seeded data), Assumed (placeholders in docs/NUMBERS.md). No form, no backend. */
+   glass for the chrome, opaque "panel-solid" cards for content, tokens, line icons + a word. Every claim carries a label:
+   Model (how the cluster is designed to work), Simulated (numbers from the prototype's seeded data), Assumed (placeholders
+   in docs/NUMBERS.md). No form, no backend.
+
+   Reader notes (older residents, municipal staff, business owners): body copy is 17px/28px in var(--ink) rather than
+   muted 14-15px; paragraphs hold a ~60-70 character measure; long headings are sentence case (wide-tracked uppercase is
+   hard to read at length) and only short labels stay uppercase; every card is an opaque sheet so its edge and its text
+   contrast do not depend on what sits behind it. */
 export const CONTACT_EMAIL = 'team@example.com'; // placeholder: replace with the team's address before sharing
 
 type Tag = 'model' | 'simulated' | 'assumed';
@@ -33,6 +39,11 @@ function ClaimTag({ tag }: { tag: Tag }) {
         />
     );
 }
+
+/** One marketing section: the section name sits in the margin column beside the title instead of in a
+    kicker above it, so the page has one left axis and reads like a document with a margin.
+    The rule is ink-tinted: --glass-border-strong is a white overlay, which draws nothing at all on the
+    light canvas, so the sections used to be separated by empty space and nothing else. */
 function Section({
     id,
     eyebrow,
@@ -45,28 +56,103 @@ function Section({
     children: React.ReactNode;
 }) {
     return (
-        <section id={id} aria-labelledby={`${id}-h`} className="scroll-mt-24 py-10 md:py-14">
-            <div className="eyebrow">{eyebrow}</div>
-            <h2
-                id={`${id}-h`}
-                className="mt-2 text-[28px] md:text-[36px] leading-tight font-extrabold tracking-[-0.03em] uppercase break-words"
-            >
-                {title}
-            </h2>
-            <div className="mt-6">{children}</div>
+        <section id={id} aria-labelledby={`${id}-h`} className="scroll-mt-24 py-12 md:py-16 border-t rule-ink">
+            <div className="grid gap-x-10 gap-y-2 md:grid-cols-[minmax(0,168px)_minmax(0,1fr)]">
+                {/* md:pt-px lifts the 12px label's cap line onto the 38px title's cap line, so the margin
+                    note and the heading share one top edge. */}
+                <div className="eyebrow md:pt-px">{eyebrow}</div>
+                <h2
+                    id={`${id}-h`}
+                    className="rc-display m-0 text-[30px] md:text-[38px] leading-[1.12] font-extrabold tracking-[-0.03em] max-w-[26ch] text-balance break-words"
+                >
+                    <AccentText text={title} />
+                </h2>
+            </div>
+            <div className="mt-8">{children}</div>
         </section>
     );
 }
 
+/** Body copy inside a content card: 17px, high contrast, capped measure. */
+const bodyCls = 'm-0 text-[17px] leading-7 font-medium text-[var(--ink)] max-w-[70ch]';
+/** Secondary line under a figure or a card: readable size, not a whisper. */
+const metaCls = 'm-0 text-[15px] leading-6 font-semibold text-[var(--text-secondary)] max-w-[70ch]';
+/** The card itself: opaque sheet, one radius for the whole page. 16px, not 24-56px: the larger radii
+    read as "insanely rounded" on a sheet, and this page is meant to look filed rather than friendly. */
+const cardCls = 'panel-solid rounded-2xl';
+
+/** A display heading rendered with its accent phrase marked up. The catalogue marks that phrase with
+    [[...]] (strings.prototype.ts) in all three languages: the words carrying the argument get the display
+    voice (the family's own italic plus the gold rule), and the rest of the string is rendered exactly as the
+    reader receives it. A string with no mark renders plain. The brackets never reach the screen, so nothing
+    is added to what a screen reader reads. */
+function AccentText({ text }: { text: string }) {
+    return (
+        <>
+            {text.split(/(\[\[.+?\]\])/g).map((part, i) =>
+                part.startsWith('[[') && part.endsWith(']]') ? (
+                    <span key={i} className="rc-accent">
+                        {part.slice(2, -2)}
+                    </span>
+                ) : (
+                    part
+                )
+            )}
+        </>
+    );
+}
+
+/* Section index. The order is the page's own top-to-bottom order, so the scroll indicator only ever moves forward.
+   #domains borrows the section's existing eyebrow as its label ("The Four Domains") — no new strings needed. */
 const NAV_LINKS = [
     ['#problem', 'mk.nav.problem'],
     ['#how', 'mk.nav.how'],
     ['#who', 'mk.nav.who'],
+    ['#domains', 'mk.domains.eyebrow'],
     ['#status', 'mk.nav.status'],
     ['#faq', 'mk.nav.faq']
 ] as const;
-const linkCls =
-    'inline-flex items-center gap-2 min-h-[44px] text-[15px] font-bold text-[var(--ink)] hover:text-[var(--text-accent)]';
+const NAV_IDS = NAV_LINKS.map(([h]) => h.slice(1));
+/* Footer links sit on the brand band, so they are solid white with an underline on hover (white on brand-green
+   is 10.9:1; the accent green used on the pale page would be unreadable on the band). */
+const footLinkCls =
+    'inline-flex items-center gap-2 min-h-[44px] text-[16px] font-bold text-[var(--white)] underline-offset-4 hover:underline';
+
+/** Which section the reader is in, and how far down the page they are.
+    "The last section whose top has passed the reading line" (30% down the viewport) is deliberate: while a
+    section that is not in the index (Team) is on screen, the previous item stays lit, so the indicator is never
+    blank in the middle of the page. One rAF-throttled scroll listener; no dependency, no layout thrash. */
+function useScrollSpy(ids: readonly string[]) {
+    const [active, setActive] = useState('');
+    const [progress, setProgress] = useState(0);
+    useEffect(() => {
+        let raf = 0;
+        const read = () => {
+            raf = 0;
+            const line = window.innerHeight * 0.3;
+            let current = '';
+            for (const id of ids) {
+                const el = document.getElementById(id);
+                if (el && el.getBoundingClientRect().top <= line) current = id;
+            }
+            setActive(current);
+            const max = document.documentElement.scrollHeight - window.innerHeight;
+            setProgress(max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0);
+        };
+        const onScroll = () => {
+            if (!raf) raf = window.requestAnimationFrame(read);
+        };
+        read();
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onScroll);
+        return () => {
+            window.removeEventListener('scroll', onScroll);
+            window.removeEventListener('resize', onScroll);
+            if (raf) window.cancelAnimationFrame(raf);
+        };
+    }, [ids]);
+    return { active, progress };
+}
 
 /** Public-site chrome (M18, structure after the team's LikasLens landing page, RiceConnect design system):
     one header row that never wraps or changes height (nav from 1440px, a Menu panel below that), the language menu,
@@ -74,6 +160,7 @@ const linkCls =
 export function MarketingShell({ children }: { children: React.ReactNode }) {
     const { t } = useI18n();
     const [menu, setMenu] = useState(false);
+    const { active, progress } = useScrollSpy(NAV_IDS);
     useEffect(() => {
         if (!menu) return;
         const onKey = (e: KeyboardEvent) => {
@@ -83,29 +170,42 @@ export function MarketingShell({ children }: { children: React.ReactNode }) {
         return () => document.removeEventListener('keydown', onKey);
     }, [menu]);
     return (
-        <div className="rc-ground min-h-screen flex flex-col">
+        /* overflow-x-clip lets the hero band paint edge to edge with 100vw without ever widening the
+           document: it does not create a scroll container, so the sticky header still sticks. */
+        <div className="rc-ground overflow-x-clip min-h-screen flex flex-col">
+            {/* Full-bleed row: the mark sits on the true left edge and the account actions on the true right, so a
+                wide screen is used edge to edge instead of leaving the header floating inside the content column. */}
             <header className="glass-panel !rounded-none !shadow-none sticky top-0 z-30 border-b border-[color:var(--glass-border)]">
-                <div className="mx-auto max-w-[1280px] h-[72px] px-4 md:px-6 flex flex-nowrap items-center gap-2 md:gap-3">
+                <div className="h-[72px] px-4 md:px-6 lg:px-8 flex flex-nowrap items-center gap-2 md:gap-3">
                     <ZLink href="/" className="rounded-xl shrink-0">
                         <ApplicationLogo height={40} />
                     </ZLink>
-                    <nav aria-label={t('mk.nav')} className="hidden xl:flex items-center gap-1 ml-6">
-                        {NAV_LINKS.map(([h, k]) => (
-                            <a
-                                key={h}
-                                href={h}
-                                className="min-h-[40px] inline-flex items-center px-3 rounded-full text-[13px] font-extrabold uppercase tracking-[0.06em] whitespace-nowrap rc-hover-accent"
-                            >
-                                {t(k)}
-                            </a>
-                        ))}
+                    {/* The section index needs 1440px in English, 1715px in Tagalog and 1800px in Hiligaynon (the
+                        labels are longer, and the header also carries the logo, language switcher, theme toggle,
+                        log-in and the primary action). 1800px is the widest locale, measured, so nothing is
+                        clipped and no type has to shrink below the reading floor for older readers. Below that
+                        the Menu panel carries the same six links with the same active highlight. */}
+                    <nav aria-label={t('mk.nav')} className="hidden min-[1800px]:flex items-center gap-1 ml-6">
+                        {NAV_LINKS.map(([h, k]) => {
+                            const on = active === h.slice(1);
+                            return (
+                                <a
+                                    key={h}
+                                    href={h}
+                                    aria-current={on ? 'true' : undefined}
+                                    className={`min-h-[40px] inline-flex items-center px-3 rounded-full text-[14px] font-extrabold uppercase tracking-[0.05em] whitespace-nowrap ${on ? 'bg-[var(--fill-strong)] text-[var(--on-fill-strong)]' : 'rc-hover-accent'}`}
+                                >
+                                    {t(k)}
+                                </a>
+                            );
+                        })}
                     </nav>
                     <div className="flex-1" />
                     <LanguageSwitcher />
                     <ThemeToggle className="hidden md:inline-flex whitespace-nowrap" />
                     <ZLink
                         href="/login"
-                        className="hidden lg:inline-flex items-center gap-2 min-h-[40px] px-4 rounded-full text-[13px] font-extrabold uppercase tracking-[0.06em] whitespace-nowrap rc-hover-accent"
+                        className="hidden lg:inline-flex items-center gap-2 min-h-[40px] px-4 rounded-full text-[14px] font-extrabold uppercase tracking-[0.05em] whitespace-nowrap rc-hover-accent"
                     >
                         <Icon name="LogIn" size={20} />
                         <span>{t('mk.login')}</span>
@@ -119,7 +219,7 @@ export function MarketingShell({ children }: { children: React.ReactNode }) {
                         onClick={() => setMenu((m) => !m)}
                         aria-expanded={menu}
                         aria-controls="mk-menu"
-                        className="xl:hidden inline-flex items-center gap-2 min-h-[44px] px-3 rounded-full glass-panel !shadow-none text-[13px] font-extrabold uppercase tracking-[0.06em] whitespace-nowrap"
+                        className="min-[1800px]:hidden inline-flex items-center gap-2 min-h-[44px] px-3 rounded-full glass-panel !shadow-none text-[14px] font-extrabold uppercase tracking-[0.05em] whitespace-nowrap"
                     >
                         <Icon name={menu ? 'X' : 'Menu'} size={20} />
                         <span className="sr-only sm:not-sr-only">{t(menu ? 'mk.menu.close' : 'mk.menu')}</span>
@@ -128,26 +228,30 @@ export function MarketingShell({ children }: { children: React.ReactNode }) {
                 {menu && (
                     <div
                         id="mk-menu"
-                        className="xl:hidden border-t border-[color:var(--glass-border)] bg-[var(--glass-fill-strong)]"
+                        className="min-[1800px]:hidden border-t border-[color:var(--glass-border)] bg-[var(--glass-fill-strong)]"
                     >
                         <nav
                             aria-label={t('mk.nav')}
                             className="mx-auto max-w-[1280px] px-4 md:px-6 py-4 grid gap-1 sm:grid-cols-2"
                         >
-                            {NAV_LINKS.map(([h, k]) => (
-                                <a
-                                    key={h}
-                                    href={h}
-                                    onClick={() => setMenu(false)}
-                                    className="min-h-[44px] inline-flex items-center px-3 rounded-xl text-[15px] font-extrabold rc-hover-accent"
-                                >
-                                    {t(k)}
-                                </a>
-                            ))}
-                            <div className="sm:col-span-2 mt-2 pt-3 border-t border-[color:var(--glass-border-strong)] flex flex-wrap items-center gap-3">
+                            {NAV_LINKS.map(([h, k]) => {
+                                const on = active === h.slice(1);
+                                return (
+                                    <a
+                                        key={h}
+                                        href={h}
+                                        onClick={() => setMenu(false)}
+                                        aria-current={on ? 'true' : undefined}
+                                        className={`min-h-[48px] inline-flex items-center px-3 rounded-xl text-[16px] font-extrabold ${on ? 'bg-[var(--fill-strong)] text-[var(--on-fill-strong)]' : 'rc-hover-accent'}`}
+                                    >
+                                        {t(k)}
+                                    </a>
+                                );
+                            })}
+                            <div className="sm:col-span-2 mt-2 pt-3 border-t rule-ink flex flex-wrap items-center gap-3">
                                 <ZLink
                                     href="/login"
-                                    className="inline-flex items-center gap-2 min-h-[44px] px-4 rounded-full border-2 border-[color:var(--text-muted)] text-[13px] font-extrabold uppercase tracking-[0.06em]"
+                                    className="inline-flex items-center gap-2 min-h-[44px] px-4 rounded-full border-2 border-[color:var(--text-muted)] text-[14px] font-extrabold uppercase tracking-[0.05em]"
                                 >
                                     <Icon name="LogIn" size={20} />
                                     <span>{t('mk.login')}</span>
@@ -161,6 +265,13 @@ export function MarketingShell({ children }: { children: React.ReactNode }) {
                         </nav>
                     </div>
                 )}
+                {/* Reading progress along the header's bottom edge: a quiet cue for how much page is left. */}
+                <div aria-hidden className="absolute inset-x-0 bottom-0 h-[3px]">
+                    <div
+                        className="h-full bg-[var(--fill-strong)]"
+                        style={{ width: `${Math.round(progress * 100)}%` }}
+                    />
+                </div>
             </header>
             <main className="flex-1 mx-auto w-full max-w-[1280px] px-4 md:px-6">{children}</main>
             <SiteFooter />
@@ -187,6 +298,7 @@ function SiteFooter() {
                 ['/#how', 'mk.nav.how'],
                 ['/#status', 'mk.nav.status'],
                 ['/#faq', 'mk.nav.faq'],
+                ['/privacy', 'footer.privacy'],
                 ['/demo', 'mk.launch.demo.h']
             ]
         },
@@ -200,30 +312,33 @@ function SiteFooter() {
         }
     ];
     return (
-        <footer className="relative overflow-hidden glass-panel !rounded-none !shadow-none border-t border-[color:var(--glass-border)] mt-10">
-            <div className="relative z-10 mx-auto max-w-[1280px] px-4 md:px-6 pt-12 pb-6 grid gap-10 lg:grid-cols-[minmax(0,1.3fr)_repeat(3,minmax(0,1fr))]">
-                <div className="flex flex-col gap-4">
-                    <ApplicationLogo height={44} />
-                    <div className="glass-panel rounded-[1.25rem] p-4 max-w-[440px]">
-                        <h3 className="text-[15px] font-extrabold text-[var(--text-accent)]">{t('mk.foot.mode.h')}</h3>
-                        <p className="m-0 mt-1 text-[14px] leading-5 font-medium text-[var(--text-secondary)]">
+        <footer className="band-foot relative overflow-hidden mt-12">
+            <div className="relative z-10 px-4 md:px-6 lg:px-8 pt-14 pb-8 grid gap-10 lg:grid-cols-[minmax(0,1.4fr)_repeat(3,minmax(0,1fr))]">
+                <div className="flex flex-col gap-5">
+                    {/* tone="reversed": the white-on-dark logo set, so the mark survives the brand-green band. */}
+                    <ApplicationLogo tone="reversed" height={44} />
+                    <div className="band-panel rounded-[1.5rem] p-5 max-w-[460px]">
+                        <h3 className="m-0 text-[17px] font-extrabold text-[var(--white)]">{t('mk.foot.mode.h')}</h3>
+                        <p className="m-0 mt-1.5 text-[16px] leading-6 font-medium text-[var(--white)]">
                             {t('mk.foot.mode.p')}
                         </p>
                     </div>
-                    <p className="m-0 text-[14px] font-semibold text-[var(--text-secondary)] max-w-[440px]">
+                    <p className="m-0 text-[16px] leading-6 font-semibold text-[var(--white)] max-w-[460px]">
                         {t('mk.footer.line')}
                     </p>
                 </div>
                 {cols.map((c) => (
                     <nav key={c.h} aria-label={t(c.h)} className="flex flex-col gap-1">
-                        <h3 className="eyebrow mb-2">{t(c.h)}</h3>
+                        <h3 className="m-0 mb-2 text-[13px] leading-4 font-extrabold uppercase tracking-[0.12em] text-[var(--white)]">
+                            {t(c.h)}
+                        </h3>
                         {c.links.map(([href, k]) =>
                             href.startsWith('mailto:') ? (
-                                <a key={href} href={href} className={linkCls}>
+                                <a key={href} href={href} className={footLinkCls}>
                                     {t(k)}
                                 </a>
                             ) : (
-                                <ZLink key={href} href={href} className={linkCls}>
+                                <ZLink key={href} href={href} className={footLinkCls}>
                                     {t(k)}
                                 </ZLink>
                             )
@@ -231,16 +346,39 @@ function SiteFooter() {
                     </nav>
                 ))}
             </div>
-            <div className="relative z-10 mx-auto max-w-[1280px] px-4 md:px-6 py-5 border-t border-[color:var(--glass-border-strong)] flex flex-wrap items-center justify-between gap-3">
-                <span className="text-[13px] font-semibold text-[var(--text-secondary)]">{t('mk.foot.rights')}</span>
+            <div className="relative z-10 px-4 md:px-6 lg:px-8 py-5 border-t band-rule flex flex-wrap items-center justify-between gap-3">
+                <span className="text-[15px] font-semibold text-[var(--white)]">{t('mk.foot.rights')}</span>
                 <DemoChip />
             </div>
-            <div
+            {/* Sized from the live type metrics rather than a vw clamp: Plus Jakarta Sans 800 at -0.04em
+                tracks 6.922em wide with 0.76em of ink above the baseline and 0.02em below. The viewBox is
+                that ink box plus 24 units of headroom top and bottom, so the mark fits edge to edge at any
+                width and no font substitution or metric rounding can shave an edge off. textLength holds the
+                width to the same value even if the webfont has not loaded yet; vector-effect keeps the
+                hairline stroke at 2 device px however far the mark is scaled. */}
+            <svg
                 aria-hidden
-                className="rc-wordmark pointer-events-none select-none text-center whitespace-nowrap leading-[0.8] font-extrabold tracking-[-0.04em] text-[clamp(64px,15vw,240px)] -mb-[0.12em]"
+                viewBox="0 -24 6922 828"
+                preserveAspectRatio="xMidYMid meet"
+                className="rc-wordmark pointer-events-none select-none block w-full h-auto"
             >
-                RICECONNECT
-            </div>
+                <text
+                    x="0"
+                    y="760"
+                    textLength="6922"
+                    lengthAdjust="spacingAndGlyphs"
+                    fontFamily="'Plus Jakarta Sans', sans-serif"
+                    fontSize="1000"
+                    fontWeight="800"
+                    letterSpacing="-40"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    vectorEffect="non-scaling-stroke"
+                >
+                    RICECONNECT
+                </text>
+            </svg>
         </footer>
     );
 }
@@ -253,17 +391,16 @@ function HarvestTracker() {
         .sort((a, b) => a.dayIndex - b.dayIndex || a.id.localeCompare(b.id))
         .slice(0, 5);
     return (
-        <section
-            aria-labelledby="tracker-h"
-            className="glass-panel rounded-[1.75rem] overflow-hidden shadow-[var(--shadow-popover)]"
-        >
-            <div className="flex items-center justify-between gap-2 flex-wrap px-5 py-4 border-b border-[color:var(--glass-border-strong)]">
+        /* White sheet on the green band. No hairline border, a defined drop shadow instead: a 1px border
+           plus a wide soft shadow on one element is the "ghost card" pattern. */
+        <section aria-labelledby="tracker-h" className="sheet-on-band rounded-2xl overflow-hidden">
+            <div className="flex items-center justify-between gap-3 flex-wrap px-6 py-5 border-b rule-ink">
                 <h2 id="tracker-h" className="eyebrow flex items-center gap-2">
-                    <span aria-hidden className="w-2 h-2 rounded-full bg-[var(--success)]" />
+                    <span aria-hidden className="w-2.5 h-2.5 rounded-full bg-[var(--success)]" />
                     {t('mk.tracker.title')}
                 </h2>
                 <span className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[13px] font-bold text-[var(--text-secondary)] tabular">
+                    <span className="text-[15px] font-bold text-[var(--text-secondary)] tabular">
                         {t('mk.tracker.week', { w: WEEKS[week] ?? WEEKS[0] })}
                     </span>
                     <ClaimTag tag="simulated" />
@@ -276,21 +413,21 @@ function HarvestTracker() {
                     return (
                         <li
                             key={l.id}
-                            className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-1 px-5 py-3.5 border-b border-[color:var(--glass-border-strong)] last:border-0 tabular"
+                            className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-1.5 px-6 py-4 border-b rule-ink last:border-0 tabular"
                         >
                             <div className="min-w-0">
-                                <div className="text-[16px] font-extrabold">
+                                <div className="text-[17px] leading-6 font-extrabold">
                                     {t('farm.lot')} {l.id}{' '}
-                                    <span className="text-[14px] font-semibold text-[var(--text-secondary)]">
+                                    <span className="text-[15px] font-semibold text-[var(--text-secondary)]">
                                         · {f.harvestLabel}
                                     </span>
                                 </div>
-                                <div className="text-[14px] font-semibold text-[var(--text-secondary)] break-words">
+                                <div className="text-[15px] leading-6 font-semibold text-[var(--text-secondary)] break-words">
                                     {t('mk.tracker.lotLine', { farm: f.id, brgy: f.barangay })}
                                 </div>
                             </div>
-                            <div className="flex flex-col items-end gap-1">
-                                <span className="text-[18px] font-extrabold whitespace-nowrap">
+                            <div className="flex flex-col items-end gap-1.5">
+                                <span className="text-[20px] leading-7 font-extrabold whitespace-nowrap">
                                     {(Math.round(l.driedKg / 100) / 10).toFixed(1)} {t('unit.t')}
                                 </span>
                                 <StatusChip
@@ -302,11 +439,11 @@ function HarvestTracker() {
                     );
                 })}
             </ul>
-            <div className="flex items-center justify-between gap-3 flex-wrap px-5 py-3 border-t border-[color:var(--glass-border-strong)] rc-bg-accent-faint">
-                <span className="text-[13px] font-semibold text-[var(--text-secondary)]">{t('mk.tracker.foot')}</span>
+            <div className="flex items-center justify-between gap-3 flex-wrap px-6 py-4 border-t rule-ink rc-bg-accent-faint">
+                <span className="text-[15px] font-semibold text-[var(--text-secondary)]">{t('mk.tracker.foot')}</span>
                 <ZLink
                     href="/plan"
-                    className="inline-flex items-center gap-1 min-h-[40px] text-[13px] font-extrabold uppercase tracking-[0.06em] text-[var(--text-accent)]"
+                    className="inline-flex items-center gap-1.5 min-h-[44px] text-[14px] font-extrabold uppercase tracking-[0.05em] text-[var(--text-accent)]"
                 >
                     {t('mk.tracker.cta')}
                     <Icon name="ArrowRight" size={20} />
@@ -342,117 +479,130 @@ export function MarketingPage() {
     const ha = (TOTALS.areaTenths / 10).toFixed(1);
     return (
         <MarketingShell>
-            {/* Hero */}
+            {/* Hero: the page opens on the brand band, edge to edge, with the product's own tracker sheet laid
+                on it. Image-free: the retired farm photograph is banned by the CI guard, and a stock farm shot
+                reads as NGO affect (a PRODUCT.md anti-reference). The depth is a survey-ring field etched into
+                the band, which is this product's actual subject, land under cultivation measured not pictured. */}
             <section
                 aria-labelledby="hero-h"
-                className="pt-10 md:pt-16 pb-8 grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] items-center"
+                className="hero-band hero-ground pt-10 md:pt-12 pb-10 grid gap-10 lg:gap-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] items-center"
             >
-                <div className="flex flex-col gap-6">
-                    <div className="flex flex-wrap items-center gap-2">
-                        <span className="inline-flex items-center gap-2 min-h-[32px] px-3.5 py-1 rounded-full glass-panel !shadow-none border border-[color:var(--text-accent)] text-[12px] leading-4 font-extrabold uppercase tracking-[0.08em] text-[var(--text-accent)]">
-                            <span aria-hidden className="w-2 h-2 rounded-full bg-[var(--text-accent)]" />
-                            {t('mk.hero.pill')}
-                        </span>
+                <div className="flex flex-col gap-7">
+                    {/* One stamp, not a chip stack. The prototype notice is the only mark above the headline
+                        because it is the one claim an evaluator has to see before reading anything else; the
+                        category label and the SMS/language/place pills that used to sit here restated the
+                        headline, the standfirst and the record below, in three more pill shapes. */}
+                    <div className="rc-in flex flex-wrap items-center gap-2">
                         <DemoChip />
                     </div>
                     <h1
                         id="hero-h"
-                        className="text-[40px] md:text-[56px] lg:text-[64px] leading-[1.02] font-extrabold tracking-[-0.04em] break-words"
+                        className="rc-display rc-in rc-in-2 m-0 text-[40px] md:text-[56px] lg:text-[64px] leading-[1.04] font-extrabold tracking-[-0.04em] max-w-[22ch] text-balance break-words text-[var(--white)]"
                     >
-                        {t('mk.hero.title')}
+                        <AccentText text={t('mk.hero.title')} />
                     </h1>
-                    <p className="m-0 text-[18px] leading-7 font-medium text-[var(--text-secondary)] max-w-[58ch]">
+                    <p className="rc-in rc-in-3 m-0 text-[20px] leading-8 font-medium on-band-sub max-w-[58ch] text-pretty">
                         {t('mk.hero.sub')}
                     </p>
-                    <div className="flex flex-wrap gap-3">
-                        <ZLink href="/launch" className="btn-2026">
+                    <div className="rc-in rc-in-4 flex flex-wrap gap-3">
+                        <ZLink href="/launch" className="btn-2026 btn-on-band">
                             <Icon name="ArrowRight" size={20} />
                             <span>{t('mk.open')}</span>
                         </ZLink>
                         <a
                             href="#how"
-                            className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-3 rounded-[2rem] font-extrabold uppercase text-[13px] leading-4 tracking-[0.08em] bg-[var(--glass-fill-strong)] text-[var(--ink)] border-2 border-[color:var(--text-muted)]"
+                            className="on-band-outline inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-3 rounded-[2rem] font-extrabold uppercase text-[14px] leading-4 tracking-[0.05em]"
                         >
                             <Icon name="Route" size={20} />
                             <span>{t('mk.how')}</span>
                         </a>
                     </div>
-                    <ul className="flex flex-wrap gap-2" aria-label={t('mk.hero.card')}>
-                        {(
-                            [
-                                ['Sms', 'mk.badge.sms'],
-                                ['Language', 'mk.badge.lang'],
-                                ['MapPin', 'mk.badge.place']
-                            ] as const
-                        ).map(([icon, k]) => (
-                            <li
-                                key={k}
-                                className="inline-flex items-center gap-2 min-h-[32px] px-3 py-1 rounded-full glass-panel !shadow-none text-[13px] font-bold"
-                            >
-                                <Icon name={icon} size={16} />
-                                {t(k)}
-                            </li>
-                        ))}
-                    </ul>
                 </div>
-                <HarvestTracker />
-            </section>
-            <section
-                aria-label={t('mk.hero.card')}
-                className="glass-panel rounded-[1.5rem] px-5 py-4 grid gap-4 sm:grid-cols-[repeat(2,minmax(0,1fr))_minmax(0,2fr)_auto] items-center tabular"
-            >
-                <div>
-                    <div className="eyebrow">{t('plan.stat.farms')}</div>
-                    <div className="text-[28px] font-extrabold">{FARMS.length}</div>
+                <div className="rc-in rc-in-5">
+                    <HarvestTracker />
                 </div>
-                <div>
-                    <div className="eyebrow">{t('plan.stat.area')}</div>
-                    <div className="text-[28px] font-extrabold">
-                        {ha} {t('unit.ha')}
+                {/* The key figures close the band rather than opening a second green block: on a darker inset
+                    slab, so they read as the record underneath the hero and not as another section. */}
+                <section
+                    aria-label={t('mk.hero.card')}
+                    className="band-inset rounded-2xl lg:col-span-2 px-6 py-6 md:px-8 md:py-7 grid gap-6 md:gap-8 [grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr))] items-center tabular"
+                >
+                    <div>
+                        <div className="text-[13px] leading-4 font-extrabold uppercase tracking-[0.12em] text-[var(--white)]">
+                            {t('plan.stat.farms')}
+                        </div>
+                        <div className="mt-1 text-[40px] leading-[44px] font-extrabold text-[var(--white)]">
+                            {FARMS.length}
+                        </div>
                     </div>
-                </div>
-                <div className="min-w-0">
-                    <div className="eyebrow">{t('mk.hero.where')}</div>
-                    <div className="text-[16px] font-bold break-words">
-                        {MUNICIPALITY} · {BARANGAYS.join(', ')}
+                    <div>
+                        <div className="text-[13px] leading-4 font-extrabold uppercase tracking-[0.12em] text-[var(--white)]">
+                            {t('plan.stat.area')}
+                        </div>
+                        <div className="mt-1 text-[40px] leading-[44px] font-extrabold text-[var(--white)]">
+                            {ha} {t('unit.ha')}
+                        </div>
                     </div>
-                </div>
-                <ClaimTag tag="simulated" />
+                    <div className="min-w-0">
+                        <div className="text-[13px] leading-4 font-extrabold uppercase tracking-[0.12em] text-[var(--white)]">
+                            {t('mk.hero.where')}
+                        </div>
+                        <div className="mt-1 text-[18px] leading-7 font-bold text-[var(--white)] break-words">
+                            {MUNICIPALITY} · {BARANGAYS.join(', ')}
+                        </div>
+                    </div>
+                </section>
             </section>
+
             <a
                 href="#problem"
-                className="mx-auto mt-6 flex w-fit flex-col items-center gap-1 min-h-[44px] text-[12px] font-extrabold uppercase tracking-[0.12em] text-[var(--text-secondary)]"
+                className="mx-auto mt-8 flex w-fit flex-col items-center gap-1 min-h-[44px] text-[13px] font-extrabold uppercase tracking-[0.12em] text-[var(--text-secondary)]"
             >
                 {t('mk.scroll')}
                 <Icon name="ChevronDown" size={20} />
             </a>
 
             <Section id="problem" eyebrow={t('mk.problem.eyebrow')} title={t('mk.problem.title')}>
-                <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr))]">
+                {/* A register, not three identical cards: the label in the margin column, the prose in the text
+                    column, one rule per entry. This is the shape a municipal reader already reads every day. */}
+                <div className={`${cardCls} overflow-hidden`}>
                     {['when', 'whom', 'terms'].map((k) => (
-                        <div key={k} className="glass-panel rounded-[1.5rem] p-5 flex flex-col gap-2">
-                            <h3 className="text-[18px] font-extrabold">{t(`mk.problem.${k}.h`)}</h3>
-                            <p className="m-0 text-[16px] leading-6 font-medium text-[var(--text-secondary)]">
-                                {t(`mk.problem.${k}.p`)}
-                            </p>
+                        <div
+                            key={k}
+                            className="grid gap-2 md:gap-x-10 md:gap-y-0 md:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] p-6 md:px-7 md:py-6 border-t rule-ink first:border-t-0"
+                        >
+                            <h3 className="m-0 text-[21px] leading-7 font-extrabold">{t(`mk.problem.${k}.h`)}</h3>
+                            <p className={bodyCls}>{t(`mk.problem.${k}.p`)}</p>
                         </div>
                     ))}
                 </div>
             </Section>
 
             <Section id="how" eyebrow={t('mk.how.eyebrow')} title={t('mk.how.title')}>
-                <ol className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr))]">
+                {/* Five steps as a numbered list rather than five narrow cards: at 200px each the copy wrapped
+                    every few words, which is exactly the reading problem this pass is about. */}
+                <ol className={`${cardCls} overflow-hidden list-none m-0 p-0`}>
                     {STEPS.map((s, i) => (
-                        <li key={s.k} className="glass-panel rounded-[1.5rem] p-5 flex flex-col gap-2">
-                            <span className="flex items-center gap-2 eyebrow">
-                                <span className="tabular">{i + 1}</span>
-                                <Icon name={s.icon} size={20} />
-                                {t(`mk.step.${s.k}.h`)}
+                        <li
+                            key={s.k}
+                            className="grid gap-4 md:gap-6 p-6 md:p-7 md:grid-cols-[auto_minmax(0,1fr)_auto] md:items-start border-t rule-ink first:border-t-0"
+                        >
+                            <span
+                                aria-hidden
+                                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--fill-strong)] text-[22px] font-extrabold tabular text-[var(--on-fill-strong)]"
+                            >
+                                {i + 1}
                             </span>
-                            <p className="m-0 text-[15px] leading-6 font-medium">{t(`mk.step.${s.k}.p`)}</p>
+                            <div className="min-w-0">
+                                <h3 className="m-0 flex items-center gap-2.5 text-[21px] leading-7 font-extrabold">
+                                    <Icon name={s.icon} size={24} className="shrink-0 text-[var(--text-accent)]" />
+                                    {t(`mk.step.${s.k}.h`)}
+                                </h3>
+                                <p className={`${bodyCls} mt-2`}>{t(`mk.step.${s.k}.p`)}</p>
+                            </div>
                             <ZLink
                                 href={s.href}
-                                className="mt-auto inline-flex items-center gap-1 min-h-[40px] text-[13px] font-extrabold uppercase tracking-[0.06em] text-[var(--text-accent)]"
+                                className="justify-self-start md:justify-self-end inline-flex items-center gap-1.5 min-h-[44px] px-4 rounded-full border-2 border-[color:var(--text-accent)] text-[14px] font-extrabold uppercase tracking-[0.05em] text-[var(--text-accent)] whitespace-nowrap"
                             >
                                 {t('mk.see')}
                                 <Icon name="ArrowRight" size={20} />
@@ -460,91 +610,106 @@ export function MarketingPage() {
                         </li>
                     ))}
                 </ol>
-                <div className="mt-3 flex items-center gap-2 flex-wrap">
+                <div className="mt-5 flex items-center gap-3 flex-wrap">
                     <ClaimTag tag="model" />
-                    <span className="text-[14px] font-semibold text-[var(--text-secondary)]">{t('mk.how.note')}</span>
-                </div>
-            </Section>
-
-            <Section id="domains" eyebrow={t('mk.domains.eyebrow')} title={t('mk.domains.title')}>
-                <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr))]">
-                    {DOMAINS.map((d) => (
-                        <div key={d.k} className="glass-panel rounded-[1.5rem] p-5 flex flex-col gap-2">
-                            <span className="icon-box">
-                                <Icon name={d.icon} size={24} />
-                            </span>
-                            <h3 className="text-[18px] font-extrabold">{t(`mk.domain.${d.k}.h`)}</h3>
-                            <p className="m-0 text-[15px] leading-6 font-medium text-[var(--text-secondary)]">
-                                {t(`mk.domain.${d.k}.p`)}
-                            </p>
-                        </div>
-                    ))}
+                    <span className="text-[16px] leading-6 font-semibold text-[var(--text-secondary)]">
+                        {t('mk.how.note')}
+                    </span>
                 </div>
             </Section>
 
             <Section id="who" eyebrow={t('mk.who.eyebrow')} title={t('mk.who.title')}>
-                <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr))]">
+                <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr))]">
                     {ROLES.map((r) => (
-                        <div key={r.k} className="glass-panel rounded-[1.5rem] p-5 flex flex-col gap-2">
-                            <span className="icon-box">
-                                <Icon name={r.icon} size={24} />
+                        <div key={r.k} className={`${cardCls} p-6 flex flex-col gap-3`}>
+                            <span className="icon-box !h-14 !w-14">
+                                <Icon name={r.icon} size={26} />
                             </span>
-                            <h3 className="text-[18px] font-extrabold">{t(`mk.role.${r.k}.h`)}</h3>
-                            <p className="m-0 text-[15px] leading-6 font-medium text-[var(--text-secondary)]">
-                                {t(`mk.role.${r.k}.p`)}
-                            </p>
+                            <h3 className="m-0 text-[21px] leading-7 font-extrabold">{t(`mk.role.${r.k}.h`)}</h3>
+                            <p className={bodyCls}>{t(`mk.role.${r.k}.p`)}</p>
+                            {/* A full-width, clearly bordered entry point: the old 13px text link was easy to miss. */}
                             <ZLink
                                 href={r.href}
-                                className="mt-auto inline-flex items-center gap-1 min-h-[40px] text-[13px] font-extrabold uppercase tracking-[0.06em] text-[var(--text-accent)]"
+                                className="mt-auto flex w-full items-center justify-center gap-2 min-h-[48px] px-5 rounded-[2rem] border-2 border-[color:var(--text-accent)] text-[14px] font-extrabold uppercase tracking-[0.05em] text-[var(--text-accent)]"
                             >
-                                {t('mk.try')}
                                 <Icon name="ArrowRight" size={20} />
+                                {t('mk.try')}
                             </ZLink>
                         </div>
                     ))}
                 </div>
             </Section>
 
+            {/* Moved below "Who It's For": How It Works and The Four Domains both answer "what does this do", and
+                reading them back to back made the page feel like it was repeating itself. Now the order is
+                problem → mechanism → who it's for → scope → stage → team → questions. */}
+            <Section id="domains" eyebrow={t('mk.domains.eyebrow')} title={t('mk.domains.title')}>
+                {/* The four domains as one chain, in order, on the page's second brand band. Supply → matched
+                    demand → logistics → payment is a cycle, so the sequence is information; drawn as a chain
+                    because four more icon cards is the shape the section above has already used. */}
+                <ol className="band-brand rounded-2xl list-none m-0 p-6 md:p-8 flex flex-col md:flex-row md:items-stretch gap-5 md:gap-3">
+                    {DOMAINS.map((d, i) => (
+                        <Fragment key={d.k}>
+                            {i > 0 && (
+                                <li
+                                    aria-hidden
+                                    className="self-center shrink-0 text-[color:color-mix(in_srgb,var(--white)_55%,transparent)]"
+                                >
+                                    <Icon name="ChevronRight" size={22} className="rotate-90 md:rotate-0" />
+                                </li>
+                            )}
+                            <li className="flex-1 min-w-0 flex flex-col gap-3">
+                                <span className="on-band-chip inline-flex h-12 w-12 items-center justify-center rounded-xl">
+                                    <Icon name={d.icon} size={24} />
+                                </span>
+                                <h3 className="m-0 text-[20px] leading-7 font-extrabold text-[var(--white)]">
+                                    {t(`mk.domain.${d.k}.h`)}
+                                </h3>
+                                <p className="m-0 text-[16px] leading-6 font-medium on-band-sub max-w-[42ch]">
+                                    {t(`mk.domain.${d.k}.p`)}
+                                </p>
+                            </li>
+                        </Fragment>
+                    ))}
+                </ol>
+            </Section>
+
             <Section id="status" eyebrow={t('mk.status.eyebrow')} title={t('mk.status.title')}>
-                <div className="glass-panel rounded-[2rem] p-6 flex flex-col gap-4 border-2 border-[color:var(--brand-gold)]">
+                <div className={`${cardCls} p-6 md:p-8 flex flex-col gap-5 border-2 border-[color:var(--brand-gold)]`}>
                     <div className="flex flex-wrap items-center gap-3">
                         <DemoChip />
-                        <span className="text-[16px] font-extrabold">{t('mk.status.stage')}</span>
+                        <span className="text-[18px] leading-7 font-extrabold">{t('mk.status.stage')}</span>
                     </div>
-                    <ul className="flex flex-col gap-3">
+                    <ul className="flex flex-col gap-4 list-none m-0 p-0">
                         {(['model', 'simulated', 'assumed'] as Tag[]).map((g) => (
                             <li key={g} className="flex flex-wrap items-start gap-3">
                                 <ClaimTag tag={g} />
-                                <span className="flex-1 min-w-[220px] text-[15px] leading-6 font-medium">
+                                <span className="flex-1 min-w-[240px] text-[17px] leading-7 font-medium text-[var(--ink)] max-w-[70ch]">
                                     {t(`mk.status.${g}`, { n: FARMS.length, ha })}
                                 </span>
                             </li>
                         ))}
                     </ul>
-                    <p className="m-0 text-[15px] leading-6 font-semibold text-[var(--text-secondary)]">
-                        {t('mk.status.next')}
-                    </p>
+                    <p className={metaCls}>{t('mk.status.next')}</p>
                 </div>
             </Section>
 
             <Section id="team" eyebrow={t('mk.team.eyebrow')} title={t('mk.team.title')}>
-                <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr))]">
+                <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr))]">
                     {['team', 'school', 'tbi'].map((k) => (
-                        <div key={k} className="glass-panel rounded-[1.5rem] p-5">
-                            <h3 className="text-[18px] font-extrabold">{t(`mk.team.${k}.h`)}</h3>
-                            <p className="mt-1 m-0 text-[15px] leading-6 font-medium text-[var(--text-secondary)]">
-                                {t(`mk.team.${k}.p`)}
-                            </p>
+                        <div key={k} className={`${cardCls} p-6`}>
+                            <h3 className="m-0 text-[21px] leading-7 font-extrabold">{t(`mk.team.${k}.h`)}</h3>
+                            <p className={`${bodyCls} mt-2`}>{t(`mk.team.${k}.p`)}</p>
                         </div>
                     ))}
                 </div>
             </Section>
 
             <Section id="faq" eyebrow={t('mk.faq.eyebrow')} title={t('mk.faq.title')}>
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-4">
                     {FAQ.map((k) => (
-                        <details key={k} className="glass-panel rounded-[1.5rem] p-5 group">
-                            <summary className="cursor-pointer list-none flex items-center justify-between gap-3 min-h-[44px] text-[17px] font-extrabold">
+                        <details key={k} className={`${cardCls} p-6 group`}>
+                            <summary className="cursor-pointer list-none flex items-center justify-between gap-4 min-h-[44px] text-[19px] leading-7 font-extrabold">
                                 {t(`mk.faq.${k}.q`)}
                                 <Icon
                                     name="ChevronDown"
@@ -552,9 +717,7 @@ export function MarketingPage() {
                                     className="shrink-0 transition-transform group-open:rotate-180 motion-reduce:transition-none"
                                 />
                             </summary>
-                            <p className="mt-2 m-0 text-[16px] leading-6 font-medium text-[var(--text-secondary)]">
-                                {t(`mk.faq.${k}.a`)}
-                            </p>
+                            <p className={`${bodyCls} mt-3`}>{t(`mk.faq.${k}.a`)}</p>
                         </details>
                     ))}
                 </div>
@@ -582,44 +745,43 @@ export function LaunchPage() {
     const [done, setDone] = useState(false);
     return (
         <MarketingShell>
-            <section aria-labelledby="launch-h" className="py-10 md:py-14 flex flex-col gap-6">
-                <div>
-                    <div className="eyebrow">{t('mk.launch.eyebrow')}</div>
-                    <h1
-                        id="launch-h"
-                        className="mt-2 text-[32px] md:text-[40px] leading-tight font-extrabold tracking-[-0.03em] uppercase"
-                    >
-                        {t('mk.launch.title')}
-                    </h1>
-                    <p className="mt-2 m-0 text-[16px] leading-6 font-medium text-[var(--text-secondary)] max-w-[70ch]">
-                        {t('mk.launch.sub')}
-                    </p>
-                </div>
-                <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr))]">
-                    {APPS.map((a) => (
-                        <ZLink
-                            key={a.k}
-                            href={a.href}
-                            className="glass-panel rounded-[1.5rem] p-5 flex flex-col gap-2 hover:-translate-y-0.5 transition-transform motion-reduce:transition-none"
+            <section aria-labelledby="launch-h" className="py-12 md:py-16 flex flex-col gap-7">
+                {/* The same heading system as the home page: the label sits in the margin column and shares a
+                    top edge with the title. (The old coloured rail bar here was a side-stripe accent, which
+                    is a banned pattern, and it was the last one in the codebase.) */}
+                <div className="grid gap-x-10 gap-y-2 md:grid-cols-[minmax(0,168px)_minmax(0,1fr)]">
+                    <div className="eyebrow md:pt-px">{t('mk.launch.eyebrow')}</div>
+                    <div className="min-w-0">
+                        <h1
+                            id="launch-h"
+                            className="rc-display m-0 text-[32px] md:text-[38px] leading-[1.12] font-extrabold tracking-[-0.03em] max-w-[26ch] text-balance"
                         >
-                            <span className="icon-box">
-                                <Icon name={a.icon} size={24} />
+                            {t('mk.launch.title')}
+                        </h1>
+                        <p className="mt-3 m-0 text-[17px] leading-7 font-medium text-[var(--ink)] max-w-[70ch]">
+                            {t('mk.launch.sub')}
+                        </p>
+                    </div>
+                </div>
+                <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr))]">
+                    {APPS.map((a) => (
+                        <ZLink key={a.k} href={a.href} className={`${cardCls} p-6 flex flex-col gap-3`}>
+                            <span className="icon-box !h-14 !w-14">
+                                <Icon name={a.icon} size={26} />
                             </span>
-                            <span className="text-[18px] font-extrabold">{t(a.h)}</span>
-                            <span className="text-[15px] leading-6 font-medium text-[var(--text-secondary)]">
-                                {t(a.p)}
-                            </span>
-                            <span className="mt-auto inline-flex items-center gap-1 text-[13px] font-extrabold uppercase tracking-[0.06em] text-[var(--text-accent)]">
+                            <span className="text-[21px] leading-7 font-extrabold">{t(a.h)}</span>
+                            <span className="text-[17px] leading-7 font-medium text-[var(--ink)]">{t(a.p)}</span>
+                            <span className="mt-auto inline-flex items-center gap-1.5 min-h-[44px] text-[14px] font-extrabold uppercase tracking-[0.05em] text-[var(--text-accent)]">
                                 {t('mk.try')}
                                 <Icon name="ArrowRight" size={20} />
                             </span>
                         </ZLink>
                     ))}
                 </div>
-                <div className="glass-panel rounded-[1.5rem] p-5 flex flex-wrap items-center justify-between gap-4">
+                <div className={`${cardCls} p-6 flex flex-wrap items-center justify-between gap-5`}>
                     <div className="min-w-0 flex-1">
-                        <h2 className="text-[18px] font-extrabold">{t('mk.launch.demo.h')}</h2>
-                        <p className="m-0 text-[15px] leading-6 font-medium text-[var(--text-secondary)]">
+                        <h2 className="m-0 text-[21px] leading-7 font-extrabold">{t('mk.launch.demo.h')}</h2>
+                        <p className="mt-2 m-0 text-[17px] leading-7 font-medium text-[var(--ink)] max-w-[70ch]">
                             {t('mk.launch.demo.p')}
                         </p>
                     </div>
@@ -628,10 +790,10 @@ export function LaunchPage() {
                         <span>{t('mk.launch.demo.cta')}</span>
                     </ZLink>
                 </div>
-                <div className="glass-panel rounded-[1.5rem] p-5 flex flex-wrap items-center justify-between gap-4">
+                <div className={`${cardCls} p-6 flex flex-wrap items-center justify-between gap-5`}>
                     <div className="min-w-0 flex-1">
-                        <h2 className="text-[18px] font-extrabold">{t('mk.reset.h')}</h2>
-                        <p className="m-0 text-[15px] leading-6 font-medium text-[var(--text-secondary)]">
+                        <h2 className="m-0 text-[21px] leading-7 font-extrabold">{t('mk.reset.h')}</h2>
+                        <p className="mt-2 m-0 text-[17px] leading-7 font-medium text-[var(--ink)] max-w-[70ch]">
                             {t('mk.reset.p')}
                         </p>
                     </div>
@@ -648,7 +810,7 @@ export function LaunchPage() {
                         {done && (
                             <p
                                 role="status"
-                                className="m-0 text-[14px] font-extrabold text-[var(--success-ink)] flex items-center gap-1"
+                                className="m-0 text-[16px] font-extrabold text-[var(--success-ink)] flex items-center gap-1.5"
                             >
                                 <Icon name="CircleCheck" size={20} />
                                 {t('mk.reset.done')}
@@ -667,7 +829,7 @@ function PrimaryButtonLink() {
     return (
         <ZLink
             href="/"
-            className="self-start inline-flex items-center gap-2 min-h-[44px] text-[14px] font-extrabold uppercase tracking-[0.06em] text-[var(--text-accent)]"
+            className="self-start inline-flex items-center gap-2 min-h-[44px] text-[15px] font-extrabold uppercase tracking-[0.05em] text-[var(--text-accent)]"
         >
             <Icon name="ChevronLeft" size={20} />
             {t('mk.back')}

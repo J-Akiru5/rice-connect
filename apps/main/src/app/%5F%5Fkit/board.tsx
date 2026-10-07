@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import {
   AlertDialog,
+  BarChart,
   Checkbox,
   Dialog,
   ErrorState,
@@ -16,10 +17,12 @@ import {
   MenuItem,
   MenuSeparator,
   PrimaryButton,
+  ProgressBar,
   RadioGroup,
   RefreshMarker,
   SecondaryButton,
   Select,
+  StatusDistribution,
   SubmitButton,
   Switch,
   Tabs,
@@ -209,6 +212,34 @@ export function KitBoard() {
           onConfirm={() => setDone('Farm deleted (simulated).')}
         />
         {done && <p className="m-0 text-[14px] font-bold text-[var(--text-accent)]">{done}</p>}
+      </section>
+
+      <section className="glass-panel rounded-[1.5rem] p-4 flex flex-col gap-4">
+        <h2 className="text-[18px] font-extrabold">Charts</h2>
+        <div className="grid gap-6 [grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr))]">
+          <BarChart
+            title="Harvest by week"
+            unit="t"
+            data={[
+              { label: 'W1', value: 96 },
+              { label: 'W2', value: 81.3 },
+              { label: 'W3', value: 89.2 },
+              { label: 'W4', value: 145 }
+            ]}
+          />
+          <div className="min-w-0 flex flex-col gap-4">
+            <ProgressBar title="C-01" value={32.4} max={30} unit="t" />
+            <ProgressBar title="C-02" value={12} max={25} unit="t" />
+          </div>
+          <StatusDistribution
+            title="Haul status"
+            segments={[
+              { status: 'assigned', label: 'Assigned', value: 2 },
+              { status: 'delivered', label: 'Delivered', value: 1 },
+              { status: 'requested', label: 'Requested', value: 0 }
+            ]}
+          />
+        </div>
       </section>
     </main>
   );
