@@ -1,50 +1,30 @@
 'use client';
 import { useMemo } from 'react';
 import { ZLink } from '@rc/ui';
-import { AppShell, BigStat, ErrorState, HarvestCalendar, LoadingState, Pagination, useI18n } from '@rc/ui';
-import { useFarms, useLots } from '@rc/data';
+import { AppShell, BigStat, ErrorState, LoadingState, Pagination, useI18n } from '@rc/ui';
 import { paginate, sortBy } from '@rc/domain/list';
 import { staticListState, type ListState } from './list-state';
 import { BARANGAYS, HERO_FARM, WEEKS, type Farm } from '@rc/domain/seed';
 import { DRYING_FACTOR_PER_MILLE, LOSS_PCT, MUNICIPALITY, YIELD_WET_KG_PER_HA } from '@rc/domain/params';
 import { dayLabel } from '@rc/domain/calendar';
-import { SectionPill, Note, ResponsiveTable, type Col } from './ui';
-
-const t1 = (kg: number) => (Math.round(kg / 100) / 10).toFixed(1);
+import { SectionPill, ResponsiveTable, type Col } from './ui';
+import { PlanCalendar, t1, usePlanCalendar } from './plan-calendar';
 
 /** /plan — the cluster's harvest calendar, W1-W4, dried tonnes per week per barangay (desktop). */
 export function PlanScreen({ list }: { list?: ListState }) {
     const { t } = useI18n();
     const L = list ?? staticListState('/plan');
     /* Gate 3: farms and lots come from the repositories (mock in demo, Supabase in live). */
-    const farmsQuery = useFarms({ size: 500 });
-    const lotsQuery = useLots({ size: 500 });
-    const farms = useMemo(() => farmsQuery.data?.rows ?? [], [farmsQuery.data]);
-    const lots = useMemo(() => lotsQuery.data?.rows ?? [], [lotsQuery.data]);
-    const lotOfFarm = useMemo(() => new Map(lots.map((l) => [l.farm, l])), [lots]);
+    const cal = usePlanCalendar();
+    const farms = cal.farms;
+    const plan = cal.rows;
+    const lotOfFarm = useMemo(() => new Map(cal.lots.map((l) => [l.farm, l])), [cal.lots]);
     const byDate = useMemo(
         () =>
             sortBy(
                 sortBy(farms, (f) => f.id),
                 (f) => f.harvestDay
             ),
-        [farms]
-    );
-    const plan = useMemo(
-        () =>
-            BARANGAYS.map((b) => {
-                const inBarangay = farms.filter((f) => f.barangay === b);
-                return {
-                    barangay: b,
-                    weeks: WEEKS.map(
-                        (w) =>
-                            Math.round(
-                                inBarangay.filter((f) => f.harvestWeek === w).reduce((s, f) => s + f.driedKg, 0) / 100
-                            ) / 10
-                    ),
-                    farms: inBarangay.length
-                };
-            }),
         [farms]
     );
     const totals = useMemo(
@@ -60,12 +40,9 @@ export function PlanScreen({ list }: { list?: ListState }) {
         () => WEEKS.map((w) => farms.filter((f) => f.harvestWeek === w).reduce((s, f) => s + f.driedKg, 0)),
         [farms]
     );
-    const loading = farmsQuery.isPending || lotsQuery.isPending;
-    const failed = farmsQuery.isError || lotsQuery.isError;
-    const retry = () => {
-        void farmsQuery.refetch();
-        void lotsQuery.refetch();
-    };
+    const loading = cal.isPending;
+    const failed = cal.isError;
+    const retry = cal.retry;
     if (loading)
         return (
             <AppShell title="plan.title" active="plan">
@@ -79,18 +56,7 @@ export function PlanScreen({ list }: { list?: ListState }) {
             </AppShell>
         );
     const pg = paginate(byDate, L.page, L.size);
-    const max = Math.max(...plan.flatMap((r) => r.weeks));
-    /* The demo's hero farm (F-014 · L-03) marks its barangay/week; live rows have no pinned hero. */
-    const heroFarm = farms.find((f) => f.id === HERO_FARM.id);
-    const heroLot = heroFarm ? lotOfFarm.get(heroFarm.id) : undefined;
-    const highlight =
-        heroFarm && heroLot
-            ? {
-                  row: BARANGAYS.indexOf(heroFarm.barangay as (typeof BARANGAYS)[number]),
-                  week: WEEKS.indexOf(heroFarm.harvestWeek as (typeof WEEKS)[number]),
-                  label: `${heroFarm.id} · ${heroLot.id} · ${t1(heroFarm.driedKg)} t`
-              }
-            : undefined;
+    const { max, highlight, heroLot } = cal;
     const cols: Col<Farm>[] = [
         {
             key: 'farm',
@@ -162,66 +128,7 @@ export function PlanScreen({ list }: { list?: ListState }) {
                         note={t('plan.note.peak', { t: t1(weekKg[peak] ?? 0) })}
                     />
                 </div>
-                <section aria-labelledby="plan-cal">
-                    <SectionPill id="plan-cal">{t('plan.section')}</SectionPill>
-                    <div className="cq-wide-only">
-                        <HarvestCalendar rows={plan} caption={t('plan.caption')} highlight={highlight} />
-                    </div>
-                    {/* narrow: one glass card per barangay, the same bars stacked by week (derived, not in canvas) */}
-                    <ul className="cq-narrow-only flex flex-col gap-3" aria-label={t('plan.caption')}>
-                        {plan.map((r, ri) => (
-                            <li key={r.barangay} className="glass-panel rounded-[1.5rem] p-4">
-                                <div className="text-[16px] leading-6 font-extrabold break-words">{r.barangay}</div>
-                                <div className="text-[14px] font-semibold text-[var(--text-secondary)]">
-                                    {t('cal.farms', { n: r.farms })} · {r.weeks.reduce((a, b) => a + b, 0).toFixed(1)}{' '}
-                                    {t('unit.t')}
-                                </div>
-                                <dl className="mt-2 flex flex-col gap-2 tabular">
-                                    {r.weeks.map((v, wi) => {
-                                        const hl = highlight?.row === ri && highlight.week === wi;
-                                        return (
-                                            <div
-                                                key={wi}
-                                                className="grid grid-cols-[40px_minmax(0,1fr)] items-center gap-2"
-                                            >
-                                                <dt className="text-[13px] font-extrabold">{WEEKS[wi]}</dt>
-                                                <dd
-                                                    className={`relative h-11 rounded-xl overflow-hidden rc-bg-highlight ${hl ? 'outline outline-[3px] outline-[color:var(--brand-gold)]' : ''}`}
-                                                >
-                                                    <span
-                                                        className="absolute inset-y-0 left-0 bg-[var(--fill-strong)] opacity-90"
-                                                        style={{ width: max > 0 ? `${(v / max) * 100}%` : '0%' }}
-                                                    />
-                                                    <span
-                                                        className="relative h-full flex items-center px-3 text-[15px] font-extrabold"
-                                                        style={{
-                                                            color:
-                                                                max > 0 && v / max > 0.45
-                                                                    ? 'var(--on-fill-strong)'
-                                                                    : 'var(--ink)'
-                                                        }}
-                                                    >
-                                                        {v.toFixed(1)} {t('unit.t')}
-                                                    </span>
-                                                </dd>
-                                                {hl && (
-                                                    <dd className="col-start-2 text-[13px] font-bold text-[var(--gold-ink)]">
-                                                        {highlight.label}
-                                                    </dd>
-                                                )}
-                                            </div>
-                                        );
-                                    })}
-                                </dl>
-                            </li>
-                        ))}
-                    </ul>
-                    {highlight && (
-                        <Note className="mt-3">
-                            {t('plan.legend', { farm: HERO_FARM.id, lot: heroLot?.id ?? HERO_FARM.id })}
-                        </Note>
-                    )}
-                </section>
+                <PlanCalendar rows={plan} max={max} highlight={highlight} lotId={heroLot?.id} />
                 <section aria-labelledby="plan-farms" className="flex flex-col gap-3">
                     <div>
                         <SectionPill id="plan-farms">{t('plan.farms')}</SectionPill>

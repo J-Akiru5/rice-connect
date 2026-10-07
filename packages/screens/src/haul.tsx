@@ -18,7 +18,7 @@ import {
 } from '@rc/ui';
 import { isLive } from '@rc/ui/mode';
 import { ModuleShell } from './shell';
-import { useHauls, useHaulStatus, useLot, useSetHaulStatus } from '@rc/data';
+import { useHauls, useHaulStatus, useHaulStatuses, useLot, useSetHaulStatus } from '@rc/data';
 import { DRIVERS, DRYER, HAUL, HERO_LOT, KG_PER_SACK, SLOT, VEHICLES } from '@rc/domain/seed';
 import { autoAssign, tripsFor, type Driver } from '@rc/domain/assign';
 import { peso } from '@rc/domain/money';
@@ -364,14 +364,129 @@ export function HaulCoordinatorScreen({
     );
 }
 
-/** /haul/driver — the driver's job card: one forward action per step. Updates sent while offline are queued
-    in the card ("Not sent yet") and flushed when the connection returns, so nothing disappears. */
-export function HaulDriverScreen({ status: forced }: { status?: HaulStatus }) {
+/** /haul/driver — the driver's jobs list (S-18): accept or decline here, then open the job for pickup and
+    delivery. Declining is local to this browser (there is no repository path for it yet) and can be undone. */
+export function HaulDriverListScreen() {
+    const { t } = useI18n();
+    const toast = useToast();
+    /* Gate 3: the jobs come from the repository list (RLS gives the driver their own rows). */
+    const haulsQuery = useHauls({ size: 20 });
+    const hauls = haulsQuery.data?.rows ?? [];
+    const statuses = useHaulStatuses(hauls.map((h) => h.id));
+    const mutation = useSetHaulStatus();
+    const [declinedId, setDeclinedId] = useState<string | null>(null);
+    const [failedId, setFailedId] = useState<string | null>(null);
+    const statusOf = (id: string) => statuses.data?.find((s) => s.id === id)?.status ?? 'assigned';
+
+    async function accept(id: string) {
+        setFailedId(null);
+        try {
+            await mutation.mutateAsync({ id, status: 'accepted' });
+            toast.show(t('haul.saved'));
+        } catch {
+            setFailedId(id);
+        }
+    }
+
+    if (haulsQuery.isPending)
+        return (
+            <ModuleShell role="driver" title="haul.driver.jobs" active="jobs">
+                <LoadingState rows={3} />
+            </ModuleShell>
+        );
+    if (haulsQuery.isError)
+        return (
+            <ModuleShell role="driver" title="haul.driver.jobs" active="jobs">
+                <ErrorState onRetry={() => void haulsQuery.refetch()} />
+            </ModuleShell>
+        );
+    if (hauls.length === 0)
+        return (
+            <ModuleShell role="driver" title="haul.driver.jobs" active="jobs">
+                <EmptyState
+                    className="max-w-[640px] mx-auto"
+                    variant="empty"
+                    title="state.haul.empty.title"
+                    body="state.haul.empty.body"
+                />
+            </ModuleShell>
+        );
+
+    return (
+        <ModuleShell role="driver" title="haul.driver.jobs" active="jobs">
+            <div className="flex flex-col gap-4 max-w-[720px] mx-auto w-full">
+                {hauls.map((h) => {
+                    const st = statusOf(h.id);
+                    const declined = declinedId === h.id;
+                    return (
+                        <HaulRequestCard key={h.id} id={h.id} lot={h.lot} sacks={h.sacks} status={st}>
+                            <div className="hard-thin p-3 flex flex-col gap-1.5">
+                                <Row label={t('haul.eta')}>{h.pickup}</Row>
+                                <Row label={t('haul.sacks')}>{`${h.sacks} ${t('unit.sacks')}`}</Row>
+                                <Row label={t('haul.from')}>{h.from.label}</Row>
+                                <Row label={t('haul.to')}>{h.to.label}</Row>
+                            </div>
+                            {failedId === h.id && <ErrorState className="mt-3" onRetry={() => void accept(h.id)} />}
+                            {declined ? (
+                                <div className="hard-thin p-3 flex flex-col gap-2">
+                                    <p className="text-[16px] font-bold text-black flex items-start gap-2">
+                                        <Icon name="CircleX" size={24} className="shrink-0" />
+                                        {t('haul.declined')}
+                                    </p>
+                                    <button
+                                        type="button"
+                                        onClick={() => setDeclinedId(null)}
+                                        className="hard-btn bg-white text-black"
+                                    >
+                                        <Icon name="Retry" size={24} />
+                                        <span>{t('haul.undo')}</span>
+                                    </button>
+                                </div>
+                            ) : st === 'assigned' ? (
+                                <div className="flex flex-wrap gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => void accept(h.id)}
+                                        disabled={mutation.isPending}
+                                        className="hard-btn flex-[1_1_140px] bg-[var(--success)] text-black"
+                                    >
+                                        <Icon name="Check" size={24} />
+                                        <span>{t('haul.accept')}</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setDeclinedId(h.id)}
+                                        className="hard-btn flex-[1_1_140px] bg-white text-black"
+                                    >
+                                        <Icon name="X" size={24} />
+                                        <span>{t('haul.decline')}</span>
+                                    </button>
+                                </div>
+                            ) : (
+                                <ZLink
+                                    href={`/haul/driver/jobs/${h.id}`}
+                                    className="hard-btn w-full bg-white text-black flex items-center justify-center gap-2"
+                                >
+                                    <Icon name="ArrowRight" size={24} />
+                                    <span>{t('haul.open')}</span>
+                                </ZLink>
+                            )}
+                        </HaulRequestCard>
+                    );
+                })}
+            </div>
+        </ModuleShell>
+    );
+}
+
+/** /haul/driver/jobs/{id} — the driver's job card: one forward action per step. Updates sent while offline are
+    queued in the card ("Not sent yet") and flushed when the connection returns, so nothing disappears. */
+export function HaulDriverScreen({ id, status: forced }: { id?: string; status?: HaulStatus }) {
     const { t } = useI18n();
     const toast = useToast();
     /* Gate 3: the driver's haul comes from the repository list (RLS gives the driver their own rows). */
     const haulsQuery = useHauls({ size: 20 });
-    const haul = haulsQuery.data?.rows[0];
+    const haul = (id ? haulsQuery.data?.rows.find((h) => h.id === id) : haulsQuery.data?.rows[0]) ?? null;
     const server = useHaulStatus(haul?.id ?? '');
     const lotQuery = useLot(haul?.lot ?? '');
     const mutation = useSetHaulStatus();
@@ -408,42 +523,46 @@ export function HaulDriverScreen({ status: forced }: { status?: HaulStatus }) {
 
     if (haulsQuery.isPending)
         return (
-            <ModuleShell role="driver" title="haul.driver.job" active="logistics">
+            <ModuleShell role="driver" title="haul.driver.job" active="jobs">
                 <LoadingState rows={3} />
             </ModuleShell>
         );
     if (haulsQuery.isError)
         return (
-            <ModuleShell role="driver" title="haul.driver.job" active="logistics">
+            <ModuleShell role="driver" title="haul.driver.job" active="jobs">
                 <ErrorState onRetry={() => void haulsQuery.refetch()} />
             </ModuleShell>
         );
     if (!haul)
         return (
-            <ModuleShell role="driver" title="haul.driver.job" active="logistics">
-                <EmptyState
-                    className="max-w-[640px] mx-auto"
-                    variant="empty"
-                    title="state.haul.empty.title"
-                    body="state.haul.empty.body"
-                />
+            <ModuleShell role="driver" title="haul.driver.job" active="jobs">
+                {id ? (
+                    <ErrorState variant="notFound" className="max-w-[640px] mx-auto" />
+                ) : (
+                    <EmptyState
+                        className="max-w-[640px] mx-auto"
+                        variant="empty"
+                        title="state.haul.empty.title"
+                        body="state.haul.empty.body"
+                    />
+                )}
             </ModuleShell>
         );
     if (!forced && server.isPending)
         return (
-            <ModuleShell role="driver" title="haul.driver.job" active="logistics">
+            <ModuleShell role="driver" title="haul.driver.job" active="jobs">
                 <LoadingState rows={3} />
             </ModuleShell>
         );
     if (!forced && server.isError)
         return (
-            <ModuleShell role="driver" title="haul.driver.job" active="logistics">
+            <ModuleShell role="driver" title="haul.driver.job" active="jobs">
                 <ErrorState onRetry={() => void server.refetch()} />
             </ModuleShell>
         );
 
     return (
-        <ModuleShell role="driver" title="haul.driver.job" active="logistics">
+        <ModuleShell role="driver" title="haul.driver.job" active="jobs">
             <div className="flex flex-col gap-4 max-w-[720px] mx-auto w-full">
                 <HaulRequestCard id={haul.id} lot={haul.lot} sacks={haul.sacks} status={st}>
                     <DeliveryStatusStepper status={st} type="cluster" />

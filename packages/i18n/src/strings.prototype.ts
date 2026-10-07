@@ -152,6 +152,84 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
         'Bar: toneladang tuyo bawat linggo. Gintong guhit: Bukid {farm}, Lot {lot}.',
         'Bar: tonelada nga uga kada semana. Bulawan nga linya: Uma {farm}, Lot {lot}.'
     ],
+    // farmer plan (S-15): my harvest, the same cluster calendar, and repeat delivery
+    'plan.eyebrow.farmer': [
+        '{farm} · {barangay} · {week} · {date}',
+        '{farm} · {barangay} · {week} · {date}',
+        '{farm} · {barangay} · {week} · {date}'
+    ],
+    'plan.mine': ['My Harvest', 'Aking Ani', 'Akon nga Alani'],
+    'plan.delivery': ['Delivery', 'Paghatod', 'Paghatod'],
+    'plan.delivery.help': [
+        'The pickup is confirmed by SMS. Book another trip when the cluster needs a second run.',
+        'Kinukumpirma ang kuha sa SMS. Mag-book ng isa pang biyahe kapag kailangan ng pangalawang takbo.',
+        'Ginkumpirma ang kuha sa SMS. Mag-book sang isa pa nga biyahe kon kinahanglan sang ikadha nga dagan.'
+    ],
+    'plan.book': ['Book Repeat Delivery', 'Mag-book ng Paulit na Paghatod', 'Mag-book sang Ining Paghatod'],
+    'plan.book.title': ['Book a repeat delivery?', 'I-book ang paulit na paghatod?', 'I-book ang ining paghatod?'],
+    'plan.book.desc': [
+        'A second pickup of {sacks} sacks from {farm} to {via} on the same route.',
+        'Pangalawang kuha ng {sacks} sako mula {farm} tungo sa {via} sa parehong ruta.',
+        'Ikaduha nga kuha sang {sacks} sako halin {farm} paagi sa {via} sa amo nga ruta.'
+    ],
+    'plan.booked': ['Repeat Delivery Booked', 'Nai-book ang Paulit na Paghatod', 'Na-book ang Ining Paghatod'],
+    'plan.booked.note': [
+        'Second trip · {sacks} sacks · {via}',
+        'Ikalawang biyahe · {sacks} sako · {via}',
+        'Ikaduha nga biyahe · {sacks} sako · {via}'
+    ],
+    'plan.book.cancel': ['Cancel Booking', 'Kanselahin ang Booking', 'Kanselahon ang Booking'],
+    'plan.book.cancelled': ['Booking cancelled', 'Nakansela ang booking', 'Nakansela ang booking'],
+    // central milling (S-16): the farmer's dryer slot and what the assumed milling gives back
+    'nav.milling': ['Milling', 'Paggiling', 'Pagkagiling'],
+    'milling.title': ['Central Milling', 'Central na Paggiling', 'Sentral nga Pagkagiling'],
+    'milling.eyebrow': ['Lot {lot} · {dryer}', 'Lot {lot} · {dryer}', 'Lot {lot} · {dryer}'],
+    'milling.drying': ['Drying', 'Pagpapatuyo', 'Pagpamala'],
+    'milling.time': ['Time', 'Oras', 'Oras'],
+    'milling.dryer': ['Dryer', 'Patuyuan', 'Pamalahan'],
+    'milling.section': ['From Dried Palay', 'Mula sa Tuyong Palay', 'Halin sa Uga nga Palay'],
+    'milling.milled': ['Milled Rice', 'Gilingang Bigas', 'Giling nga Bugas'],
+    'milling.recovery.note': ['{pct}% recovery (assumed)', '{pct}% recovery (tantiya)', '{pct}% recovery (banta)'],
+    'milling.rice.sacks': ['Rice Sacks', 'Mga Sako ng Bigas', 'Mga Sako nga Bugas'],
+    'milling.sack.note': ['{kg} kg per sack (assumed)', '{kg} kg bawat sako (tantiya)', '{kg} kg kada sako (banta)'],
+    'milling.assumed': [
+        'Recovery {pct}%, {kg} kg sacks and the partner miller are assumed (docs/NUMBERS.md).',
+        'Ang recovery na {pct}%, {kg} kg na sako at ang partner miller ay tantiya (docs/NUMBERS.md).',
+        'Ang recovery nga {pct}%, {kg} nga sako kag ang partner miller ay banta (docs/NUMBERS.md).'
+    ],
+    'milling.partner': [
+        'Milled by {miller} after drying.',
+        'Gigilingan ng {miller} pagkatapos matuyo.',
+        'Giligingan sang {miller} pagkatapos ugaon.'
+    ],
+    'milling.confirm': ['Confirm Slot', 'Kumpirmahin ang Slot', 'Kumpirmaha ang Slot'],
+    'milling.move': ['Request Another Time', 'Humingi ng Ibang Oras', 'Pangayo sang Ibang Oras'],
+    'milling.empty.title': ['No Dryer Slot Yet', 'Wala Pang Slot sa Patuyuan', 'Wala Pa sang Slot sa Pamalahan'],
+    'milling.empty.body': [
+        'The coordinator assigns a slot when the harvest date is set.',
+        'Nagbibigay ng slot ang coordinator kapag nakatakda na ang petsa ng ani.',
+        'Nagahatag sang slot ang coordinator kon natig-ad na ang petsa sang alani.'
+    ],
+    // contract price and variety (S-17)
+    'nav.price': ['Price', 'Presyo', 'Presyo'],
+    'price.title': ['Contract Price & Variety', 'Presyo ng Kontrata at Variety', 'Presyo sang Kontrata kag Variety'],
+    'price.eyebrow': ['Lot {lot} · {id}', 'Lot {lot} · {id}', 'Lot {lot} · {id}'],
+    'price.contract': ['Your Contract', 'Ang Iyong Kontrata', 'Ang Imo nga Kontrata'],
+    'price.variety': ['Rice Variety', 'Variety ng Bigas', 'Variety nga Bugas'],
+    'price.variety.label': ['Variety', 'Variety', 'Variety'],
+    'price.mc': ['Moisture Content', 'Konten ng Moisture', 'Kontenido sang Moisture'],
+    'price.week': ['Delivery Week', 'Linggo ng Hatid', 'Semana sang Hatid'],
+    'price.rate': ['Price per Kilo', 'Presyo bawat Kilo', 'Presyo kada Kilo'],
+    'price.empty.title': ['No Contract Yet', 'Wala Pang Kontrata', 'Wala Pa sang Kontrata'],
+    'price.empty.body': [
+        'Your lot is matched to a buyer when the coordinator posts the contract.',
+        'Natutugma ang iyong lot sa mamimili kapag inilathala ng coordinator ang kontrata.',
+        'Natig-ad ang imo lot sa mamalitay kon igapost sang coordinator ang kontrata.'
+    ],
+    // driver jobs (S-18)
+    'nav.jobs': ['Jobs', 'Mga Trabaho', 'Mga Buhat'],
+    'haul.driver.jobs': ['Your Jobs', 'Ang Iyong mga Trabaho', 'Ang Imo nga mga Obra'],
+    'haul.open': ['Open Job', 'Buksan ang Trabaho', 'Buksan ang Buhat'],
     // market
     'market.eyebrow': [
         'Buyers post standing orders · the cluster fills them',
