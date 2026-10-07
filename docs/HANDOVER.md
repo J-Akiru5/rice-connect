@@ -1,16 +1,16 @@
 # RiceConnect handover — Phase 4 readiness (after the Gate 3 batch)
 
 You are working in the RiceConnect monorepo (`S:\Dev\Enactus\rice-connect`, Windows, PowerShell 5.1).
-Read `AGENTS.md` and `docs/plan/README.md` first. `docs/DECISIONS.md` rows M32–M55 are the current history;
+Read `AGENTS.md` and `docs/plan/README.md` first. `docs/DECISIONS.md` rows M32–M57 are the current history;
 `docs/BLOCKERS.md` is the live list of open items. This file tells you where we are and what to do next.
 
 ## Repo state (7 Oct 2026)
 
 - `origin/main` = `origin/staging` = `f40f4cc` (the last promotion, PRs #28/#29).
-- `origin/develop` = `origin/work/phase1` = the Gate 3 conversion + Phase 4 readiness commits (see `git log`).
-- Another developer's branch `origin/lou` (public-site restyle) is **not merged yet** and rewrites
-  `packages/screens/src/buyer-orders.tsx`, `buyer.tsx`, `buyer-type.tsx`, `marketing.tsx` and
-  `packages/i18n/src/strings.prototype.ts`; do not edit those files until it merges (see BLOCKERS).
+- `origin/develop` = `origin/work/phase1` = the Gate 3 conversion, Phase 4 readiness and the lou/karl integrations.
+- `origin/lou` (public-site restyle) and `origin/karl` (S-15–S-18: farmer plan/milling/price, driver jobs) are merged
+  into develop (PRs #30/#31); their deferred follow-ups are done too (M56 my-farm resolution, M57 buyer honesty and the
+  marketing privacy link). Keep `develop` and `work/phase1` in sync before every push.
 - Work on `work/phase1`; push to `origin/work/phase1` and fast-forward `origin/develop` (`git push origin work/phase1:develop`).
   Never push `staging` or `main`; promotion is by PR (`gh pr create` → watch checks → merge) and only when the owner says so.
   Before every push: `git fetch` and, if `origin/develop` moved, `git merge origin/develop` into `work/phase1`.
@@ -45,16 +45,16 @@ Read `AGENTS.md` and `docs/plan/README.md` first. `docs/DECISIONS.md` rows M32�
 1. **Run the gated live smokes from a network that can reach Supabase** (this machine cannot: see BLOCKERS). Both specs are in
    the repo, skipped unless gated:
    - Gate 3: live build (`NEXT_PUBLIC_RC_MODE=live pnpm build:local --force`), then
-     `E2E_GATE3=1 E2E_MAIN_PORT=3100 pnpm e2e e2e/gate3-live.spec.ts`.
+     `E2E_GATE3=1 E2E_MAIN_PORT=3100 pnpm e2e e2e/gate3-live.spec.ts` (walks every screen per role, including the
+     new farmer routes and the driver job detail).
    - ANNI: same build (apps' env needs Supabase + `GEMINI_API_KEY`), then
      `E2E_ANNI=1 E2E_MAIN_PORT=3100 pnpm e2e e2e/anni-live.spec.ts`.
    Report failures with the screen and the console/API response; fix before any staging Gate 3 run.
-2. **After `origin/lou` merges:** add the privacy link to the marketing `SiteFooter`, and do the deferred buyer honesty pass
-   (buyer commitment cards: stored grade, no demo MC, live fill from `autoMatch`) — see BLOCKERS.
-3. **ANNI follow-ups:** Karl's review may generate fixes; A-07 additional actions only if the owner asks.
-4. **Owner-gated items** (do not do these; list them in reports): F-01 ruleset; P0-02 private-window check; P0-04/05 usability
+2. **ANNI follow-ups:** Karl's review may generate fixes; A-07 additional actions only if the owner asks.
+3. **Owner-gated items** (do not do these; list them in reports): F-01 ruleset; P0-02 private-window check; P0-04/05 usability
    test + findings; `CONTACT_EMAIL`; S-13/S-14; B-10 restore rehearsal; cloud auth policy/MFA in the dashboards; O7 (DPO) and
-   O8 (SMS aggregator); demo-off-in-production env.
+   O8 (SMS aggregator); demo-off-in-production env; the M55 note about the production Playwright run and the
+   pasted-credential question.
 
 ## Workflow and environment rules (learned the hard way)
 

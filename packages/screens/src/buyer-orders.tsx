@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { LocalCommitment } from '@rc/store';
 import { useDemoState, updateDemoState } from '@rc/store/react';
 import { ZLink } from '@rc/ui';
@@ -19,7 +19,15 @@ import {
     useI18n,
     useToast
 } from '@rc/ui';
-import { useCancelOrder, useCreateCommitment, useCreateOrder, useMyCommitments, useOrders } from '@rc/data';
+import {
+    useCancelOrder,
+    useCommitments,
+    useCreateCommitment,
+    useCreateOrder,
+    useLots,
+    useMyCommitments,
+    useOrders
+} from '@rc/data';
 import { isLive } from '@rc/ui/mode';
 import {
     COMMITMENTS,
@@ -343,11 +351,50 @@ function PalayCommitments() {
     const demoMine = useDemoState().commitments;
     const mineQuery = useMyCommitments();
     const createCommitment = useCreateCommitment();
+    /* Live cards show the stored rows (real grade/price) and derive fills from the same auto-match the
+       coordinator board uses; the mapper leaves moisture as a dash until the schema stores it. */
+    const boardQuery = useCommitments({ size: 200 });
+    const lotsQuery = useLots({ size: 500 });
+    const board = boardQuery.data?.rows ?? [];
+    const lots = lotsQuery.data?.rows ?? [];
+    const liveMatches = useMemo(
+        () =>
+            isLive && board.length > 0
+                ? autoMatch(
+                      board.map((x) => ({
+                          id: x.id,
+                          tonnes: x.tonnes,
+                          grade: x.grade,
+                          mcPct: x.mcPct,
+                          window: x.window
+                      })),
+                      lots.map((l) => ({
+                          id: l.id,
+                          week: l.week,
+                          dayIndex: l.dayIndex,
+                          driedKg: l.driedKg,
+                          grade: l.grade,
+                          mcPct: l.mcPct
+                      }))
+                  )
+                : [],
+        [board, lots]
+    );
     const mine: LocalCommitment[] = isLive ? (mineQuery.data ?? []) : demoMine;
     const c01 = COMMITMENTS.find((c) => c.id === 'C-01')!;
     const m01 = MATCHES.find((m) => m.commitment === 'C-01')!;
-    if (isLive && mineQuery.isPending) return <LoadingState rows={3} />;
-    if (isLive && mineQuery.isError) return <ErrorState onRetry={() => void mineQuery.refetch()} />;
+    if (isLive && (mineQuery.isPending || boardQuery.isPending || lotsQuery.isPending))
+        return <LoadingState rows={3} />;
+    if (isLive && (mineQuery.isError || boardQuery.isError || lotsQuery.isError))
+        return (
+            <ErrorState
+                onRetry={() => {
+                    void mineQuery.refetch();
+                    void boardQuery.refetch();
+                    void lotsQuery.refetch();
+                }}
+            />
+        );
     const post = () => {
         const tn = Number(tonnes);
         const pc = Math.round(Number(price) * 100);
@@ -447,31 +494,39 @@ function PalayCommitments() {
                     {/* The standing C-01 commitment and its matched lots are the demo fixture. */}
                     {!isLive && <Note className="!text-[16px] !leading-6">{t('orders.c01')}</Note>}
                     {!isLive && <CommitmentCard c={c01} highlight className="panel-solid" />}
-                    {mine.map((c) => (
-                        <div key={c.id} className="flex flex-col gap-2">
-                            <CommitmentCard
-                                className="panel-solid"
-                                c={{
-                                    id: c.id,
-                                    buyer: t('orders.you'),
-                                    tonnes: c.tonnes,
-                                    grade: HERO_LOT.grade,
-                                    mc: HERO_LOT.mc,
-                                    price: c.price,
-                                    week:
-                                        c.window.length > 1
-                                            ? `${c.window[0] ?? ''}-${c.window[c.window.length - 1] ?? ''}`
-                                            : (c.window[0] ?? ''),
-                                    filled: Math.round(c.kg / 100) / 10,
-                                    status: c.kg >= c.tonnes * 1000 ? 'full' : 'open'
-                                }}
-                            />
-                            <Note className="px-2 !text-[16px] !leading-6">
-                                {t('orders.matched', { kg: t1(c.kg), n: c.lots.length })}
-                            </Note>
-                        </div>
-                    ))}
-                    {mine.length > 0 && (
+                    {mine.map((c) => {
+                        const row = board.find((x) => x.id === c.id);
+                        const match = liveMatches.find((m) => m.commitment === c.id);
+                        const filledKg = isLive ? (match?.kg ?? 0) : c.kg;
+                        const lotsN = isLive ? (match?.lots.length ?? 0) : c.lots.length;
+                        const tonnes = row?.tonnes ?? c.tonnes;
+                        return (
+                            <div key={c.id} className="flex flex-col gap-2">
+                                <CommitmentCard
+                                    className="panel-solid"
+                                    c={{
+                                        id: c.id,
+                                        buyer: t('orders.you'),
+                                        tonnes,
+                                        /* Live shows what the repository stores; demo keeps its pinned hero values. */
+                                        grade: isLive ? (row?.grade ?? '—') : HERO_LOT.grade,
+                                        mc: isLive ? (row?.mc ?? '—') : HERO_LOT.mc,
+                                        price: row?.price ?? c.price,
+                                        week:
+                                            c.window.length > 1
+                                                ? `${c.window[0] ?? ''}-${c.window[c.window.length - 1] ?? ''}`
+                                                : (c.window[0] ?? ''),
+                                        filled: Math.round(filledKg / 100) / 10,
+                                        status: filledKg >= tonnes * 1000 ? 'full' : 'open'
+                                    }}
+                                />
+                                <Note className="px-2 !text-[16px] !leading-6">
+                                    {t('orders.matched', { kg: t1(filledKg), n: lotsN })}
+                                </Note>
+                            </div>
+                        );
+                    })}
+                    {!isLive && mine.length > 0 && (
                         <SecondaryButton icon="X" onClick={clear} className="self-start">
                             {t('orders.clear')}
                         </SecondaryButton>

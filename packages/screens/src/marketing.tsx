@@ -298,6 +298,7 @@ function SiteFooter() {
                 ['/#how', 'mk.nav.how'],
                 ['/#status', 'mk.nav.status'],
                 ['/#faq', 'mk.nav.faq'],
+                ['/privacy', 'footer.privacy'],
                 ['/demo', 'mk.launch.demo.h']
             ]
         },

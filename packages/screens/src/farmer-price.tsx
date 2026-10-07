@@ -1,10 +1,11 @@
 'use client';
 import type { ReactNode } from 'react';
 import { AppShell, BigStat, CommitmentCard, EmptyState, ErrorState, LoadingState, useI18n } from '@rc/ui';
-import { useCommitments, useFarm, useLots } from '@rc/data';
-import { commitmentOfLot, HERO_FARM } from '@rc/domain/seed';
+import { useCommitments } from '@rc/data';
+import { commitmentOfLot } from '@rc/domain/seed';
 import { peso } from '@rc/domain/money';
 import { SectionPill, Note } from './ui';
+import { useMyFarm } from './my-farm';
 
 /** One summary row: a translated label over a value. Values carry their unit; nothing is truncated. */
 function Del({ k, children }: { k: string; children: ReactNode }) {
@@ -22,22 +23,21 @@ function Del({ k, children }: { k: string; children: ReactNode }) {
 /** /farmer/price â€” the commitment's grade, moisture and price beside the lot's rice variety. */
 export function FarmerPriceScreen() {
     const { t } = useI18n();
-    const lotsQuery = useLots({ size: 500 });
+    /* Gate 3: the farmer's own farm and lot come from the repositories (mock in demo, Supabase in live);
+       the lot→commitment link is still the seed match (M48), so live shows the empty state until it lands. */
+    const mine = useMyFarm();
     const commitmentsQuery = useCommitments({ size: 500 });
-    const farmQuery = useFarm(HERO_FARM.id);
-    const lots = lotsQuery.data?.rows ?? [];
     const commitments = commitmentsQuery.data?.rows ?? [];
-    const farm = farmQuery.data;
-    const lot = lots.find((l) => l.farm === HERO_FARM.id);
+    const farm = mine.farm;
+    const lot = mine.lot;
     const contractId = lot ? commitmentOfLot(lot.id) : undefined;
     const c = commitments.find((x) => x.id === contractId);
 
-    const loading = lotsQuery.isPending || commitmentsQuery.isPending || farmQuery.isPending;
-    const failed = lotsQuery.isError || commitmentsQuery.isError || farmQuery.isError;
+    const loading = commitmentsQuery.isPending || mine.isPending;
+    const failed = commitmentsQuery.isError || mine.isError;
     const retry = () => {
-        void lotsQuery.refetch();
         void commitmentsQuery.refetch();
-        void farmQuery.refetch();
+        mine.retry();
     };
     if (loading)
         return (
@@ -54,7 +54,7 @@ export function FarmerPriceScreen() {
     if (!lot || !farm)
         return (
             <AppShell role="farmer" title="price.title" active="price">
-                <ErrorState variant="notFound" />
+                <EmptyState variant="empty" title="plan.noFarm.title" body="plan.noFarm.body" />
             </AppShell>
         );
     if (!c)

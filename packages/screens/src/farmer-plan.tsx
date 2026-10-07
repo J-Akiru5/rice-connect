@@ -4,6 +4,7 @@ import {
     AlertDialog,
     AppShell,
     BigStat,
+    EmptyState,
     ErrorState,
     Icon,
     LoadingState,
@@ -13,10 +14,11 @@ import {
     useI18n,
     useToast
 } from '@rc/ui';
-import { useFarm, useHaul, useHaulStatus } from '@rc/data';
-import { HAUL, HERO_FARM, VEHICLES } from '@rc/domain/seed';
+import { useHaulStatus } from '@rc/data';
+import { VEHICLES } from '@rc/domain/seed';
 import { SectionPill, Note } from './ui';
 import { PlanCalendar, t1, usePlanCalendar } from './plan-calendar';
+import { useMyFarm, useMyHaul } from './my-farm';
 
 /** One summary row: a translated label over a value. Values carry their unit; nothing is truncated. */
 function Del({ k, children }: { k: string; children: ReactNode }) {
@@ -36,22 +38,23 @@ function Del({ k, children }: { k: string; children: ReactNode }) {
 export function FarmerPlanScreen() {
     const { t } = useI18n();
     const toast = useToast();
-    const farmQuery = useFarm(HERO_FARM.id);
-    const haulQuery = useHaul(HAUL.id);
-    const statusQuery = useHaulStatus(HAUL.id);
+    /* Gate 3: the farmer's own farm, lot and haul come from the repositories (mock in demo, Supabase in live). */
+    const mine = useMyFarm();
+    const haulQuery = useMyHaul(mine.lot?.id);
+    const statusQuery = useHaulStatus(haulQuery.haul?.id ?? '');
     const cal = usePlanCalendar();
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [booked, setBooked] = useState(false);
 
-    const loading = farmQuery.isPending || haulQuery.isPending || cal.isPending;
-    const failed = farmQuery.isError || haulQuery.isError || cal.isError;
+    const loading = mine.isPending || haulQuery.isPending || cal.isPending;
+    const failed = mine.isError || haulQuery.isError || cal.isError;
     const retry = () => {
-        void farmQuery.refetch();
-        void haulQuery.refetch();
+        mine.retry();
+        haulQuery.retry();
         cal.retry();
     };
-    const farm = farmQuery.data;
-    const haul = haulQuery.data;
+    const farm = mine.farm;
+    const haul = haulQuery.haul;
     if (loading)
         return (
             <AppShell role="farmer" title="plan.title" active="plan">
@@ -64,16 +67,22 @@ export function FarmerPlanScreen() {
                 <ErrorState onRetry={retry} />
             </AppShell>
         );
-    if (!farm || !haul)
+    if (!farm || !mine.lot)
         return (
             <AppShell role="farmer" title="plan.title" active="plan">
-                <ErrorState variant="notFound" />
+                <EmptyState variant="empty" title="plan.noFarm.title" body="plan.noFarm.body" />
+            </AppShell>
+        );
+    if (!haul)
+        return (
+            <AppShell role="farmer" title="plan.title" active="plan">
+                <EmptyState variant="empty" title="state.haul.empty.title" body="state.haul.empty.body" />
             </AppShell>
         );
     /* The seed haul keeps the row rendered while the status query resolves (same rule as Haul). */
     const status = statusQuery.data ?? 'assigned';
     const vehicle = VEHICLES.find((v) => v.id === haul.vehicle);
-    const lot = cal.heroLot;
+    const lot = mine.lot;
 
     const book = () => {
         setBooked(true);

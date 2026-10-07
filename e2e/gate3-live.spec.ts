@@ -71,17 +71,26 @@ test.describe('Gate 3 live smoke', () => {
     await noErrorStates(page);
   });
 
-  test('driver screen reads the repository', async ({ page }) => {
+  test('driver screen and job detail read the repository', async ({ page }) => {
     await signIn(page, '/driver/login', ACCOUNT.driver);
     await noErrorStates(page);
+    const link = page.locator('a[href*="/driver/jobs/"]').first();
+    if ((await link.count()) > 0) {
+      await link.click();
+      await page.waitForTimeout(1800);
+      await noErrorStates(page);
+    }
   });
 
-  test('farmer screens read the repository', async ({ page }) => {
+  test('farmer screens read the repository (my farm resolves, never the seed)', async ({ page }) => {
     await signIn(page, '/farmer/login', ACCOUNT.farmer);
     await page.waitForTimeout(1500);
     await noErrorStates(page);
-    await page.goto('/farmer/slip', { waitUntil: 'load' });
-    await page.waitForTimeout(1800);
-    await noErrorStates(page);
+    for (const path of ['/farmer/plan', '/farmer/milling', '/farmer/price', '/farmer/slip']) {
+      await page.goto(path, { waitUntil: 'load' });
+      await page.waitForTimeout(1800);
+      await noErrorStates(page);
+      await expect(page.getByText('Team Syntaxure Labs').first()).toBeVisible();
+    }
   });
 });

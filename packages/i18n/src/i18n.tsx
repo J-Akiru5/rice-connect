@@ -336,6 +336,12 @@ export const STRINGS: Dict = {
         'Read the Privacy Notice',
         'Basahin ang Paunawa sa Pagkapribado',
         'Basaha ang Pahibalo sa Pagkapribado'
+    ],
+    'plan.noFarm.title': ['No Farm Linked Yet', 'Wala Pang Bukid na Naka-link', 'Wala Pa sang Uma nga Naka-link'],
+    'plan.noFarm.body': [
+        'Your account has no farm in this cluster yet. The coordinator links one when you register: one farm, one farmer.',
+        'Wala pang bukid ang iyong account sa cluster na ito. Ililink ito ng coordinator kapag nagrehistro: isang bukid, isang magsasaka.',
+        'Wala pa sang uma ang imo account sa sini nga cluster. I-link ini sang coordinator kon magrehistro: isa ka uma, isa ka mangunguma.'
     ]
 };
 

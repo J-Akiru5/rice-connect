@@ -12,11 +12,11 @@ import {
     useI18n,
     useToast
 } from '@rc/ui';
-import { useLots, useSetSlotStatus, useSlotStatus, useSlots } from '@rc/data';
+import { useSetSlotStatus, useSlotStatus, useSlots } from '@rc/data';
 import { MILLING, milledKg, riceSacks } from '@rc/domain/buyers';
-import { HERO_FARM } from '@rc/domain/seed';
 import { SectionPill, Note } from './ui';
 import { t1 } from './plan-calendar';
+import { useMyFarm } from './my-farm';
 
 /** One summary row: a translated label over a value. Values carry their unit; nothing is truncated. */
 function Del({ k, children }: { k: string; children: ReactNode }) {
@@ -35,22 +35,21 @@ function Del({ k, children }: { k: string; children: ReactNode }) {
 export function FarmerMillingScreen() {
     const { t } = useI18n();
     const toast = useToast();
-    /* Gate 3: slots and lots come from the repositories (mock in demo, Supabase in live). */
+    /* Gate 3: the farmer's lot and the dryer slots come from the repositories (mock in demo, Supabase in live). */
+    const mine = useMyFarm();
     const slotsQuery = useSlots({ size: 500 });
-    const lotsQuery = useLots({ size: 500 });
     const slots = slotsQuery.data?.rows ?? [];
-    const lots = lotsQuery.data?.rows ?? [];
-    const lot = lots.find((l) => l.farm === HERO_FARM.id);
+    const lot = mine.lot;
     const slot = slots.find((s) => s.lot === lot?.id);
     const statusQuery = useSlotStatus(slot?.id ?? '');
     const setSlot = useSetSlotStatus();
     const [last, setLast] = useState<'confirm' | 'move' | null>(null);
 
-    const loading = slotsQuery.isPending || lotsQuery.isPending;
-    const failed = slotsQuery.isError || lotsQuery.isError;
+    const loading = slotsQuery.isPending || mine.isPending;
+    const failed = slotsQuery.isError || mine.isError;
     const retry = () => {
         void slotsQuery.refetch();
-        void lotsQuery.refetch();
+        mine.retry();
     };
     if (loading)
         return (
@@ -67,7 +66,7 @@ export function FarmerMillingScreen() {
     if (!lot)
         return (
             <AppShell role="farmer" title="milling.title" active="milling">
-                <ErrorState variant="notFound" />
+                <EmptyState variant="empty" title="plan.noFarm.title" body="plan.noFarm.body" />
             </AppShell>
         );
     /* The seed slot answers while the status query resolves (same rule as Dry). */
