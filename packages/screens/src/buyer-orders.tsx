@@ -51,8 +51,7 @@ import { SectionPill, Note, ResponsiveTable } from './ui';
 const t1 = (kg: number) => (Math.round(kg / 100) / 10).toFixed(1);
 const fieldCls =
     'min-h-[48px] px-4 rounded-[2rem] bg-[var(--glass-fill-strong)] text-[var(--ink)] border-2 border-[color:var(--text-muted)] font-bold text-[17px] w-full tabular';
-const labelCls =
-    'block text-[14px] leading-5 font-extrabold uppercase tracking-[0.08em] text-[var(--text-muted)] mb-2';
+const labelCls = 'block text-[14px] leading-5 font-extrabold uppercase tracking-[0.08em] text-[var(--text-muted)] mb-2';
 
 /* Orders and commitments live in the demo store (@rc/store): this browser only, synced across tabs. */
 

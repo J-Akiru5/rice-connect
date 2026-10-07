@@ -140,9 +140,7 @@ export function BuyerSupplyScreen({
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <SectionPill id="sup-map">{t('supply.map', { week: WEEKS[week] ?? WEEKS[0] })}</SectionPill>
                         <div className="flex flex-wrap items-center gap-3">
-                            <span className="text-[15px] font-bold text-[var(--text-secondary)]">
-                                {t('dry.weeks')}
-                            </span>
+                            <span className="text-[15px] font-bold text-[var(--text-secondary)]">{t('dry.weeks')}</span>
                             <div
                                 role="radiogroup"
                                 aria-label={t('dry.weeks')}
@@ -194,7 +192,9 @@ export function BuyerSupplyScreen({
                                     }))
                                 ]}
                             />
-                            <Note className="!text-[16px] !leading-6">{t(palay ? 'buyer.buys.palay' : 'buyer.buys.rice')}.</Note>
+                            <Note className="!text-[16px] !leading-6">
+                                {t(palay ? 'buyer.buys.palay' : 'buyer.buys.rice')}.
+                            </Note>
                             <ZLink href={`/buyer/orders?type=${type}`} className="btn-2026 self-start">
                                 <Icon name={palay ? 'Plus' : 'Sack'} size={20} />
                                 <span>{t(palay ? 'supply.cta.palay' : 'supply.cta.rice')}</span>
