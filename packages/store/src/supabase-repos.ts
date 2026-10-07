@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { parseSmsReply } from '@rc/domain/sms-reply';
-import { dayLabel } from '@rc/domain/calendar';
+import { dayIndexOf, dayLabel } from '@rc/domain/calendar';
 import { settle } from '@rc/domain/settlement';
 import { makeRiceOrder, type BuyerType } from '@rc/domain/buyers';
 import { DRIED_KG_PER_HA } from '@rc/domain/seed';
@@ -83,16 +83,20 @@ export function rowToLot(r: Row, farm: Row): Lot {
 
 export function rowToSlot(r: Row): Slot {
     const kg = n(r.kg);
+    const day = s(r.day).slice(0, 10);
+    /* The domain slot carries the calendar day index and the per-day capacity in sacks (the seed's shape). */
+    const dayIndex = dayIndexOf(day);
+    const capacityKg = n(r.capacity_kg) || overrides.dryerKgPerDay;
     return {
         id: s(r.id),
         dryer: s(r.dryer) || 'RiceConnect Dryer',
-        day: s(r.day).slice(0, 10),
+        day,
         time: s(r.slot_time),
         sacks: Math.max(1, Math.round(kg / overrides.kgPerSack)),
-        capacityPerDay: n(r.capacity_kg) || overrides.dryerKgPerDay,
+        capacityPerDay: Math.round(capacityKg / overrides.kgPerSack),
         lot: s(r.lot_id),
         kg,
-        dayIndex: 0
+        dayIndex: Number.isFinite(dayIndex) && dayIndex >= 0 ? dayIndex : 0
     };
 }
 
@@ -136,13 +140,15 @@ export function rowToCommitment(r: Row, buyerName: string): Commitment {
         id: s(r.id),
         buyer: buyerName || s(r.buyer_id),
         tonnes: n(r.tonnes),
-        grade: s(r.grade) || 'Grade unknown',
-        mc: `${overrides.forecastMcPct}% MC`,
+        grade: s(r.grade) || '—',
+        /* The commitments table stores no moisture: live shows a dash instead of the demo's assumed 14%. */
+        mc: '—',
         price: n(r.price_centavos_per_kg),
         week: window[0] ?? 'W1',
         filled: 0,
         status: s(r.status) === 'full' ? 'full' : 'open',
         window,
+        /* Kept as the auto-match heuristic only (M48); it is never shown as a measured value. */
         mcPct: overrides.forecastMcPct,
         assumed: []
     };

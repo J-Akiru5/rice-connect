@@ -79,10 +79,15 @@ One ticket per screen, each with the same acceptance criteria: built on the kits
 | S-12 | Route guards in live mode | Signed out → role sign-in with return link; wrong role → forbidden state. | Kimi 3 |
 | S-13 | Native review of TL/HIL for farmer and driver screens | Glossary file; every string signed off or flagged. | Team |
 | S-14 | Second usability round | Same scripts; no severity 3–4 findings (Gate 2). | Team |
+| S-15 | Farmer plan (`/farmer/plan`): own harvest week, the cluster calendar with the farm's row in gold, book a repeat delivery | Summary + confirm, then Undo on cancel; the nav item and its route ship together (no dead links); state matrix; strings EN/TL/HIL. | Claude Sonnet |
+| S-16 | Central milling (`/farmer/milling`): slot, dryer and sack request for the farmer's lot | Uses `MILLING`/`DRYER_SLOTS` as they are (derived, not new figures); confirm or move the slot through `useSetSlotStatus` (the write the SMS replies use) with Undo, recovery and sack weights stay labelled assumed; nav grows with its route. | Claude Sonnet |
+| S-17 | Contract price & variety (`/farmer/price`): the commitment's grade, MC and price beside the rice variety | Four tabs stay (SMS, Plan, Milling, Slip) and Price rides in the shared More sheet; assumed numbers stay labelled from `overrides.json`. | Claude Sonnet |
+| S-18 | Driver: jobs list at `/`, the job card at `/haul/driver/jobs/{id}` | Nav down to two items (`jobs` + SMS); accept/decline on the list, pickup/delivery on the card; `/haul/driver/jobs/{id}` redirects to the new path; no repository changes. | Claude Sonnet |
+| S-19 | Fix the double-encoded characters in `strings.prototype.ts` | 168 `Â·` (should be `·`), 3 `Â©` and 15 `â€¦` (should be `…`) render as mojibake in the farm summary, the plan eyebrow, the sidebar and the marketing copy — pre-existing at `ebee5b7`, not introduced by S-15–S-18. Text-only repair, no key or translation changes, then refresh the affected visual baselines. **Done** in the `lou` merge (PR #30); baselines refreshed with the merge follow-up. | Claude Sonnet |
 
 ## Phase 3: backend
 
-**Status (6 Oct 2026, `develop`):** B-01 scaffold + cloud dev project migrated; B-02 schema; B-03 RLS + 30 pgTAP assertions; B-04 `SupabaseAuthAdapter` + live session/guard; B-05 repositories behind the D-04 interfaces (simplifications recorded in `docs/DECISIONS.md` M48); B-06 audit triggers; B-09 security headers — all done and CI-green. B-07 `SmsAdapter` interface + mock shipped, provider and inbound webhook pending **O8**. B-08 declined by the owner (no error tracking, **O6**, M46). B-10 restore rehearsal is an owner/team action. Gate 3 now depends on the screen conversion: live auth/writes/repositories work, but several list screens still read the demo seed — root cause and per-screen order in `docs/BLOCKERS.md`; farm list and farm detail are converted.
+**Status (6 Oct 2026, `develop`):** B-01 scaffold + cloud dev project migrated; B-02 schema; B-03 RLS + 30 pgTAP assertions; B-04 `SupabaseAuthAdapter` + live session/guard; B-05 repositories behind the D-04 interfaces (simplifications recorded in `docs/DECISIONS.md` M48); B-06 audit triggers; B-09 security headers — all done and CI-green. B-07 `SmsAdapter` interface + mock shipped, provider and inbound webhook pending **O8**. B-08 declined by the owner (no error tracking, **O6**, M46). B-10 restore rehearsal is an owner/team action. Gate 3 now depends on the gated live smokes (`e2e/gate3-live.spec.ts`, `e2e/anni-live.spec.ts`; see `docs/HANDOVER.md`) run from a network that can reach Supabase: the screen conversion is complete (farm, coordinator home, pay, dry, haul, plan, market, buyer and SMS all read the data layer; exceptions and remaining live gaps in `docs/BLOCKERS.md`), and the live runs against the dev/staging Supabase projects still have to be done before real data.
 
 | ID | Ticket | Size | Model |
 |---|---|---|---|
@@ -100,6 +105,8 @@ One ticket per screen, each with the same acceptance criteria: built on the kits
 ## Phase 4: readiness
 
 Every item in [08-pilot-readiness.md](08-pilot-readiness.md) becomes a ticket with the owner named.
+
+**Status (7 Oct 2026):** the repository side is built — privacy notice + footer link + consent capture at sign-up (M52), data inventory, DSR procedure and script, incident runbook, printable paper fallback pack and per-role onboarding guides; the items needing the owner, the DPO, native review or the second usability round remain open in the checklist and `docs/BLOCKERS.md`. SMS readiness still waits on **O8**.
 
 ## Known issues to fold into the tickets above
 

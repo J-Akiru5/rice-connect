@@ -83,7 +83,8 @@ export class SupabaseAuthAdapter implements AuthAdapter {
                 data: {
                     role,
                     display_name: input.name.trim(),
-                    ...input.profile
+                    ...input.profile,
+                    ...(input.consentVersion ? { consent_version: input.consentVersion } : {})
                 }
             }
         });

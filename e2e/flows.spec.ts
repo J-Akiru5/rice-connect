@@ -14,9 +14,59 @@ test.describe('critical flows', () => {
     await expect(page.getByText(/20,000\.00/).first()).toBeVisible();
   });
 
-  test('driver: accept, pick up, deliver', async ({ page }) => {
+  test('farmer: plan reads the harvest, then a repeat delivery books and cancels with Undo', async ({ page }) => {
+    await page.goto('/farmer/plan');
+    await expect(page.getByRole('heading', { name: 'My Harvest' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Harvest by Barangay and Week' })).toBeVisible();
+    await page.getByRole('button', { name: 'Book Repeat Delivery' }).click();
+    const dialog = page.getByRole('alertdialog');
+    await expect(dialog.getByText('Book a repeat delivery?')).toBeVisible();
+    await dialog.getByRole('button', { name: 'Book Repeat Delivery' }).click();
+    await expect(page.getByText('Repeat Delivery Booked').first()).toBeVisible();
+    await page.getByRole('button', { name: 'Cancel Booking' }).click();
+    await expect(page.getByText('Booking cancelled').first()).toBeVisible();
+    await page.getByRole('button', { name: 'Undo' }).click();
+    await expect(page.getByText('Repeat Delivery Booked').first()).toBeVisible();
+  });
+
+  test('farmer: central milling reads the dryer slot, then confirms and moves it', async ({ page }) => {
+    await page.goto('/farmer/milling');
+    await expect(page.getByRole('heading', { name: 'Central Milling' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Drying' })).toBeVisible();
+    await expect(page.getByText('62% recovery (assumed)')).toBeVisible();
+    await expect(page.getByText('25 kg per sack (assumed)')).toBeVisible();
+    const confirm = page.getByRole('button', { name: 'Confirm Slot' });
+    const move = page.getByRole('button', { name: 'Request Another Time' });
+    if (await confirm.isVisible()) await confirm.click();
+    await expect(move).toBeVisible();
+    await expect(page.getByText('confirmed by farmer').first()).toBeVisible();
+    await move.click();
+    await expect(page.getByText('asked to move slot').first()).toBeVisible();
+    await expect(confirm).toBeVisible();
+    await confirm.click();
+    await expect(page.getByText('confirmed by farmer').first()).toBeVisible();
+  });
+
+  test('farmer: Price lives in More and the contract reads beside the variety', async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.goto('/farmer/plan');
+    await page.getByRole('button', { name: 'More' }).click();
+    const sheet = page.getByRole('dialog');
+    await sheet.getByRole('link', { name: 'Price' }).click();
+    await expect(page.getByRole('heading', { name: 'Contract Price & Variety' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Your Contract' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Rice Variety' })).toBeVisible();
+    await expect(page.getByText('Grade 1').first()).toBeVisible();
+    await expect(page.getByText('Price per Kilo')).toBeVisible();
+    await expect(page.getByText(/₱\d+\.\d\d/).first()).toBeVisible();
+  });
+
+  test('driver: accept on the list, then pick up and deliver on the job card', async ({ page }) => {
     await page.goto('/driver');
     await page.getByRole('button', { name: 'Accept Job' }).click();
+    await expect(page.getByRole('link', { name: 'Open Job' })).toBeVisible();
+    await page.getByRole('link', { name: 'Open Job' }).click();
+    await expect(page.getByRole('heading', { name: 'H-07' })).toBeVisible();
     await page.getByRole('button', { name: 'Mark Picked Up' }).click();
     await page.getByRole('button', { name: 'Mark Delivered' }).click();
     await expect(page.getByText('Delivered. Thank you!')).toBeVisible();
@@ -25,6 +75,8 @@ test.describe('critical flows', () => {
   test('driver: an offline step is queued as Not sent yet and flushed when back online', async ({ page, context }) => {
     await page.goto('/driver');
     await page.getByRole('button', { name: 'Accept Job' }).click();
+    await expect(page.getByRole('link', { name: 'Open Job' })).toBeVisible();
+    await page.getByRole('link', { name: 'Open Job' }).click();
     await expect(page.getByRole('button', { name: 'Mark Picked Up' })).toBeVisible();
     await context.setOffline(true);
     await page.waitForFunction(() => navigator.onLine === false);

@@ -61,7 +61,11 @@ export function MenuItem({
             lang={lang}
             className={cx(
                 'rc-menu-item flex items-center gap-3 min-h-[44px] px-3 rounded-xl text-left text-[15px] font-bold outline-none cursor-pointer',
-                selected ? 'bg-[var(--fill-strong)] text-[var(--on-fill-strong)]' : 'text-[var(--ink)]',
+                /* rc-menu-item-selected is what app.css keys off, so the hover tint never lands on the chosen
+                   row: a single-class Tailwind fill loses to the highlighted-state attribute selector. */
+                selected
+                    ? 'rc-menu-item-selected bg-[var(--fill-strong)] text-[var(--on-fill-strong)]'
+                    : 'text-[var(--ink)]',
                 disabled ? 'opacity-40 cursor-not-allowed' : '',
                 className
             )}

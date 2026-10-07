@@ -29,6 +29,7 @@ import {
 import { isDemo } from '@rc/ui/mode';
 import type { SessionRole } from '@rc/store';
 import { checkConsent, checkIdentifier, checkPassword, checkRequired, toE164 } from '@rc/domain/auth-form';
+import { PRIVACY_VERSION } from '@rc/domain/privacy';
 import { BUYER_TYPES } from '@rc/domain/buyers';
 import { BARANGAYS } from '@rc/domain/params';
 import { VEHICLES } from '@rc/domain/seed';
@@ -181,7 +182,14 @@ export function AuthScreen({ role, mode }: { role: SessionRole; mode: AuthMode }
         const identifier = a.identifier === 'mobile' ? toE164(values.identifier) : values.identifier.trim();
         const { identifier: _i, password, consent: _c, name = '', ...profile } = values;
         const res = signup
-            ? await auth.signUp(role, { identifier, password, name: name.trim(), profile })
+            ? await auth.signUp(role, {
+                  identifier,
+                  password,
+                  name: name.trim(),
+                  profile,
+                  /* The trigger stores this version in the consents table (live); demo keeps nothing typed. */
+                  consentVersion: PRIVACY_VERSION
+              })
             : await auth.signIn(role, { identifier, password });
         if (!res.ok) {
             setFormError(t(`auth.err.${res.code}`));
@@ -369,6 +377,12 @@ export function AuthScreen({ role, mode }: { role: SessionRole; mode: AuthMode }
                                                             : undefined
                                                     }
                                                 />
+                                                <ZLink
+                                                    href="/privacy"
+                                                    className="self-start inline-flex items-center min-h-[44px] md:min-h-[40px] text-[14px] font-bold text-[var(--text-accent)] underline underline-offset-4"
+                                                >
+                                                    {t('auth.consent.link')}
+                                                </ZLink>
                                             </div>
                                         )}
                                     />

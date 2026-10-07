@@ -19,6 +19,7 @@ const legacy = [
   ['/dry', '/coordinator/dry'],
   ['/haul', '/coordinator/haul'],
   ['/haul/driver', '/driver'],
+  ['/haul/driver/jobs/:id', '/driver/jobs/:id'],
   ['/pay', '/coordinator/pay'],
   ['/pay/:lotId', '/coordinator/pay/:lotId'],
   ['/sms', '/farmer'],

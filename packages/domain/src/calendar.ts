@@ -7,6 +7,11 @@ const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct
 
 /** Day index 0 = Monday of W1. */
 export const isoOf = (dayIndex: number) => new Date(W1 + dayIndex * DAY).toISOString().slice(0, 10);
+/** Inverse of isoOf for a UTC ISO date ("2026-10-23"); NaN when the string is not a date. */
+export function dayIndexOf(iso: string) {
+    const t = Date.parse(`${iso}T00:00:00Z`);
+    return Number.isNaN(t) ? NaN : Math.round((t - W1) / DAY);
+}
 /** "Thu 22 Oct" */
 export function dayLabel(dayIndex: number) {
     const d = new Date(W1 + dayIndex * DAY);
