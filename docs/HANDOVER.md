@@ -1,7 +1,7 @@
 # RiceConnect handover — Phase 4 readiness (after the Gate 3 batch)
 
 You are working in the RiceConnect monorepo (`S:\Dev\Enactus\rice-connect`, Windows, PowerShell 5.1).
-Read `AGENTS.md` and `docs/plan/README.md` first. `docs/DECISIONS.md` rows M32–M52 are the current history;
+Read `AGENTS.md` and `docs/plan/README.md` first. `docs/DECISIONS.md` rows M32–M55 are the current history;
 `docs/BLOCKERS.md` is the live list of open items. This file tells you where we are and what to do next.
 
 ## Repo state (7 Oct 2026)

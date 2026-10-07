@@ -163,7 +163,7 @@ export function SmsScreen({ reply = false }: { reply?: boolean }) {
     if (framed)
         return (
             <PhoneStage>
-                <PhoneShell title="sms.title" active="sms">
+                <PhoneShell role="farmer" title="sms.title" active="sms">
                     <div className="flex flex-col gap-4">
                         <p className="glass-panel !shadow-none m-0 px-4 py-3 rounded-2xl text-[16px] leading-6 font-semibold">
                             <T k="sms.note" />

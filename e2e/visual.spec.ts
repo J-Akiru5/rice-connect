@@ -13,7 +13,11 @@ const SCREENS: [string, string][] = [
   ['plan', '/coordinator/plan'],
   ['pay', '/coordinator/pay/L-03'],
   ['driver', '/driver'],
-  ['farmer', '/farmer']
+  ['driver-job', '/driver/jobs/H-07'],
+  ['farmer', '/farmer'],
+  ['farmer-plan', '/farmer/plan'],
+  ['farmer-milling', '/farmer/milling'],
+  ['farmer-price', '/farmer/price']
 ];
 const SIZES = [
   { width: 390, height: 844 },

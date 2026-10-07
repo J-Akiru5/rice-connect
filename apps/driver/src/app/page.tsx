@@ -1,19 +1,19 @@
 'use client';
 import { Suspense } from 'react';
-import { HaulDriverScreen } from '@rc/screens/haul';
+import { HaulDriverListScreen } from '@rc/screens/haul';
 import { FrameProvider, useFrameParam } from '@rc/screens/shell';
 
 function Inner() {
   return (
     <FrameProvider framed={useFrameParam()}>
-      <HaulDriverScreen />
+      <HaulDriverListScreen />
     </FrameProvider>
   );
 }
 
 export default function HaulDriverPage() {
   return (
-    <Suspense fallback={<HaulDriverScreen />}>
+    <Suspense fallback={<HaulDriverListScreen />}>
       <Inner />
     </Suspense>
   );

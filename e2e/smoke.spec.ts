@@ -28,8 +28,12 @@ const ROUTES = [
   '/buyer/orders',
   '/buyer/login',
   '/driver',
+  '/driver/jobs/H-07',
   '/driver/login',
   '/farmer',
+  '/farmer/plan',
+  '/farmer/milling',
+  '/farmer/price',
   '/farmer/slip',
   '/farmer/login'
 ];
