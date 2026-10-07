@@ -4,6 +4,10 @@
 @import '@fontsource/plus-jakarta-sans/600.css';
 @import '@fontsource/plus-jakarta-sans/700.css';
 @import '@fontsource/plus-jakarta-sans/800.css';
+/* The family's own italic, for the accent phrase in display headings (.rc-accent): a drawn cut, so the
+   marked words really redraw their letters instead of being slanted. 12.6 KB latin subset, and the
+   browser fetches it only when a heading is marked. */
+@import '@fontsource/plus-jakarta-sans/800-italic.css';
 @import '@rc/ui/tokens.css';
 @import '@rc/ui/app.css';
 

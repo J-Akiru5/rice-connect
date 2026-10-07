@@ -50,9 +50,9 @@ import { SectionPill, Note, ResponsiveTable } from './ui';
 
 const t1 = (kg: number) => (Math.round(kg / 100) / 10).toFixed(1);
 const fieldCls =
-    'min-h-[44px] px-4 rounded-[2rem] bg-[var(--glass-fill-strong)] text-[var(--ink)] border-2 border-[color:var(--text-muted)] font-bold text-[16px] w-full tabular';
+    'min-h-[48px] px-4 rounded-[2rem] bg-[var(--glass-fill-strong)] text-[var(--ink)] border-2 border-[color:var(--text-muted)] font-bold text-[17px] w-full tabular';
 const labelCls =
-    'block text-[12px] leading-4 font-extrabold uppercase tracking-[0.1em] text-[var(--text-muted)] mb-1.5';
+    'block text-[14px] leading-5 font-extrabold uppercase tracking-[0.08em] text-[var(--text-muted)] mb-2';
 
 /* Orders and commitments live in the demo store (@rc/store): this browser only, synced across tabs. */
 
@@ -100,8 +100,8 @@ export function TraceChain({ head, rice }: { head: string; rice: boolean }) {
         }
     ];
     return (
-        <section id="trace" aria-label={t('trace.title')} className="glass-panel rounded-[1.5rem] p-5">
-            <h3 className="eyebrow">{t('trace.title')}</h3>
+        <section id="trace" aria-label={t('trace.title')} className="panel-solid rounded-[1.5rem] p-6">
+            <h3 className="eyebrow !text-[14px]">{t('trace.title')}</h3>
             <ol className="mt-3 flex flex-col gap-0">
                 {steps.map((s, i) => (
                     <li key={i} className="relative flex items-start gap-3 pb-4 last:pb-0">
@@ -114,7 +114,7 @@ export function TraceChain({ head, rice }: { head: string; rice: boolean }) {
                         <span className="relative z-10 shrink-0 w-11 h-11 rounded-full flex items-center justify-center bg-[var(--fill-strong)] text-[var(--on-fill-strong)]">
                             <Icon name={s.icon} size={20} />
                         </span>
-                        <span className="pt-2.5 text-[15px] leading-6 font-bold tabular break-words">
+                        <span className="pt-2.5 text-[16px] leading-6 font-bold tabular break-words">
                             {s.href ? (
                                 <ZLink href={s.href} className="text-[var(--text-accent)] underline underline-offset-4">
                                     {s.text}
@@ -126,7 +126,7 @@ export function TraceChain({ head, rice }: { head: string; rice: boolean }) {
                     </li>
                 ))}
             </ol>
-            <Note className="mt-3">{t('trace.note', { lot: HERO_LOT.id })}</Note>
+            <Note className="mt-4 !text-[16px] !leading-6">{t('trace.note', { lot: HERO_LOT.id })}</Note>
         </section>
     );
 }
@@ -183,12 +183,12 @@ function RiceOrders({ type }: { type: BuyerType }) {
     if (ordersQuery.isPending) return <LoadingState rows={3} />;
     if (ordersQuery.isError) return <ErrorState onRetry={() => void ordersQuery.refetch()} />;
     const stepButton =
-        'inline-flex items-center justify-center min-h-[44px] min-w-[44px] rounded-full border-2 border-[color:var(--text-muted)] text-[var(--ink)]';
+        'inline-flex items-center justify-center min-h-[48px] min-w-[48px] rounded-full border-2 border-[color:var(--text-muted)] text-[var(--ink)]';
     return (
         <div className="cq-two">
             <div className="flex flex-col gap-4">
-                <section aria-labelledby="ro-new" className="glass-panel rounded-[1.5rem] p-5 flex flex-col gap-4">
-                    <h2 id="ro-new" className="eyebrow">
+                <section aria-labelledby="ro-new" className="panel-solid rounded-[1.5rem] p-6 flex flex-col gap-4">
+                    <h2 id="ro-new" className="eyebrow !text-[14px]">
                         {step === 'review' ? t('orders.summary') : t('orders.new.rice')}
                     </h2>
                     {step === 'compose' ? (
@@ -205,7 +205,7 @@ function RiceOrders({ type }: { type: BuyerType }) {
                                     >
                                         <Icon name="Minus" size={20} />
                                     </button>
-                                    <span className="text-[24px] leading-8 font-extrabold tabular min-w-[3ch] text-center">
+                                    <span className="text-[28px] leading-9 font-extrabold tabular min-w-[3ch] text-center">
                                         {sacks}
                                     </span>
                                     <button
@@ -217,7 +217,7 @@ function RiceOrders({ type }: { type: BuyerType }) {
                                     >
                                         <Icon name="Plus" size={20} />
                                     </button>
-                                    <span className="text-[15px] font-bold text-[var(--text-secondary)]">
+                                    <span className="text-[16px] font-bold text-[var(--text-secondary)]">
                                         {t('unit.sacks')}
                                     </span>
                                 </div>
@@ -239,8 +239,8 @@ function RiceOrders({ type }: { type: BuyerType }) {
                                     ))}
                                 </Tabs>
                             </div>
-                            <p className="m-0 text-[16px] font-extrabold tabular">{totalLine}</p>
-                            <p className="m-0 text-[14px] font-semibold text-[var(--text-secondary)] tabular">
+                            <p className="m-0 text-[17px] leading-7 font-extrabold tabular">{totalLine}</p>
+                            <p className="m-0 text-[16px] leading-6 font-semibold text-[var(--text-secondary)] tabular">
                                 {t('orders.available', { kg: available.toLocaleString('en-US') })}
                             </p>
                             <InputError message={error} />
@@ -251,17 +251,17 @@ function RiceOrders({ type }: { type: BuyerType }) {
                     ) : (
                         <>
                             <div className="flex flex-col gap-2 tabular">
-                                <div className="flex justify-between gap-3 text-[15px] font-bold">
+                                <div className="flex justify-between gap-3 text-[16px] font-bold">
                                     <span>{t('orders.week')}</span>
                                     <span>{week}</span>
                                 </div>
-                                <div className="flex justify-between gap-3 text-[15px] font-bold">
+                                <div className="flex justify-between gap-3 text-[16px] font-bold">
                                     <span>{t('buyer.type.' + type)}</span>
                                     <span>
                                         {sacks} {t('unit.sacks')}
                                     </span>
                                 </div>
-                                <p className="m-0 mt-1 text-[18px] leading-7 font-extrabold">{totalLine}</p>
+                                <p className="m-0 mt-1 text-[20px] leading-7 font-extrabold">{totalLine}</p>
                             </div>
                             <InputError message={error} />
                             <div className="flex flex-wrap gap-2">
@@ -291,13 +291,13 @@ function RiceOrders({ type }: { type: BuyerType }) {
                                 {mine.map((o) => (
                                     <li
                                         key={o.id}
-                                        className="glass-panel rounded-[1.5rem] p-4 flex flex-wrap items-center justify-between gap-3"
+                                        className="panel-solid rounded-[1.5rem] p-5 flex flex-wrap items-center justify-between gap-4"
                                     >
                                         <div className="min-w-0">
-                                            <div className="text-[16px] font-extrabold">
+                                            <div className="text-[17px] font-extrabold">
                                                 {o.id} · {t('buyer.type.' + o.type)}
                                             </div>
-                                            <div className="text-[15px] font-bold tabular break-words">
+                                            <div className="text-[16px] font-bold tabular break-words">
                                                 {t('orders.line', {
                                                     sacks: o.sacks,
                                                     kg: o.kg.toLocaleString('en-US'),
@@ -387,8 +387,8 @@ function PalayCommitments() {
     return (
         <div className="cq-two">
             <div className="flex flex-col gap-4">
-                <section aria-labelledby="pc-new" className="glass-panel rounded-[1.5rem] p-5 flex flex-col gap-4">
-                    <h2 id="pc-new" className="eyebrow">
+                <section aria-labelledby="pc-new" className="panel-solid rounded-[1.5rem] p-6 flex flex-col gap-4">
+                    <h2 id="pc-new" className="eyebrow !text-[14px]">
                         {t('orders.new.palay')}
                     </h2>
                     <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr))]">
@@ -433,7 +433,7 @@ function PalayCommitments() {
                             </select>
                         </label>
                     </div>
-                    <p className="m-0 text-[14px] font-semibold text-[var(--text-secondary)]">
+                    <p className="m-0 text-[16px] leading-6 font-semibold text-[var(--text-secondary)] max-w-[70ch]">
                         {t('orders.gradeFixed')}
                     </p>
                     <InputError message={error} />
@@ -446,11 +446,12 @@ function PalayCommitments() {
                         <SectionPill id="pc-mine">{t('orders.mine')}</SectionPill>
                     </div>
                     {/* The standing C-01 commitment and its matched lots are the demo fixture. */}
-                    {!isLive && <Note>{t('orders.c01')}</Note>}
-                    {!isLive && <CommitmentCard c={c01} highlight />}
+                    {!isLive && <Note className="!text-[16px] !leading-6">{t('orders.c01')}</Note>}
+                    {!isLive && <CommitmentCard c={c01} highlight className="panel-solid" />}
                     {mine.map((c) => (
                         <div key={c.id} className="flex flex-col gap-2">
                             <CommitmentCard
+                                className="panel-solid"
                                 c={{
                                     id: c.id,
                                     buyer: t('orders.you'),
@@ -466,7 +467,9 @@ function PalayCommitments() {
                                     status: c.kg >= c.tonnes * 1000 ? 'full' : 'open'
                                 }}
                             />
-                            <Note className="px-2">{t('orders.matched', { kg: t1(c.kg), n: c.lots.length })}</Note>
+                            <Note className="px-2 !text-[16px] !leading-6">
+                                {t('orders.matched', { kg: t1(c.kg), n: c.lots.length })}
+                            </Note>
                         </div>
                     ))}
                     {mine.length > 0 && (
@@ -476,6 +479,7 @@ function PalayCommitments() {
                     )}
                     {!isLive && (
                         <ResponsiveTable
+                            surface="solid"
                             caption={c01.id}
                             rows={m01.lots.map((id) => lotById(id)!)}
                             rowKey={(l) => l.id}
