@@ -2,6 +2,17 @@
 
 What has shipped, newest first. Each release to production is a `staging → main` PR. Each feature reached `develop` by its own PR, then `staging`. Links go to J-Akiru5/rice-connect.
 
+## Release 4: Gate 3 conversion and Phase 4 readiness (7 Oct 2026)
+
+Promoted by the owner's instruction: `develop → staging` ([#32](https://github.com/J-Akiru5/rice-connect/pull/32)) → `main` ([#33](https://github.com/J-Akiru5/rice-connect/pull/33)). Production runs demo mode (`NEXT_PUBLIC_RC_MODE=demo`); previews run live.
+
+- **Gate 3 screen conversion.** Farm list/detail, coordinator home, pay, dry, haul (home + both role screens), plan, market, buyer and SMS read the Supabase repositories through the data hooks; the mock repositories keep demo behaviour identical. `marketing`, `/demo`, the slip print and `/sms?all=1` stay seed-based by design. Follow-ups: commitment moisture honesty (`28bb62d`), my-farm resolution for the farmer screens and live buyer commitment fills (M56/M57).
+- **Phase 4 (repo side, M52).** Public `/privacy` notice in EN/TL/HIL with a version constant, footer links on every route, and consent capture at sign-up (metadata → `handle_new_user` → `consents`; migration `20261007120000_consent_capture.sql`). Readiness pack: data inventory, DSR procedure + `scripts/dsr.mjs`, incident runbook, printable paper fallback, per-role onboarding guides.
+- **Owner requests.** Mobile header keeps language + theme together under 768px; SVG dashboard charts (`BarChart`, `ProgressBar`, `StatusDistribution`) on the coordinator home; buyer supply map tiles unblocked in the CSP (M51).
+- **Integrated branches.** `lou` public-site institutional register + buyer typography + Menu fix + the 168-character mojibake repair ([#30](https://github.com/J-Akiru5/rice-connect/pull/30), S-19); `karl` S-15–S-18: farmer plan/milling/price screens, driver jobs list + job detail, shared `splitNav`/`MoreSheet` and phone-shell parity ([#31](https://github.com/J-Akiru5/rice-connect/pull/31), M53/M54/M55).
+- **Verification.** CI green on every push and PR (`check`, `db` with pgTAP incl. consent, `e2e` with the demo suite + live guards); local `format:check`/lint/build/test/bundle and `build:local` + 77 demo E2E; visual suite 40 passed against committed baselines; post-deploy production smoke of 17 routes plus the buyer-order-to-coordinator-home flow.
+- **Still gated** (recorded in `docs/BLOCKERS.md`): gated live smokes need a network that can reach Supabase; F-01 ruleset; P0-02 private-window check; P0-04/05 findings; CONTACT_EMAIL and DPO placeholders; S-13/S-14; B-10 restore rehearsal; cloud auth policy; O7/O8; demo-off-in-production.
+
 ## Release 3: sign-in and sign-up, product plan (4 Oct 2026)
 
 Released to production by the owner's decision (M31) after the owner checked sign-in on staging. Freeze lifted early; see [01-decisions.md](01-decisions.md).
