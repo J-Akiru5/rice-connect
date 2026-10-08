@@ -173,7 +173,20 @@ export function ChatThread({
     const end = useRef<HTMLLIElement>(null);
     useEffect(() => {
         if (!autoScroll) return;
-        end.current?.scrollIntoView({ block: 'end' });
+        const node = end.current;
+        if (!node) return;
+        /* Scroll only the nearest scrollable ancestor (the phone pane). scrollIntoView would also
+           move the window, sliding the sticky header over the frame. */
+        let box: HTMLElement | null = node.parentElement;
+        while (box && box !== document.body) {
+            const { overflowY } = getComputedStyle(box);
+            if (overflowY === 'auto' || overflowY === 'scroll') {
+                const top = node.getBoundingClientRect().bottom - box.getBoundingClientRect().top + box.scrollTop;
+                box.scrollTop = Math.max(0, top - box.clientHeight);
+                return;
+            }
+            box = box.parentElement;
+        }
     }, [autoScroll, children]);
     return (
         <ol aria-label={ariaLabel} className={'flex flex-col gap-3 list-none p-0 m-0 ' + className}>

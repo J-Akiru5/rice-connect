@@ -287,7 +287,7 @@ export function SmsScreen({ reply = false }: { reply?: boolean }) {
                             />
                         )}
                     </div>
-                    <footer className="mt-auto flex items-center justify-between gap-3 flex-wrap px-5 py-3 border-t border-[color:var(--glass-border-strong)]">
+                    <footer className="mt-auto flex items-center justify-between gap-3 flex-wrap px-5 py-3 pr-16 border-t border-[color:var(--glass-border-strong)]">
                         <span className="text-[14px] font-semibold text-[var(--text-secondary)] flex items-center gap-2">
                             <Icon name="Info" size={20} />
                             {t('sms.readonly')}
