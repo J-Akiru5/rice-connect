@@ -13,3 +13,6 @@ export { Form, Field, FieldError, SubmitButton, FormErrorSummary } from './form'
 export { Controller, useForm } from './form';
 export type { FieldRenderProps, Resolver } from './form';
 export { zodResolver } from './zod-resolver';
+export { SectionHead } from './Section';
+export { TrendBars, ShareBar, RankedBars, Sparkline } from './analytics';
+export type { Point, Segment, ChartTone } from './analytics';

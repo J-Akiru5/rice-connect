@@ -19,6 +19,7 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     'unit.t': ['t', 't', 't'],
     'unit.kg': ['kg', 'kg', 'kg'],
     'unit.ha': ['ha', 'ha', 'ha'],
+    'unit.farms': ['farms', 'bukid', 'uma'],
     'unit.km': ['km', 'km', 'km'],
     'unit.perKg': ['/kg', '/kg', '/kg'],
     'unit.pesoPerKg': ['₱/kg', '₱/kg', '₱/kg'],
@@ -311,8 +312,14 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     ],
     'haul.vehicles': ['Vehicle for {n} sacks', 'Sasakyan para sa {n} sako', 'Salakyan para sa {n} ka sako'],
     'haul.drivers': ['Pick Any Driver', 'Pumili ng Kahit Anong Driver', 'Magpili sang Bisan Sin-o nga Driver'],
+    'haul.drivers.hint': [
+        'Nearest first. The driver assigned to this haul is highlighted.',
+        'Pinakamalapit muna. Naka-highlight ang driver na nakatalaga sa haul na ito.',
+        'Pinakamalapit una. Naka-highlight ang driver nga natakda sa haul nga ini.'
+    ],
     'haul.assign': ['Assign', 'Italaga', 'I-assign'],
     'haul.busy': ['Busy', 'Abala', 'Okupado'],
+    'haul.best': ['Best price', 'Pinakamura', 'Pinakabarato'],
     'haul.free': ['Available', 'Bakante', 'Bakante'],
     'haul.trips': ['{n} trip(s) · {price}', '{n} biyahe · {price}', '{n} ka biyahe · {price}'],
     'haul.overridden': ['Coordinator override', 'Pinalitan ng coordinator', 'Ginbaylo sang coordinator'],
@@ -653,6 +660,12 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
         'Mag-type sang sabat, pareho sang 1 OK'
     ],
     'sms.reply.send': ['Send', 'Ipadala', 'Ipadala'],
+    /* Chat chrome for the SMS thread (farmer app). TL/HIL drafts: needs native review. */
+    'chat.today': ['Today', 'Ngayong araw', 'Subong nga adlaw'],
+    'chat.sent': ['Sent', 'Naipadala', 'Napadala'],
+    'chat.delivered': ['Delivered', 'Naihatid', 'Nadala'],
+    'chat.read': ['Read', 'Nabasa', 'Nabasahan'],
+    'chat.parts': ['{n} SMS', '{n} SMS', '{n} SMS'],
     'sms.reply.ok': ['Slot {slot} confirmed', 'Kumpirmado ang slot {slot}', 'Kumpirmado ang slot {slot}'],
     'sms.reply.move': [
         'Move requested for slot {slot}',
@@ -754,6 +767,7 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     // marketing site (TL/HIL drafts: needs native review)
     'mk.nav': ['Sections', 'Mga Seksiyon', 'Mga Seksiyon'],
     'mk.nav.problem': ['Problem', 'Problema', 'Problema'],
+    'mk.nav.value': ['Who Benefits', 'Sino ang Nakikinabang', 'Sin-o ang Makabenepisyo'],
     'mk.nav.how': ['How It Works', 'Paano Ito Gumagana', 'Paano Ini Nagaobra'],
     'mk.nav.who': ["Who It's For", 'Para Kanino', 'Para Kay Sin-o'],
     'mk.nav.status': ['Status', 'Katayuan', 'Kahimtangan'],
@@ -765,24 +779,37 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
     'mk.back': ['Back to RiceConnect', 'Bumalik sa RiceConnect', 'Balik sa RiceConnect'],
     'mk.contact': ['Email the Team', 'I-email ang Team', 'I-email ang Team'],
     'mk.footer.line': [
-        'Cluster selling for smallholder rice farmers. A prototype by Team Syntaxure Labs.',
-        'Sama-samang pagbebenta para sa maliliit na magsasaka ng palay. Prototype ng Team Syntaxure Labs.',
-        'Tingob nga pagbaligya para sa gagmay nga mangunguma sang humay. Prototype sang Team Syntaxure Labs.'
+        "We don't consolidate land. We consolidate opportunity. A prototype by Team Syntaxure Labs.",
+        'Hindi namin pinagsasama ang lupa. Pinagsasama namin ang oportunidad. Prototype ng Team Syntaxure Labs.',
+        'Indi namon ginatingob ang duta. Ginatingob namon ang oportunidad. Prototype sang Team Syntaxure Labs.'
     ],
     'mk.tag.model': ['Model', 'Modelo', 'Modelo'],
     'mk.tag.simulated': ['Simulated', 'Simulated', 'Simulated'],
     'mk.tag.assumed': ['Assumed', 'Tantiya', 'Banta'],
     'mk.hero.title': [
-        'Rice farmers sell [[together]], on their [[own terms]].',
-        '[[Sama-samang nagbebenta]] ang mga magsasaka, sa [[sarili nilang kondisyon]].',
-        '[[Tingob nga nagabaligya]] ang mga mangunguma, sa [[ila kaugalingon nga kondisyon]].'
+        '[[Farm consolidation]] without [[land consolidation]].',
+        '[[Pagsasanib ng ani]] nang hindi [[pagsasanib ng lupa]].',
+        '[[Pagtingob sang alani]] nga indi [[pagtingob sang duta]].'
     ],
     'mk.hero.sub': [
-        'RiceConnect helps a coordinator run a cluster of smallholder farms: plan the harvest, line up buyers before it comes in, dry and haul it on time, and pay farmers fast. Farmers only need SMS.',
-        'Tinutulungan ng RiceConnect ang coordinator na patakbuhin ang cluster ng maliliit na bukid: planuhin ang ani, humanap ng mamimili bago pa mag-ani, patuyuin at ihatid sa tamang oras, at bayaran agad ang magsasaka. SMS lang ang kailangan ng magsasaka.',
-        'Ginabuligan sang RiceConnect ang coordinator sa pagdumala sang cluster sang gagmay nga uma: planuhon ang alani, mangita sang bumalakal antes mag-alani, pamalahon kag ihatod sa husto nga oras, kag bayaran dayon ang mangunguma. SMS lang ang kinahanglan sang mangunguma.'
+        'RiceConnect is operational coordination infrastructure for smallholder rice farming. It organizes a cluster of independent farms into one supply unit — planned harvests, pre-committed buyers, shared drying and hauling — so farmers sell at industrial scale without giving up a single hectare. Cluster Leads run the dashboard. Farmers only need SMS.',
+        'Ang RiceConnect ay operational coordination infrastructure para sa maliliit na magsasaka ng palay. Pinagsasama nito ang isang cluster ng mga independiyenteng bukid tungo sa isang yunit ng suplay — planadong ani, nakatakdang mamimili, sabay na pagpapatuyo at paghakot — para makapagbenta ang magsasaka sa sukat-industriya nang hindi isinusuko ang kahit isang ektarya. Ang Cluster Lead ang nagpapatakbo ng dashboard. SMS lang ang kailangan ng magsasaka.',
+        'Ang RiceConnect amo ang operational coordination infrastructure para sa gagmay nga mangunguma sang humay. Ginaorganisar sini ang isa ka cluster sang independiente nga mga uma sa isa ka yunit sang suplay — planado nga alani, nakatakda nga bumalakal, tingob nga pagpamala kag paghakot — agod makabaligya ang mangunguma sa sukat-industriya nga wala ginahatag ang bisan isa ka ektarya. Ang Cluster Lead ang nagapadalagan sang dashboard. SMS lang ang kinahanglan sang mangunguma.'
     ],
     'mk.hero.card': ['The Prototype Cluster', 'Ang Prototype na Cluster', 'Ang Prototype nga Cluster'],
+    'mk.hero.impact': [
+        'Target Impact, Not Yet Measured',
+        'Target na Epekto, Hindi Pa Nasusukat',
+        'Target nga Epekto, Wala Pa Nasukat'
+    ],
+    'mk.hero.income': ['Target: Net Income', 'Target: Netong Kita', 'Target: Neto nga Kita'],
+    'mk.hero.income.val': ['+{gainMin}–{gainMax}%', '+{gainMin}–{gainMax}%', '+{gainMin}–{gainMax}%'],
+    'mk.hero.loss': [
+        'Target: Post-Harvest Loss',
+        'Target: Kabawasan Pagkatapos ng Ani',
+        'Target: Kabawasan Pagkatapos sang Alani'
+    ],
+    'mk.hero.loss.val': ['<{targetLoss}%', '<{targetLoss}%', '<{targetLoss}%'],
     'mk.hero.where': [
         'Where (real places, simulated farms)',
         'Saan (totoong lugar, simulated na bukid)',
@@ -817,46 +844,100 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
         'Karaniwang itinatakda ang presyo, timbang at araw ng bayad sa bentahan, hindi napagkakasunduan bago mag-ani.',
         'Kasagaran ginatakda ang presyo, timbang kag adlaw sang bayad sa baligyaan, indi ginkasugtan antes mag-alani.'
     ],
+    // who benefits (two audiences, one chain)
+    'mk.value.eyebrow': [
+        'Two Sides, One Supply Chain',
+        'Dalawang Panig, Isang Supply Chain',
+        'Duha ka Kilid, Isa ka Supply Chain'
+    ],
+    'mk.value.title': [
+        'For [[Buyers]] who need predictability. For [[Farmers]] who need autonomy.',
+        'Para sa [[mga Mamimili]] na kailangan ng kasiguraduhan. Para sa [[mga Magsasaka]] na kailangan ng kalayaan.',
+        'Para sa [[mga Bumalakal]] nga kinahanglan ang kasiguruhan. Para sa [[mga Mangunguma]] nga kinahanglan ang kahilwayan.'
+    ],
+    'mk.value.buyer.h': [
+        'Institutional Buyers & Millers',
+        'Institusyonal na Mamimili at Miller',
+        'Institusyonal nga Bumalakal kag Miller'
+    ],
+    'mk.value.buyer.p': [
+        'Aggregated volume from dozens of farms. Standardized moisture grading at {mc}% MC. Committed supply windows you can plan inventory around. One invoice, not fifty.',
+        'Pinagsama-samang dami mula sa dose-dosenang bukid. Standard na moisture grading sa {mc}% MC. Takdang panahon ng suplay na mapaplano mo. Isang invoice, hindi limampu.',
+        'Tingob nga kadamuon halin sa dinosena nga uma. Standard nga moisture grading sa {mc}% MC. Takda nga tion sang suplay nga maplano mo. Isa ka invoice, indi singkwenta.'
+    ],
+    'mk.value.buyer.cta': ['Partner for Sourcing', 'Maging Katuwang sa Sourcing', 'Mangin Kaupod sa Sourcing'],
+    'mk.value.buyer.subject': [
+        'RiceConnect sourcing partnership',
+        'Pakikipagtulungan sa sourcing ng RiceConnect',
+        'Pag-upod sa sourcing sang RiceConnect'
+    ],
+    'mk.value.farmer.h': ['Farmer Clusters', 'Mga Cluster ng Magsasaka', 'Mga Cluster sang Mangunguma'],
+    'mk.value.farmer.p': [
+        'Keep your land. Cut input costs {savingsMin}–{savingsMax}% through bulk buying. Bypass predatory trader debt (pautang). Dry on schedule instead of losing {lossMin}–{lossMax}% to weather. Get {adv}% of your pay within 24 hours.',
+        'Panatilihin ang lupa mo. Bawasan ang gastos sa input ng {savingsMin}–{savingsMax}% sa sabayang pagbili. Iwasan ang mapanamantalang utang ng trader (pautang). Matuyo ayon sa iskedyul kaysa mawalan ng {lossMin}–{lossMax}% sa panahon. Kunin ang {adv}% ng bayad sa loob ng 24 oras.',
+        'Tipiga ang imo duta. Pakamayadi ang gastos sa input sang {savingsMin}–{savingsMax}% paagi sa tingob nga pagbakal. Likawi ang malaut nga utang sang trader (pautang). Mapamala suno sa iskedyul sa baylo sang pagkadula sang {lossMin}–{lossMax}% sa panahon. Batona ang {adv}% sang bayad sa sulod sang 24 oras.'
+    ],
+    'mk.value.farmer.cta': ['Register a Cluster', 'Irehistro ang isang Cluster', 'Iparehistro ang isa ka Cluster'],
+    'mk.value.farmer.subject': [
+        'RiceConnect cluster registration',
+        'Pagpaparehistro ng cluster sa RiceConnect',
+        'Pagparehistro sang cluster sa RiceConnect'
+    ],
+    'mk.value.note': ['Interested? Email the team.', 'Interesado? I-email ang team.', 'Interesado? I-email ang team.'],
     'mk.how.eyebrow': ['How a Cluster Works', 'Paano Gumagana ang Cluster', 'Paano Nagaobra ang Cluster'],
     'mk.how.title': [
-        'Calendar, Commitment, Dry, Haul, [[Pay]]',
-        'Kalendaryo, Pangako, Patuyo, Hakot, [[Bayad]]',
-        'Kalendaryo, Saad, Pamala, Hakot, [[Bayad]]'
+        'Demand, Plan, Inputs, Harvest, Haul, [[Settlement]]',
+        'Demand, Plano, Input, Ani, Hakot, [[Bayaran]]',
+        'Demand, Plano, Input, Alani, Hakot, [[Bayaran]]'
     ],
     'mk.how.note': [
         'How the cluster is designed to work. The prototype runs it on simulated data.',
         'Ganito idinisenyo ang cluster. Sa simulated na datos ito pinapatakbo ng prototype.',
         'Amo ini ang disenyo sang cluster. Sa simulated nga datos ini ginapadalagan sang prototype.'
     ],
-    'mk.step.plan.h': ['Calendar', 'Kalendaryo', 'Kalendaryo'],
+    'mk.step.demand.h': ['Buyer Demand', 'Pangangailangan ng Mamimili', 'Kinahanglan sang Bumalakal'],
+    'mk.step.demand.p': [
+        'Millers, retailers and restaurants commit volume, grade, moisture spec and price before a single stalk is cut. Demand drives the entire chain.',
+        'Nangangako ang miller, retailer at restawran ng dami, grado, moisture at presyo bago pa putulin ang isang tangkay. Ang demand ang nagpapatakbo sa buong chain.',
+        'Nagasaad ang miller, retailer kag restawran sang kadamuon, grado, moisture kag presyo antes pa gintigbas ang isa ka tangkay. Ang kinahanglan amo ang nagapadalagan sang bug-os nga chain.'
+    ],
+    'mk.step.plan.h': [
+        'Cluster Production Plan',
+        'Plano ng Produksiyon ng Cluster',
+        'Plano sang Produksiyon sang Cluster'
+    ],
     'mk.step.plan.p': [
-        "Every farm's harvest week, by barangay, so the cluster knows what is coming and when.",
-        'Ang linggo ng ani ng bawat bukid, ayon sa barangay, para alam ng cluster kung ano ang darating at kailan.',
-        'Ang semana sang alani sang kada uma, suno sa barangay, para mahibaluan sang cluster kon ano ang maabot kag san-o.'
+        "The Cluster Lead maps every farm's harvest week by barangay and matches production windows to buyer commitments. Farmers are notified by SMS.",
+        'Inilalagay ng Cluster Lead sa mapa ang linggo ng ani ng bawat bukid ayon sa barangay at itinatugma ang panahon ng produksiyon sa pangako ng mamimili. Aabisuhan ang magsasaka sa SMS.',
+        'Ginabutang sang Cluster Lead sa mapa ang semana sang alani sang kada uma suno sa barangay kag ginatupong ang tion sang produksiyon sa saad sang bumalakal. Ginapahibalo ang mangunguma paagi sa SMS.'
     ],
-    'mk.step.commit.h': ['Buyer Commitment', 'Pangako ng Mamimili', 'Saad sang Bumalakal'],
-    'mk.step.commit.p': [
-        'Buyers commit volume, grade, window and price before the harvest; lots are matched automatically.',
-        'Nangangako ang mamimili ng dami, grado, panahon at presyo bago mag-ani; awtomatikong itinutugma ang mga lot.',
-        'Nagasaad ang bumalakal sang kadamuon, grado, tion kag presyo antes mag-alani; awtomatiko nga ginatupong ang mga lot.'
+    'mk.step.inputs.h': ['Bulk Inputs', 'Sabayang Pagbili ng Input', 'Tingob nga Pagbakal sang Input'],
+    'mk.step.inputs.p': [
+        'The cluster pools purchasing power: seeds, fertilizer and crop protection bought together at {savingsMin}–{savingsMax}% below individual retail. No one takes a loan from a trader.',
+        'Pinagsasama ng cluster ang kakayahan sa pagbili: binhi, abono at pang-proteksiyon ng pananim na binili nang sabay sa {savingsMin}–{savingsMax}% na mas mababa sa tingi. Walang kumukuha ng pautang sa trader.',
+        'Ginatingob sang cluster ang ikasarang sa pagbakal: binhi, abono kag panalipod sang pananum nga tingob nga ginbakal sa {savingsMin}–{savingsMax}% nga mas barato sa tingi. Wala sing nagakuha sang pautang sa trader.'
     ],
-    'mk.step.dry.h': ['Dry', 'Patuyo', 'Pamala'],
-    'mk.step.dry.p': [
-        "Each lot gets a dryer slot on its harvest day, never over the dryer's daily capacity.",
-        'Bawat lot ay may slot sa patuyuan sa araw ng ani, hindi lalampas sa kapasidad kada araw.',
-        'Ang kada lot may slot sa pamalahan sa adlaw sang alani, indi molapaw sa kapasidad kada adlaw.'
+    'mk.step.harvest.h': [
+        'Synchronized Harvest & Drying',
+        'Sabay na Ani at Pagpapatuyo',
+        'Tingob nga Alani kag Pagpamala'
+    ],
+    'mk.step.harvest.p': [
+        'Each lot gets a dryer slot on its harvest day. Palay is dried to {mc}% moisture within hours, not days — cutting post-harvest losses below {targetLoss}%.',
+        'Bawat lot ay may slot sa patuyuan sa araw ng ani. Pinapatuyo ang palay hanggang {mc}% moisture sa loob ng oras, hindi araw — kaya bumababa ang kabawasan pagkatapos ng ani sa ibaba ng {targetLoss}%.',
+        'Ang kada lot may slot sa pamalahan sa adlaw sang alani. Ginapamala ang humay tubtob {mc}% moisture sa sulod sang oras, indi adlaw — gani nagakubos ang kabawasan pagkatapos sang alani sa idalom sang {targetLoss}%.'
     ],
     'mk.step.haul.h': ['Haul', 'Hakot', 'Hakot'],
     'mk.step.haul.p': [
-        'The nearest available driver whose vehicle carries the whole lot is assigned; the coordinator can change it.',
-        'Itinatalaga ang pinakamalapit na driver na kasya ang buong lot; puwedeng palitan ng coordinator.',
-        'Gina-assign ang pinakamalapit nga driver nga kasya ang bilog nga lot; mabaylo sang coordinator.'
+        'The nearest available driver whose vehicle carries the whole lot is assigned; the Cluster Lead can change it.',
+        'Itinatalaga ang pinakamalapit na driver na kasya ang buong lot; puwedeng palitan ng Cluster Lead.',
+        'Gina-assign ang pinakamalapit nga driver nga kasya ang bilog nga lot; mabaylo sang Cluster Lead.'
     ],
-    'mk.step.pay.h': ['Pay', 'Bayad', 'Bayad'],
-    'mk.step.pay.p': [
-        'Quoted price − drying − coordination margin = net to the farmer; 80% advance within 24 hours, balance when the buyer pays.',
-        'Presyong inalok − patuyo − bayad sa koordinasyon = neto sa magsasaka; 80% paunang bayad sa loob ng 24 oras, natitira kapag nagbayad ang mamimili.',
-        'Gintanyag nga presyo − pamala − bayad sa koordinasyon = neto sa mangunguma; 80% abanse sa sulod sang 24 oras, nabilin kon magbayad ang bumalakal.'
+    'mk.step.settle.h': ['Fast Settlement', 'Mabilis na Bayaran', 'Madasig nga Bayaran'],
+    'mk.step.settle.p': [
+        'Quoted price − drying − coordination margin = net to the farmer; {adv}% advance within 24 hours, balance when the buyer pays. A printed slip in the hands, not a promise.',
+        'Presyong inalok − patuyo − bayad sa koordinasyon = neto sa magsasaka; {adv}% paunang bayad sa loob ng 24 oras, natitira kapag nagbayad ang mamimili. Nakalimbag na resibo, hindi pangako.',
+        'Gintanyag nga presyo − pamala − bayad sa koordinasyon = neto sa mangunguma; {adv}% abanse sa sulod sang 24 oras, nabilin kon magbayad ang bumalakal. Naimprinta nga resibo, indi saad.'
     ],
     'mk.domains.eyebrow': ['The Four Domains', 'Ang Apat na Bahagi', 'Ang Apat ka Bahin'],
     'mk.domains.title': [
@@ -889,12 +970,16 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
         'Bayaran, abanse kag nabilin sang mangunguma, kag naimprinta nga resibo.'
     ],
     'mk.who.eyebrow': ["Who It's For", 'Para Kanino', 'Para Kay Sin-o'],
-    'mk.who.title': ['Four People, [[One Lot]]', 'Apat na Tao, [[Isang Lot]]', 'Apat ka Tawo, [[Isa ka Lot]]'],
-    'mk.role.coordinator.h': ['Coordinator', 'Coordinator', 'Coordinator'],
+    'mk.who.title': [
+        'A Cluster Lead, Three Partners, [[One Lot]]',
+        'Isang Cluster Lead, Tatlong Katuwang, [[Isang Lot]]',
+        'Isa ka Cluster Lead, Tatlo ka Kaupod, [[Isa ka Lot]]'
+    ],
+    'mk.role.coordinator.h': ['Cluster Lead', 'Cluster Lead', 'Cluster Lead'],
     'mk.role.coordinator.p': [
-        'Runs the cluster: farms, plan, buyers, dryer, hauls and payments.',
-        'Namamahala sa cluster: bukid, plano, mamimili, patuyuan, hakot at bayad.',
-        'Nagadumala sang cluster: uma, plano, bumalakal, pamalahan, hakot kag bayad.'
+        'A youth agri-intern, coop officer or lead farmer who operates the dashboard. They register farms, match lots to buyers, dispatch hauls and settle payments — the human bridge between the system and the SMS-only farmers.',
+        'Isang youth agri-intern, opisyal ng kooperatiba o lead farmer na nagpapatakbo ng dashboard. Sila ang nagrerehistro ng bukid, nagtutugma ng lot sa mamimili, nagpapadala ng hakot at nagbabayad — ang tulay ng tao sa pagitan ng sistema at ng magsasakang SMS lang ang gamit.',
+        'Isa ka youth agri-intern, opisyal sang kooperatiba ukon lead farmer nga nagapadalagan sang dashboard. Sila ang nagapalista sang uma, nagatupong sang lot sa bumalakal, nagapadala sang hakot kag nagabayad — ang tulay sang tawo sa ulot sang sistema kag sang mangunguma nga SMS lang ang gamit.'
     ],
     'mk.role.buyer.h': ['Buyer', 'Mamimili', 'Bumalakal'],
     'mk.role.buyer.p': [
@@ -1484,5 +1569,321 @@ export const PROTOTYPE_STRINGS: Record<string, [string, string, string]> = {
         'The action did not complete. Try again from the screen.',
         'Hindi natapos ang aksyon. Subukan muli mula sa screen.',
         'Wala natapos ang aksyon. Tilawan liwat halin sa screen.'
+    ],
+    // Buyer portal: page lead, the week-at-a-glance figures and the three analytics charts
+    'supply.lead': [
+        'What the cluster can deliver from {place}, week by week. Every figure is simulated.',
+        'Ang kayang ihatid ng cluster mula sa {place}, linggo-linggo. Simuladong datos ang lahat ng numero.',
+        'Ang maipadala sang cluster halin sa {place}, semana-semana. Simulated nga datos ang tanan nga numero.'
+    ],
+    'supply.look.title': [
+        'This Week at a Glance',
+        'Sa Isang Tingin Ngayong Linggo',
+        'Sa Isa ka Tan-aw Subong nga Semana'
+    ],
+    'supply.trend.palay': [
+        'Dried Palay Forecast, by Week',
+        'Forecast ng Tuyong Palay, Bawat Linggo',
+        'Forecast sang Uga nga Humay, Kada Semana'
+    ],
+    'supply.trend.rice': [
+        'Milled Rice Available, by Week',
+        'Giniling na Bigas, Bawat Linggo',
+        'Ginaling nga Bugas, Kada Semana'
+    ],
+    'supply.rank.title': [
+        'Supply by Barangay · {week}',
+        'Suplay ayon sa Barangay · {week}',
+        'Suplay suno sa Barangay · {week}'
+    ],
+    'supply.share.title': [
+        'How {week} Is Shared Between Barangays',
+        'Hati ng mga Barangay sa {week}',
+        'Pagbahin sang mga Barangay sa {week}'
+    ],
+    'supply.trend.summary': [
+        'Each column is one week, split by barangay; the week’s total and its share of the season sit above it. {week} is the highest at {value} {unit} ({pct}%).',
+        'Bawat bar ay isang linggo, hinati ayon sa barangay; nasa itaas ang kabuuan at bahagdan ng season. Pinakamataas ang {week} sa {value} {unit} ({pct}%).',
+        'Kada bar isa ka semana, ginbahin suno sa barangay; sa ibabaw ang kabilugan kag porsiento sang season. Pinakamataas ang {week} sa {value} {unit} ({pct}%).'
+    ],
+    'supply.rank.summary': [
+        '{week} supply per barangay, largest first: {list}.',
+        'Suplay sa {week} bawat barangay, pinakamalaki muna: {list}.',
+        'Suplay sa {week} kada barangay, pinakadako anay: {list}.'
+    ],
+    'supply.share.summary': [
+        'The {value} {unit} of {week} split across {n} barangays; each share is printed with its percentage.',
+        'Ang {value} {unit} ng {week} na hinati sa {n} barangay; may porsyento ang bawat hati.',
+        'Ang {value} {unit} sang {week} nga ginbahin sa {n} barangay; may porsyento ang kada bahin.'
+    ],
+    'supply.week.help': [
+        'The week controls every figure, the map and the table on this page.',
+        'Kinokontrol ng linggo ang lahat ng numero, ang mapa at ang talahanayan sa pahinang ito.',
+        'Ginakontrol sang semana ang tanan nga numero, ang mapa kag ang table sa sini nga pahina.'
+    ],
+    // Coordinator console: the week's landing trend and the per-barangay ranking on Home
+    'home.trend.title': [
+        'Harvest Landing, Day by Day',
+        'Paghakot ng Ani, Araw-araw',
+        'Pag-abot sang Alani, Adlaw-adlaw'
+    ],
+    'home.rank.title': [
+        'Planned Harvest by Barangay · {week}',
+        'Planong Ani ayon sa Barangay · {week}',
+        'Plano nga Alani suno sa Barangay · {week}'
+    ],
+    'home.trend.summary': [
+        'Each column is one day, split by barangay; the day’s planned weight and its share of the week sit above it. The heaviest day is {day} at {value} {unit} ({pct}%).',
+        'Bawat bar ay isang araw, hinati ayon sa barangay; nasa itaas ang timbang at bahagdan ng linggo. Pinakamabigat ang {day} sa {value} {unit} ({pct}%).',
+        'Kada bar isa ka adlaw, ginbahin suno sa barangay; sa ibabaw ang timbang kag porsiento sang semana. Pinakamabug-at ang {day} sa {value} {unit} ({pct}%).'
+    ],
+    'home.rank.summary': [
+        'Planned harvest this week per barangay, largest first: {list}.',
+        'Planong ani ngayong linggo bawat barangay, pinakamalaki muna: {list}.',
+        'Plano nga alani subong nga semana kada barangay, pinakadako anay: {list}.'
+    ],
+    'home.look.title': [
+        'This Week at a Glance',
+        'Sa Isang Tingin Ngayong Linggo',
+        'Sa Isa ka Tan-aw Subong nga Semana'
+    ],
+    'home.analytics.note': [
+        'Counted from the farm profiles in Cluster 1 for {week}. Figures are planned dried weight, not delivered weight.',
+        'Mula sa mga profile ng bukid sa Cluster 1 para sa {week}. Planong tuyong timbang ito, hindi aktwal na naihatid.',
+        'Halin sa mga profile sang uma sa Cluster 1 para sa {week}. Plano nga uga nga timbang ini, indi aktwal nga naihatod.'
+    ],
+    'home.day': ['Day {d}', 'Araw {d}', 'Adlaw {d}'],
+    // Buyer portal: the order-book band on /buyer/orders
+    'orders.lead': [
+        'Order milled rice by the sack, or commit to dried palay for a window of weeks. Simulated data, kept in this browser.',
+        'Umorder ng giniling na bigas kada sako, o mag-commit ng tuyong palay sa isang agwat ng linggo. Simuladong datos, nasa browser na ito.',
+        'Mag-order sang ginaling nga bugas kada sako, ukon mag-commit sang uga nga humay sa isa ka agwat sang semana. Simulated nga datos, yara sa sini nga browser.'
+    ],
+    'orders.look.title': [
+        'Order Book at a Glance',
+        'Ang Order Book sa Isang Tingin',
+        'Ang Order Book sa Isa ka Tan-aw'
+    ],
+    'orders.stat.value': ['Value of Your Orders', 'Halaga ng Iyong mga Order', 'Bili sang Imo mga Order'],
+    'orders.stat.free.rice': ['Rice Still Available', 'Natitirang Bigas', 'Nabilin nga Bugas'],
+    'orders.stat.free.palay': ['Palay Still Open', 'Bukas Pa na Palay', 'Bukas Pa nga Humay'],
+    'orders.note.mine': [
+        'Requests you placed from this browser. They show on the coordinator console too.',
+        'Mga hiling na inilagay mo mula sa browser na ito. Lumalabas din ang mga ito sa console ng coordinator.',
+        'Mga pangayo nga ginbutang mo halin sa sini nga browser. Makita man ini sa console sang coordinator.'
+    ],
+    'orders.note.value': [
+        '{sacks} sacks at {price}/kg, priced at the assumed milling rate.',
+        '{sacks} sako sa {price}/kg, ayon sa inaasahang rate ng paggiling.',
+        '{sacks} ka sako sa {price}/kg, suno sa ginapaabot nga rate sang paggaling.'
+    ],
+    'orders.note.free': [
+        'Counted from every order in this browser, against what the partner miller can offer.',
+        'Mula sa lahat ng order sa browser na ito, kumpara sa kayang ialok ng partner miller.',
+        'Halin sa tanan nga order sa sini nga browser, batok sa maalok sang partner miller.'
+    ],
+    'orders.share.title': ['How the Milled Lot Is Going', 'Daloy ng Giniling na Lot', 'Daloy sang Ginaling nga Lot'],
+    'orders.share.ordered': ['Ordered', 'Naorder', 'Naorder'],
+    'orders.share.free': ['Still Available', 'Natitira Pa', 'Nabilin Pa'],
+    'orders.share.summary': [
+        '{ordered} t of the {total} t milled lot is ordered; {free} t is still open.',
+        '{ordered} t sa {total} t na giniling na lot ang naorder; {free} t pa ang bukas.',
+        '{ordered} t sang {total} t nga ginaling nga lot ang naorder; {free} t pa ang bukas.'
+    ],
+    'orders.palay.share.title': [
+        'Palay Pool: Committed and Open',
+        'Palay Pool: Nakatalaga at Bukas Pa',
+        'Palay Pool: Natakda kag Bukas Pa'
+    ],
+    'orders.palay.share.committed': [
+        'Held by Commitment C-01',
+        'Hawak ng Commitment C-01',
+        'Gin-aggaw sang Commitment C-01'
+    ],
+    'orders.palay.share.free': [
+        'Open to a New Commitment',
+        'Bukas sa Bagong Commitment',
+        'Bukas sa Bag-o nga Commitment'
+    ],
+    'orders.palay.share.summary': [
+        'Commitment C-01 holds {committed} t; {free} t of palay is still open to a new commitment.',
+        'Hawak ng commitment C-01 ang {committed} t; {free} t ng palay ang bukas pa sa bagong commitment.',
+        'Gin-aggaw sang commitment C-01 ang {committed} t; {free} t nga humay ang bukas pa sa bag-o nga commitment.'
+    ],
+    // Coordinator console: the dryer's week and how a settlement splits
+    'dry.share.title': [
+        'Dryer Capacity: Booked and Free',
+        'Kapasidad ng Patuyuan: Naka-book at Bakante',
+        'Kapasidad sang Pamalahan: Naka-book kag Bakante'
+    ],
+    'dry.share.free': ['Still Free', 'Bakante Pa', 'Bakante Pa'],
+    'dry.share.summary': [
+        '{booked} of {cap} sacks are booked this week; {free} sacks are still free at this dryer.',
+        '{booked} sa {cap} sako ang naka-book ngayong linggo; {free} sako pa ang bakante sa patuyuang ito.',
+        '{booked} sa {cap} ka sako ang naka-book subong nga semana; {free} ka sako pa ang bakante sa sini nga pamalahan.'
+    ],
+    'pay.share.title': ['How the Net Settles', 'Paano Nahahati ang Neto', 'Paano Ginbahin ang Neto'],
+    'pay.share.summary': [
+        'Of {net} net, {advance} is released as the advance and {balance} waits for the buyer receipt.',
+        'Sa {net} na neto, {advance} ang inilalabas bilang paunang bayad at {balance} ang hinihintay sa resibo ng mamimili.',
+        'Sa {net} nga neto, {advance} ang ginabuhas bilang abanse kag {balance} ang ginahulat sa resibo sang bumalakal.'
+    ],
+    // Coordinator: the 100-farm harvest calendar page
+    'plan.lead': [
+        'The harvest plan for {place}: {farms} farms across {weeks} weeks. Every figure is simulated.',
+        'Ang plano ng ani para sa {place}: {farms} bukid sa {weeks} linggo. Simuladong datos ang lahat ng numero.',
+        'Ang plano sang ani para sa {place}: {farms} ka uma sa {weeks} ka semana. Simulated nga datos ang tanan nga numero.'
+    ],
+    'plan.look.title': ['Harvest at a Glance', 'Ang Ani sa Isang Tingin', 'Ang Ani sa Isa ka Tan-aw'],
+    'plan.look.hint': [
+        'When the cluster harvest comes in, which barangay carries it, and how the total divides.',
+        'Kung kailan dumarating ang ani ng cluster, kung aling barangay ang may dala, at paano nahahati ang kabuuan.',
+        'Kon san-o nag-abot ang ani sang cluster, kon diin nga barangay ang may dala, kag paano ginbahin ang kabilugan.'
+    ],
+    'plan.trend.title': ['Dried Forecast, by Week', 'Forecast ng Tuyo, Bawat Linggo', 'Forecast sang Uga, Kada Semana'],
+    'plan.trend.summary': [
+        'Each column is one week, split by barangay; the week’s total and its share of the season sit above it. {week} is the peak at {value} {unit} ({pct}%).',
+        'Bawat bar ay isang linggo, hinati ayon sa barangay; nasa itaas ang kabuuan at bahagdan ng ani. Pinakamataas ang {week} sa {value} {unit} ({pct}%).',
+        'Kada bar isa ka semana, ginbahin suno sa barangay; sa ibabaw ang kabilugan kag porsiento sang ani. Pinakamataas ang {week} sa {value} {unit} ({pct}%).'
+    ],
+    'plan.rank.title': [
+        'Dried Forecast by Barangay',
+        'Tuyong Forecast ayon sa Barangay',
+        'Uga nga Forecast suno sa Barangay'
+    ],
+    'plan.rank.summary': [
+        '{n} barangays, largest first: {list}.',
+        '{n} barangay, pinakamalaki muna: {list}.',
+        '{n} ka barangay, pinakadako una: {list}.'
+    ],
+    'plan.share.title': [
+        'How the Forecast Splits Across Barangays',
+        'Hati ng Forecast sa mga Barangay',
+        'Pagbahin sang Forecast sa mga Barangay'
+    ],
+    'plan.share.summary': [
+        'The three biggest barangays hold {pct}% of the {total} {unit} forecast; all {n} are ranked above.',
+        'Ang tatlong pinakamalaking barangay ay may {pct}% ng {total} {unit} na forecast; niranggo sa itaas ang lahat ng {n}.',
+        'Ang tatlo ka pinakadako nga barangay may {pct}% sang {total} {unit} nga forecast; niranggo sa ibabaw ang tanan nga {n}.'
+    ],
+    // Coordinator: the buyer-commitment board
+    'market.lead': [
+        'What buyers have asked for, and how much of it the cluster can fill from {place}. Every figure is simulated.',
+        'Ang hinihiling ng mga mamimili, at kung gaano karami ang kayang punan ng cluster mula sa {place}. Simuladong datos ang lahat.',
+        'Ang ginapangayo sang mga bumalakal, kag kon pila ang maabot sang cluster halin sa {place}. Simulated nga datos ang tanan.'
+    ],
+    'market.look.title': [
+        'Commitments at a Glance',
+        'Mga Commitment sa Isang Tingin',
+        'Mga Commitment sa Isa ka Tan-aw'
+    ],
+    'market.stat.open': ['Open Commitments', 'Bukas na Commitment', 'Bukas nga Commitment'],
+    'market.stat.open.note': [
+        '{n} buyer accounts across the board.',
+        '{n} account ng mamimili sa buong board.',
+        '{n} ka account sang bumalakal sa bilog nga board.'
+    ],
+    'market.stat.value': ['Committed Volume', 'Nakomit na Dami', 'Nakomit nga Kadamuon'],
+    'market.stat.value.note': [
+        'Total volume buyers have asked for, across {n} commitments.',
+        'Kabuuang dami na hiniling ng mga mamimili, sa {n} commitment.',
+        'Kabilugan nga kadamuon nga ginpangayo sang mga bumalakal, sa {n} ka commitment.'
+    ],
+    'market.trend.title': [
+        'Requested Volume by Buyer',
+        'Hiniling na Dami ayon sa Mamimili',
+        'Ginpangayo nga Kadamuon suno sa Bumalakal'
+    ],
+    'market.trend.summary': [
+        '{n} buyers, largest request first: {list}.',
+        '{n} mamimili, pinakamalaki muna: {list}.',
+        '{n} ka bumalakal, pinakadako una: {list}.'
+    ],
+    'market.share.title': [
+        'Requested Volume: Matched and Still Open',
+        'Hiniling na Dami: Na-match at Bukas Pa',
+        'Ginpangayo nga Kadamuon: Na-match kag Bukas Pa'
+    ],
+    'market.share.matched': ['Matched to Forecast', 'Na-match sa Forecast', 'Na-match sa Forecast'],
+    'market.share.open': ['Not Yet Matched', 'Hindi Pa Na-match', 'Wala Pa Na-match'],
+    'market.share.summary': [
+        '{matched} of {total} {unit} requested is matched to a forecast lot; {open} {unit} is still open.',
+        '{matched} sa {total} {unit} ang na-match sa forecast na lote; {open} {unit} pa ang bukas.',
+        '{matched} sa {total} {unit} ang na-match sa forecast nga lote; {open} {unit} pa ang bukas.'
+    ],
+    // Coordinator: the farm register
+    'farm.lead': [
+        'Every registered farm in {place}, with its forecast, variety and harvest week.',
+        'Lahat ng rehistradong bukid sa {place}, kasama ang forecast, variety at linggo ng ani.',
+        'Tanan nga rehistrado nga uma sa {place}, upod ang forecast, variety kag semana sang ani.'
+    ],
+    'farm.look.title': ['Register at a Glance', 'Ang Rehistro sa Isang Tingin', 'Ang Rehistro sa Isa ka Tan-aw'],
+    'farm.look.hint': [
+        'Each column is one barangay, split by the same three statuses as the chart beside it: one colour, one meaning.',
+        'Bawat haligi ay isang barangay, hinati sa parehong tatlong status ng katabing chart: isang kulay, isang kahulugan.',
+        'Ang kada haligi isa ka barangay, ginbahin sa pareho nga tatlo ka status sang tupad nga chart: isa ka kolor, isa ka kahulugan.'
+    ],
+    'farm.stat.farms': ['Registered Farms', 'Rehistradong Bukid', 'Rehistrado nga Uma'],
+    'farm.stat.ha': ['Cluster Area', 'Lawak ng Cluster', 'Kalaparon sang Cluster'],
+    'farm.stat.forecast': ['Cluster Forecast', 'Forecast ng Cluster', 'Forecast sang Cluster'],
+    'farm.stat.forecast.note': [
+        'Dried tonnes across {b} barangays: {list}.',
+        'Tuyong tonelada sa {b} barangay: {list}.',
+        'Uga nga tonelada sa {b} ka barangay: {list}.'
+    ],
+    'farm.rank.title': ['Farms by Barangay', 'Bukid ayon sa Barangay', 'Uma suno sa Barangay'],
+    'farm.rank.summary': [
+        '{n} farms counted, largest barangay first: {list}.',
+        '{n} bukid ang binilang, pinakamalaking barangay muna: {list}.',
+        '{n} ka uma ang ginbilang, pinakadako nga barangay una: {list}.'
+    ],
+    'farm.share.title': ['Farms by Status', 'Bukid ayon sa Status', 'Uma suno sa Status'],
+    'farm.share.summary': [
+        'Of {n} farms, {cluster} are still to be clustered, {verified} are verified and {registered} are registered.',
+        'Sa {n} bukid, {cluster} ang titipunin pa, {verified} ang beripikado at {registered} ang rehistrado.',
+        'Sa {n} ka uma, {cluster} ang tipunon pa, {verified} ang beripikado kag {registered} ang rehistrado.'
+    ],
+    // Super admin: clearer page leads and section headings
+    'admin.lead': [
+        'Every app in the cluster, the counts that are live in this demo, and a door into each one.',
+        'Lahat ng app sa cluster, ang mga bilang na live sa demo na ito, at pinto sa bawat isa.',
+        'Tanan nga app sa cluster, ang mga bilang nga live sa demo nga ini, kag pwertahan sa kada isa.'
+    ],
+    'admin.users.lead': [
+        'Every account in the cluster: coordinators, farmers, buyers and drivers. Search, filter, or change a role.',
+        'Lahat ng account sa cluster: coordinator, magsasaka, mamimili at driver. Maghanap, mag-filter, o magpalit ng role.',
+        'Tanan nga account sa cluster: coordinator, mangunguma, bumalakal kag driver. Pangitaa, i-filter, ukon ilisdi ang role.'
+    ],
+    'admin.settings.lead': [
+        'The simulated assumptions behind every figure in the demo, and this demo’s data reset.',
+        'Ang simuladong palagay sa likod ng bawat numero sa demo, at ang pag-reset ng datos nito.',
+        'Ang simulated nga pangagpas sa likod sang kada numero sa demo, kag ang reset sang datos sini.'
+    ],
+    'admin.activity.lead': [
+        'Every simulated write in this session, newest first, and the switch that clears the demo.',
+        'Lahat ng simuladong pagbabago sa session na ito, pinakabago muna, at ang switch na naglilinis sa demo.',
+        'Tanan nga simulated nga pagbag-o sa session nga ini, pinakabag-o una, kag ang switch nga nagtinlo sang demo.'
+    ],
+    // Coordinator: haul / logistics
+    'haul.lead': [
+        'One move at a time: the request, the assigned driver, and what each vehicle would cost.',
+        'Isa-isa lang: ang kahilingan, ang nakatalagang driver, at ang magiging gastos ng bawat sasakyan.',
+        'Isa-isa lang: ang pangayo, ang natakda nga driver, kag ang magastos sang kada salakyan.'
+    ],
+    'haul.work.title': ['Request and Assignment', 'Kahilingan at Pagtatalaga', 'Pangayo kag Pagtakda'],
+    'haul.work.hint': [
+        'Request the move, see who takes it, then compare what each vehicle costs for this load.',
+        'Ipadala ang hiling, tingnan kung sino ang kukuha, at ihambing ang gastos ng bawat sasakyan para sa kargang ito.',
+        'Ipadala ang pangayo, tan-awa kon sin-o ang magakuha, kag itanding ang gasto sang kada salakyan para sa karga nga ini.'
+    ],
+    'haul.look.title': ['This Move at a Glance', 'Ang Move sa Isang Tingin', 'Ang Move sa Isa ka Tan-aw'],
+    'haul.stat.sacks': ['Sacks to Move', 'Sakong Ililipat', 'Sako nga Ibalhin'],
+    'haul.stat.km': ['Route Distance', 'Distansya ng Ruta', 'Distansya sang Ruta'],
+    'haul.stat.cost': ['Selected Haul Cost', 'Gastos ng Napiling Haul', 'Gastos sang Napili nga Haul'],
+    'haul.rank.title': ['Trip Cost by Vehicle', 'Gastos ng Biyahe kada Sasakyan', 'Gastos sang Biyahe kada Salakyan'],
+    'haul.rank.summary': [
+        'What each vehicle would charge for {sacks} sacks over {km} km, largest first: {list}. Selected: {veh}.',
+        'Ang sisingilin ng bawat sasakyan para sa {sacks} sako sa {km} km, pinakamalaki muna: {list}. Napili: {veh}.',
+        'Ang singil sang kada salakyan para sa {sacks} ka sako sa {km} km, pinakadako una: {list}. Napili: {veh}.'
     ]
 };

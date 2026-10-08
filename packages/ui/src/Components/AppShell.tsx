@@ -277,9 +277,7 @@ export default function AppShell({
                         </Link>
                         <div className="hidden md:block min-w-0 flex-1">
                             {eyebrow && <div className="eyebrow break-words">{eyebrow}</div>}
-                            <h1 className="text-[28px] leading-8 font-extrabold tracking-[-0.03em] uppercase break-words">
-                                {title}
-                            </h1>
+                            <h1 className="rc-page-title">{title}</h1>
                         </div>
                         <div className="flex-1 md:hidden" />
                         <DemoChip className="hidden md:inline-flex" />
@@ -296,9 +294,7 @@ export default function AppShell({
                     <div className="md:hidden mt-2 flex items-center justify-between gap-2 flex-wrap">
                         <div className="min-w-0">
                             {eyebrow && <div className="eyebrow break-words">{eyebrow}</div>}
-                            <h1 className="text-[22px] leading-7 font-extrabold tracking-[-0.02em] uppercase break-words">
-                                {title}
-                            </h1>
+                            <h1 className="rc-page-title">{title}</h1>
                             <SignedInAs role={role} className="mt-1" />
                         </div>
                         <DemoChip />
@@ -320,7 +316,7 @@ export default function AppShell({
                         key={n.key}
                         href={n.href}
                         aria-current={isActive(n, active) ? 'page' : undefined}
-                        className={`flex flex-col items-center justify-center gap-1 min-h-[64px] px-1 text-center text-[12px] leading-4 font-extrabold break-words ${isActive(n, active) ? 'text-[var(--text-accent)]' : 'text-[var(--text-secondary)]'}`}
+                        className={`flex flex-col items-center justify-center gap-1 min-h-[68px] px-1 py-1 text-center text-[13px] leading-[18px] font-extrabold break-words ${isActive(n, active) ? 'text-[var(--text-accent)]' : 'text-[var(--text-secondary)]'}`}
                     >
                         <Icon name={n.icon} size={24} />
                         {t('nav.' + n.key)}
@@ -333,7 +329,7 @@ export default function AppShell({
                         onClick={() => setMore(true)}
                         aria-haspopup="dialog"
                         aria-expanded={more}
-                        className={`flex flex-col items-center justify-center gap-1 min-h-[64px] px-1 text-[12px] leading-4 font-extrabold ${moreActive ? 'text-[var(--text-accent)]' : 'text-[var(--text-secondary)]'}`}
+                        className={`flex flex-col items-center justify-center gap-1 min-h-[68px] px-1 py-1 text-[13px] leading-[18px] font-extrabold ${moreActive ? 'text-[var(--text-accent)]' : 'text-[var(--text-secondary)]'}`}
                     >
                         <Icon name="Plus" size={24} />
                         {t('nav.more')}

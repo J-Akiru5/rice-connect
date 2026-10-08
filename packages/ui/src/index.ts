@@ -19,6 +19,7 @@ export {
     DemoChip,
     StatusChip,
     BigStat,
+    FigureNote,
     FarmProfileCard,
     CommitmentCard,
     SearchField,
@@ -39,6 +40,8 @@ export {
     Terraces
 } from './Components/Enactus';
 export { BarChart, ProgressBar, StatusDistribution, chartFill } from './Components/Charts';
+export { ChatHeader, ChatDay, ChatMessage, ChatThread, ChatComposer, smsParts, chatClock } from './Components/Chat';
+export type { ChatState } from './Components/Chat';
 export { I18nProvider, useI18n, translate, fill, STRINGS, LANGS, T, tx } from '@rc/i18n';
 export type { Lang } from '@rc/i18n';
 export { setAssets, ASSETS } from './lib/assets';
@@ -72,7 +75,13 @@ export {
     FormErrorSummary,
     Controller,
     useForm,
-    zodResolver
+    zodResolver,
+    SectionHead,
+    TrendBars,
+    ShareBar,
+    RankedBars,
+    Sparkline
 } from './kit';
+export type { Point, Segment, ChartTone } from './kit';
 export type { FieldRenderProps, Resolver } from './kit';
 export type { KitTone, ToastAction } from './kit';

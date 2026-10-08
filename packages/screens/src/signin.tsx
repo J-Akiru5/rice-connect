@@ -233,7 +233,7 @@ export function AuthScreen({ role, mode }: { role: SessionRole; mode: AuthMode }
                     <ThemeToggle iconSize={20} />
                 </header>
                 <main className="flex-1 flex items-center justify-center px-4 py-8 md:py-12">
-                    <section aria-labelledby={`${uid}-h`} className="w-full max-w-[440px] flex flex-col gap-6">
+                    <section aria-labelledby={`${uid}-h`} className="w-full max-w-[500px] flex flex-col gap-7">
                         <div className="flex flex-col gap-3">
                             <div className="flex flex-wrap items-center gap-2">
                                 <span className="lg:hidden icon-box !w-10 !h-10 shrink-0">
@@ -244,21 +244,21 @@ export function AuthScreen({ role, mode }: { role: SessionRole; mode: AuthMode }
                             </div>
                             <h1
                                 id={`${uid}-h`}
-                                className="m-0 text-[30px] md:text-[36px] leading-tight font-extrabold tracking-[-0.03em]"
+                                className="m-0 text-[34px] md:text-[42px] leading-[1.1] font-extrabold tracking-[-0.03em]"
                             >
                                 {title}
                             </h1>
-                            <p className="m-0 text-[16px] leading-6 font-medium text-[var(--text-secondary)]">{sub}</p>
+                            <p className="m-0 text-[17px] leading-7 font-medium text-[var(--text-secondary)]">{sub}</p>
                         </div>
                         <p className="m-0 flex items-start gap-2 rounded-2xl border-2 border-[color:var(--glass-border-strong)] bg-[var(--glass-fill-strong)] px-4 py-3 text-[14px] leading-5 font-semibold">
                             <Icon name="Info" size={20} className="shrink-0 mt-px text-[var(--info)]" />
                             <span>{isDemo ? t('auth.mock', { id: tx(t, a.id) }) : t('auth.live')}</span>
                         </p>
                         {current ? (
-                            <div className="glass-panel rounded-[1.5rem] p-5 flex flex-col gap-4">
+                            <div className="panel-solid rounded-[1.75rem] p-5 md:p-6 flex flex-col gap-4">
                                 <p
                                     role="status"
-                                    className="m-0 inline-flex items-center gap-2 text-[16px] font-semibold"
+                                    className="m-0 inline-flex items-center gap-2 text-[17px] font-semibold"
                                 >
                                     <Icon name="Check" size={20} className="shrink-0 text-[var(--text-accent)]" />
                                     {t('signin.as', { who: tx(t, current) })}

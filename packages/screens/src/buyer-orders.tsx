@@ -5,14 +5,18 @@ import { useDemoState, updateDemoState } from '@rc/store/react';
 import { ZLink } from '@rc/ui';
 import {
     AppShell,
+    BigStat,
     CommitmentCard,
     EmptyState,
     ErrorState,
+    FigureNote,
     Icon,
     InputError,
     LoadingState,
     PrimaryButton,
     SecondaryButton,
+    SectionHead,
+    ShareBar,
     StatusChip,
     TabPanel,
     Tabs,
@@ -54,7 +58,7 @@ import { autoMatch } from '@rc/domain/match';
 import { isWeek, type Week } from '@rc/domain/schemas';
 import { peso } from '@rc/domain/money';
 import { BuyerTypePicker } from './buyer-type';
-import { SectionPill, Note, ResponsiveTable } from './ui';
+import { Note, ResponsiveTable } from './ui';
 
 const t1 = (kg: number) => (Math.round(kg / 100) / 10).toFixed(1);
 const fieldCls =
@@ -107,8 +111,8 @@ export function TraceChain({ head, rice }: { head: string; rice: boolean }) {
         }
     ];
     return (
-        <section id="trace" aria-label={t('trace.title')} className="panel-solid rounded-[1.5rem] p-6">
-            <h3 className="eyebrow !text-[14px]">{t('trace.title')}</h3>
+        <section id="trace" aria-label={t('trace.title')} className="panel-solid rounded-[1.75rem] p-6">
+            <h3 className="m-0 text-[19px] leading-7 font-extrabold tracking-[-0.01em]">{t('trace.title')}</h3>
             <ol className="mt-3 flex flex-col gap-0">
                 {steps.map((s, i) => (
                     <li key={i} className="relative flex items-start gap-3 pb-4 last:pb-0">
@@ -187,15 +191,58 @@ function RiceOrders({ type }: { type: BuyerType }) {
     const clear = () => {
         for (const o of mine) void cancelOrder.mutateAsync({ id: o.id });
     };
+    const mineTotal = mine.reduce((s, o) => s + o.total, 0);
+    const mineSacks = mine.reduce((s, o) => s + o.sacks, 0);
     if (ordersQuery.isPending) return <LoadingState rows={3} />;
     if (ordersQuery.isError) return <ErrorState onRetry={() => void ordersQuery.refetch()} />;
     const stepButton =
         'inline-flex items-center justify-center min-h-[48px] min-w-[48px] rounded-full border-2 border-[color:var(--text-muted)] text-[var(--ink)]';
     return (
         <div className="cq-two">
-            <div className="flex flex-col gap-4">
-                <section aria-labelledby="ro-new" className="panel-solid rounded-[1.5rem] p-6 flex flex-col gap-4">
-                    <h2 id="ro-new" className="eyebrow !text-[14px]">
+            <div className="flex flex-col gap-5">
+                <section
+                    aria-labelledby="ro-look"
+                    className="panel-solid rounded-[1.75rem] p-5 md:p-7 flex flex-col gap-6"
+                >
+                    <SectionHead id="ro-look" title={t('orders.look.title')} />
+                    <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(228px,100%),1fr))]">
+                        <BigStat
+                            size="xl"
+                            label="orders.mine"
+                            value={mine.length}
+                            icon="Orders"
+                            note={t('orders.note.mine')}
+                        />
+                        <BigStat
+                            size="xl"
+                            label="orders.stat.value"
+                            value={peso(mineTotal)}
+                            icon="Pay"
+                            note={t('orders.note.value', { sacks: mineSacks, price: peso(MILLING.price) })}
+                        />
+                    </div>
+                    <ShareBar
+                        title={t('orders.share.title')}
+                        unit={t('unit.t')}
+                        items={[
+                            {
+                                key: 'ordered',
+                                label: t('orders.share.ordered'),
+                                value: used / 1000,
+                                tone: 'brand'
+                            },
+                            { key: 'free', label: t('orders.share.free'), value: available / 1000, tone: 'gold' }
+                        ]}
+                        summary={t('orders.share.summary', {
+                            ordered: (used / 1000).toFixed(1),
+                            total: ((used + available) / 1000).toFixed(1),
+                            free: (available / 1000).toFixed(1)
+                        })}
+                    />
+                    <FigureNote>{t('orders.note.free')}</FigureNote>
+                </section>
+                <section aria-labelledby="ro-new" className="panel-solid rounded-[1.75rem] p-6 flex flex-col gap-4">
+                    <h2 id="ro-new" className="m-0 text-[21px] leading-7 font-extrabold tracking-[-0.01em]">
                         {step === 'review' ? t('orders.summary') : t('orders.new.rice')}
                     </h2>
                     {step === 'compose' ? (
@@ -286,10 +333,8 @@ function RiceOrders({ type }: { type: BuyerType }) {
                         </>
                     )}
                 </section>
-                <section aria-labelledby="ro-mine" className="flex flex-col gap-3">
-                    <div>
-                        <SectionPill id="ro-mine">{t('orders.mine')}</SectionPill>
-                    </div>
+                <section aria-labelledby="ro-mine" className="flex flex-col gap-4">
+                    <SectionHead id="ro-mine" title={t('orders.mine')} />
                     {mine.length === 0 ? (
                         <EmptyState variant="empty" title="orders.none" body="orders.none.body" />
                     ) : (
@@ -430,11 +475,52 @@ function PalayCommitments() {
         setError('');
     };
     const clear = () => updateDemoState((st) => ({ ...st, commitments: [] }));
+    const openKg = UNCOMMITTED_LOTS.reduce((s, l) => s + l.driedKg, 0);
     return (
         <div className="cq-two">
-            <div className="flex flex-col gap-4">
-                <section aria-labelledby="pc-new" className="panel-solid rounded-[1.5rem] p-6 flex flex-col gap-4">
-                    <h2 id="pc-new" className="eyebrow !text-[14px]">
+            <div className="flex flex-col gap-5">
+                <section
+                    aria-labelledby="pc-look"
+                    className="panel-solid rounded-[1.75rem] p-5 md:p-7 flex flex-col gap-6"
+                >
+                    <SectionHead id="pc-look" title={t('orders.look.title')} />
+                    <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(228px,100%),1fr))]">
+                        <BigStat
+                            size="xl"
+                            label="orders.stat.free.palay"
+                            value={t1(openKg)}
+                            unit={t('unit.t')}
+                            icon="Sack"
+                            note={t('orders.note.free')}
+                        />
+                        <BigStat
+                            size="xl"
+                            label="orders.mine"
+                            value={mine.length}
+                            icon="Orders"
+                            note={t('orders.note.mine')}
+                        />
+                    </div>
+                    <ShareBar
+                        title={t('orders.palay.share.title')}
+                        unit={t('unit.t')}
+                        items={[
+                            {
+                                key: 'committed',
+                                label: t('orders.palay.share.committed'),
+                                value: m01.kg / 1000,
+                                tone: 'brand'
+                            },
+                            { key: 'free', label: t('orders.palay.share.free'), value: openKg / 1000, tone: 'gold' }
+                        ]}
+                        summary={t('orders.palay.share.summary', {
+                            committed: (m01.kg / 1000).toFixed(1),
+                            free: (openKg / 1000).toFixed(1)
+                        })}
+                    />
+                </section>
+                <section aria-labelledby="pc-new" className="panel-solid rounded-[1.75rem] p-6 flex flex-col gap-4">
+                    <h2 id="pc-new" className="m-0 text-[21px] leading-7 font-extrabold tracking-[-0.01em]">
                         {t('orders.new.palay')}
                     </h2>
                     <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr))]">
@@ -487,10 +573,8 @@ function PalayCommitments() {
                         {t('orders.post')}
                     </PrimaryButton>
                 </section>
-                <section aria-labelledby="pc-mine" className="flex flex-col gap-3">
-                    <div>
-                        <SectionPill id="pc-mine">{t('orders.mine')}</SectionPill>
-                    </div>
+                <section aria-labelledby="pc-mine" className="flex flex-col gap-4">
+                    <SectionHead id="pc-mine" title={t('orders.mine')} />
                     {/* The standing C-01 commitment and its matched lots are the demo fixture. */}
                     {!isLive && <Note className="!text-[16px] !leading-6">{t('orders.c01')}</Note>}
                     {!isLive && <CommitmentCard c={c01} highlight className="panel-solid" />}
@@ -568,9 +652,11 @@ function PalayCommitments() {
 
 /** /buyer/orders — rice buyers order milled rice; millers post palay commitments that auto-match (derived, not in canvas). */
 export function BuyerOrdersScreen({ type, onType }: { type: BuyerType; onType: (t: BuyerType) => void }) {
+    const { t } = useI18n();
     return (
         <AppShell role="buyer" title="orders.title" eyebrow="orders.eyebrow" active="myorders">
             <div className="flex flex-col gap-6">
+                <p className="rc-lede">{t('orders.lead')}</p>
                 <BuyerTypePicker value={type} onChange={onType} />
                 {buysPalay(type) ? <PalayCommitments /> : <RiceOrders key={type} type={type} />}
             </div>

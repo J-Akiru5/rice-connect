@@ -33,7 +33,7 @@ RiceConnect helps a farmer cluster in Dingle, Iloilo plan harvests, dry palay, h
 
 Everything in `docs/plan/04-ux-standards.md`, and in short:
 
-- Glass by default; panels holding text use `glass-fill-strong`. Haul screens use the hard logistics style (`.hard`, `.hard-thin`, `.hard-btn`) for content; the shell and nav around Haul stay glass. Never mix inside one card. Portaled dialogs and menus carry the opener's style class.
+- Glass by default; panels holding text use `glass-fill-strong`, a card that must read as a document uses `panel-solid`, and a block nested inside one uses `rc-subtle`. Haul uses the **same** soft surfaces as every other screen (owner correction, 8 Oct 2026: the hard black-border style read as a separate, "game-like" UI beside the rest of the app — "make it modern, follow the design"). The hard classes (`.hard`, `.hard-thin`, `.hard-btn`) are retired from product screens and survive only as the kit's sample on `/__kit`. Never mix inside one card. Portaled dialogs and menus carry the opener's style class.
 - Radix is used as unstyled primitives wrapped in `packages/ui`; never Radix Themes or shadcn/ui CSS.
 - Every screen implements the state matrix (loading, empty, empty-filtered, error, not found, forbidden, offline, pending, success). No default spinners.
 - Choose instead of type; units next to inputs; one primary action per screen; Undo for reversible actions; summary + confirm for money and irreversible actions; typed confirmation for dangerous admin actions; never `window.confirm`/`alert`/`prompt`.

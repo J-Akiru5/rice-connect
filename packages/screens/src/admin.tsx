@@ -9,6 +9,7 @@ import {
     LoadingState,
     Pagination,
     SecondaryButton,
+    SectionHead,
     Select,
     StatusChip,
     ZLink,
@@ -27,7 +28,11 @@ import { useDemoState, resetDemoState } from '@rc/store/react';
 import { useAdminOverrides, useClearAssumption, useClearUserRole, useSetAssumption, useSetUserRole } from '@rc/data';
 import { useState } from 'react';
 import { staticListState, type ListState } from './list-state';
-import { Note, ResponsiveTable, SectionPill, type Col } from './ui';
+import { Note, ResponsiveTable, type Col } from './ui';
+
+/* Section headings on the admin screens read at heading size, not as a caps label: the reader is
+   scanning a long configuration page for one number. */
+const H2 = 'm-0 text-[19px] leading-6 font-extrabold tracking-[-0.02em] text-[var(--ink)]';
 
 /* Super admin (prototype addition, docs/DECISIONS.md M20; derived, not in canvas). Read views over the seed and
    the demo state, plus the S-11 simulated writes: role changes and assumption edits, both behind the same
@@ -57,26 +62,35 @@ export function AdminOverviewScreen() {
     return (
         <AppShell role="admin" active="overview" title="admin.overview.title" eyebrow="admin.eyebrow">
             <div className="flex flex-col gap-6">
-                <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr))] tabular">
+                <p className="rc-lede">{t('admin.lead')}</p>
+                <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr))] tabular">
                     <BigStat
+                        size="xl"
+                        className="panel-solid"
                         icon="Farm"
                         label="admin.stat.farms"
                         value={FARMS.length}
                         note={t('admin.stat.farms.sub', { n: IN_CLUSTER })}
                     />
                     <BigStat
+                        size="xl"
+                        className="panel-solid"
                         icon="Store"
                         label="admin.stat.buyers"
                         value={BUYERS.length}
                         note="admin.stat.buyers.sub"
                     />
                     <BigStat
+                        size="xl"
+                        className="panel-solid"
                         icon="Truck"
                         label="admin.stat.drivers"
                         value={DRIVERS.length}
                         note={t('admin.stat.drivers.sub', { n: VEHICLES.length })}
                     />
                     <BigStat
+                        size="xl"
+                        className="panel-solid"
                         icon="Sack"
                         label="admin.stat.lots"
                         value={LOTS.length}
@@ -86,9 +100,9 @@ export function AdminOverviewScreen() {
                 <div className="cq-two">
                     <section
                         aria-labelledby="adm-apps"
-                        className="glass-panel rounded-[1.5rem] p-5 flex flex-col gap-3 min-w-0"
+                        className="panel-solid rounded-[1.75rem] p-5 md:p-6 flex flex-col gap-3 min-w-0"
                     >
-                        <h2 id="adm-apps" className="eyebrow">
+                        <h2 id="adm-apps" className={H2}>
                             {t('admin.apps.h')}
                         </h2>
                         <ul className="flex flex-col">
@@ -121,16 +135,16 @@ export function AdminOverviewScreen() {
                     </section>
                     <section
                         aria-labelledby="adm-live"
-                        className="glass-panel rounded-[1.5rem] p-5 flex flex-col gap-3 min-w-0"
+                        className="panel-solid rounded-[1.75rem] p-5 md:p-6 flex flex-col gap-4 min-w-0"
                     >
-                        <h2 id="adm-live" className="eyebrow">
+                        <h2 id="adm-live" className={H2}>
                             {t('admin.live.h')}
                         </h2>
-                        <dl className="grid grid-cols-2 gap-4 tabular">
+                        <dl className="grid grid-cols-2 gap-5 tabular">
                             {live.map(([k, n]) => (
                                 <div key={k}>
-                                    <dt className="text-[13px] font-bold text-[var(--text-secondary)]">{t(k)}</dt>
-                                    <dd className="m-0 text-[28px] font-extrabold">{n}</dd>
+                                    <dt className="text-[14px] font-bold text-[var(--text-secondary)]">{t(k)}</dt>
+                                    <dd className="m-0 text-[34px] leading-10 font-extrabold">{n}</dd>
                                 </div>
                             ))}
                         </dl>
@@ -280,13 +294,14 @@ export function AdminUsersScreen({ list }: { list?: ListState }) {
         'min-h-[44px] md:min-h-[40px] px-4 rounded-full bg-[var(--glass-fill-strong)] text-[var(--ink)] border-2 border-[color:var(--text-muted)] text-[15px] font-bold';
     return (
         <AppShell role="admin" active="users" title="admin.users.title" eyebrow="admin.eyebrow">
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-6">
+                <p className="rc-lede">{t('admin.users.lead')}</p>
                 {overridesQ.isPending ? (
                     <LoadingState rows={1} />
                 ) : overridesQ.isError ? (
                     <ErrorState onRetry={() => void overridesQ.refetch()} />
                 ) : null}
-                <div className="glass-panel rounded-[1.5rem] p-4 flex flex-wrap items-end gap-3">
+                <div className="panel-solid rounded-[1.75rem] p-4 md:p-5 flex flex-wrap items-end gap-3">
                     <label className="flex flex-col gap-1 flex-[1_1_260px] min-w-0">
                         <span className="eyebrow">{t('admin.users.search')}</span>
                         <input
@@ -494,7 +509,8 @@ export function AdminSettingsScreen() {
         });
     return (
         <AppShell role="admin" active="config" title="admin.settings.title" eyebrow="admin.eyebrow">
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-6">
+                <p className="rc-lede">{t('admin.settings.lead')}</p>
                 {overridesQ.isPending ? (
                     <LoadingState rows={1} />
                 ) : overridesQ.isError ? (
@@ -609,12 +625,13 @@ export function AdminActivityScreen() {
     ].reverse();
     return (
         <AppShell role="admin" active="activity" title="admin.activity.title" eyebrow="admin.eyebrow">
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-6">
+                <p className="rc-lede">{t('admin.activity.lead')}</p>
                 {items.length === 0 ? (
                     <EmptyState title={t('admin.activity.none')} body={t('admin.activity.noneBody')} />
                 ) : (
-                    <section aria-labelledby="adm-act" className="glass-panel rounded-[1.5rem] p-5 min-w-0">
-                        <SectionPill id="adm-act">{t('nav.activity')}</SectionPill>
+                    <section aria-labelledby="adm-act" className="panel-solid rounded-[1.75rem] p-5 md:p-6 min-w-0">
+                        <SectionHead id="adm-act" title={t('nav.activity')} />
                         <ol aria-live="polite" className="flex flex-col">
                             {items.map((it, i) => (
                                 <li
@@ -628,9 +645,9 @@ export function AdminActivityScreen() {
                         </ol>
                     </section>
                 )}
-                <div className="glass-panel rounded-[1.5rem] p-5 flex flex-wrap items-center justify-between gap-4">
+                <div className="panel-solid rounded-[1.75rem] p-5 md:p-6 flex flex-wrap items-center justify-between gap-4">
                     <div className="min-w-0 flex-1">
-                        <h2 className="text-[18px] font-extrabold">{t('mk.reset.h')}</h2>
+                        <h2 className={H2}>{t('mk.reset.h')}</h2>
                         <p className="m-0 text-[15px] leading-6 font-medium text-[var(--text-secondary)]">
                             {t('mk.reset.p')}
                         </p>

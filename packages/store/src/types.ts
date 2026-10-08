@@ -21,6 +21,9 @@ export interface SmsReply {
     text: string;
     action: 'ok' | 'move' | null;
     seq: number;
+    /** When the reply was typed, ISO. The chat shows the clock in the bubble; replies stored before this
+        field existed simply render without one. */
+    at?: string;
 }
 
 export interface DemoState {

@@ -19,7 +19,14 @@ export function farmerReply(text: string, ids: { farm: string; slot: string; hau
             ...s,
             smsReplies: [
                 ...s.smsReplies,
-                { id: `M-${String(seq).padStart(3, '0')}`, farm: ids.farm, text: text.trim(), action, seq }
+                {
+                    id: `M-${String(seq).padStart(3, '0')}`,
+                    farm: ids.farm,
+                    text: text.trim(),
+                    action,
+                    seq,
+                    at: new Date().toISOString()
+                }
             ]
         };
         if (action === 'ok') return { ...next, slots: { ...next.slots, [ids.slot]: 'confirmed' } };
