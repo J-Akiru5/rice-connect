@@ -236,11 +236,14 @@ export const STRINGS: Dict = {
         'SMS lang ang natatanggap ng magsasaka, walang app. Kasya ang bawat mensahe sa isang SMS.',
         'SMS lang ang mabaton sang mangunguma, wala app. Kasya ang kada mensahe sa isa ka SMS.'
     ],
-    'veh.toosmall': [
-        'Too small for {n} sacks',
-        'Masyadong maliit para sa {n} sako',
-        'Gamay masyado para sa {n} ka sako'
-    ],
+    /* The vehicle group is already labelled with the load, so the card only has to flag the fault. */
+    'veh.toosmall': ['Too small', 'Masyadong maliit', 'Gamay masyado'],
+    /* Chat chrome for the SMS thread (farmer app). TL/HIL drafts: needs native review. */
+    'chat.today': ['Today', 'Ngayong araw', 'Subong nga adlaw'],
+    'chat.sent': ['Sent', 'Naipadala', 'Napadala'],
+    'chat.delivered': ['Delivered', 'Naihatid', 'Nadala'],
+    'chat.read': ['Read', 'Nabasa', 'Nabasahan'],
+    'chat.parts': ['{n} SMS', '{n} SMS', '{n} SMS'],
     'veh.trips': ['{n} trips', '{n} biyahe', '{n} ka biyahe'],
     'step.now': ['now', 'ngayon', 'subong'],
     'route.note': [

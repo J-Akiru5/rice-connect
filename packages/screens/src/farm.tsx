@@ -2,6 +2,7 @@
 import { ZLink, useZoneNav } from '@rc/ui';
 import { useEffect, useMemo, useState } from 'react';
 import {
+    BigStat,
     Dialog,
     EmptyState,
     ErrorState,
@@ -13,19 +14,26 @@ import {
     Pagination,
     SearchField,
     SecondaryButton,
+    SectionHead,
     Select,
+    ShareBar,
     StatusChip,
     SubmitButton,
     TextInput,
+    TrendBars,
     useForm,
     useI18n,
     useToast,
-    zodResolver
+    zodResolver,
+    type ChartTone,
+    type Point,
+    type Segment
 } from '@rc/ui';
 import { isLive } from '@rc/ui/mode';
 import { z } from 'zod';
 import { staticListState, type ListState } from './list-state';
 import { ModuleShell } from './shell';
+import { MUNICIPALITY } from '@rc/domain/params';
 import { useDemoState, updateDemoState } from '@rc/store/react';
 import { addFarm } from '@rc/store';
 import { useCreateFarm, useCreatedFarms, useFarm, useFarms } from '@rc/data';
@@ -33,6 +41,11 @@ import { BARANGAYS, FARMS, TOTALS, KG_PER_SACK, VARIETIES, lotOfFarm, type Farm 
 
 export type FarmState = 'default' | 'empty' | 'error' | 'success';
 const STATUSES: Farm['status'][] = ['registered', 'verified', 'cluster'];
+const STATUS_TONE: Record<Farm['status'], ChartTone> = {
+    registered: 'accent',
+    verified: 'brand',
+    cluster: 'gold'
+};
 const cap = 'text-[12px] leading-4 font-extrabold uppercase tracking-[0.1em] text-[var(--text-muted)]';
 const selectCls =
     'min-h-[44px] px-4 rounded-[2rem] bg-[var(--glass-fill-strong)] text-[var(--ink)] border-2 border-[color:var(--text-muted)] font-bold text-[16px] w-full';
@@ -188,11 +201,14 @@ export function FarmDetail({
     return (
         <div className={wide ? 'cq-two' : 'flex flex-col gap-4'}>
             <FarmProfileCard farm={farm} added={added} onAdd={onAdd} />
-            <section className="glass-panel rounded-[1.5rem] p-5" aria-labelledby={`harvest-${farm.id}`}>
-                <h3 id={`harvest-${farm.id}`} className="eyebrow">
+            <section className="panel-solid rounded-[1.75rem] p-5 md:p-6" aria-labelledby={`harvest-${farm.id}`}>
+                <h3
+                    id={`harvest-${farm.id}`}
+                    className="m-0 text-[19px] leading-6 font-extrabold tracking-[-0.02em] text-[var(--ink)]"
+                >
                     {t('farm.harvest')}
                 </h3>
-                <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2 tabular">
+                <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3 tabular">
                     <div>
                         <dt className={cap}>{t('farm.harvest')}</dt>
                         <dd className="text-[16px] font-bold">
@@ -263,6 +279,34 @@ export function FarmListScreen({
     const totalHa = isLive
         ? pg.rows.reduce((sum, f) => sum + f.areaTenths, 0) / 10
         : (TOTALS.areaTenths + created.reduce((s, f) => s + f.areaTenths, 0)) / 10;
+    /* The same set the register is showing, so every chart below can be traced back to the rows on screen. */
+    const chartFarms: Farm[] = isLive ? pg.rows : [...FARMS, ...created];
+    const unitT = t('unit.t');
+    const forecastT = (chartFarms.reduce((s, f) => s + f.driedKg, 0) / 1000).toFixed(1);
+    /* One colour language for the panel: both readings split the register by status, so the same
+       three colours mean the same three things in both charts. A barangay is an identity, not a
+       colour here — its name is the column label, and the stacks say how far along its farms are. */
+    const byBarangay: Point[] = BARANGAYS.map((b) => {
+        const ofBarangay = chartFarms.filter((f) => f.barangay === b);
+        const parts: Segment[] = STATUSES.map((s) => ({
+            key: s,
+            label: t('status.' + s),
+            tone: STATUS_TONE[s],
+            value: ofBarangay.filter((f) => f.status === s).length
+        }));
+        return { key: b, label: b, value: ofBarangay.length, parts };
+    }).sort((a, b) => b.value - a.value);
+    const byStatus = STATUSES.map((s) => ({
+        key: s,
+        label: t('status.' + s),
+        tone: STATUS_TONE[s],
+        value: chartFarms.filter((f) => f.status === s).length
+    }));
+    const barangayList = byBarangay
+        .slice()
+        .sort((a, b) => b.value - a.value)
+        .map((p) => `${p.label} ${p.value}`)
+        .join('; ');
     const loading = farmsQuery.isPending || createdQuery.isPending;
     const failed = farmsQuery.isError || createdQuery.isError;
     const retry = () => {
@@ -279,12 +323,78 @@ export function FarmListScreen({
             {state === 'empty' ? (
                 <EmptyState variant="empty" title="state.farm.empty.title" body="state.farm.empty.body" />
             ) : (
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-8">
+                    <p className="rc-lede">{t('farm.lead', { place: MUNICIPALITY })}</p>
+                    <section
+                        aria-labelledby="frm-look"
+                        className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr))]"
+                    >
+                        <h2 id="frm-look" className="sr-only">
+                            {t('farm.look.title')}
+                        </h2>
+                        <BigStat
+                            size="xl"
+                            className="panel-solid"
+                            label="farm.stat.farms"
+                            value={totalFarms}
+                            icon="Farm"
+                            note={t('farm.summary', { n: totalFarms, ha: totalHa.toFixed(1) })}
+                        />
+                        <BigStat
+                            size="xl"
+                            className="panel-solid"
+                            label="farm.stat.ha"
+                            value={totalHa.toFixed(1)}
+                            unit={t('unit.ha')}
+                            icon="MapPin"
+                            note={t('plan.note.area', { avg: (totalHa / Math.max(1, totalFarms)).toFixed(1) })}
+                        />
+                        <BigStat
+                            size="xl"
+                            className="panel-solid"
+                            label="farm.stat.forecast"
+                            value={forecastT}
+                            unit={unitT}
+                            icon="Wheat"
+                            note={t('farm.stat.forecast.note', { b: BARANGAYS.length, list: BARANGAYS.join(', ') })}
+                        />
+                    </section>
+                    <section
+                        aria-labelledby="frm-charts"
+                        className="panel-solid rounded-[1.75rem] p-5 md:p-7 flex flex-col gap-7"
+                    >
+                        <SectionHead id="frm-charts" title={t('farm.look.title')} hint={t('farm.look.hint')} />
+                        <div className="grid gap-8 lg:grid-cols-[1.1fr_1fr]">
+                            <TrendBars
+                                title={t('farm.rank.title')}
+                                unit={t('unit.farms')}
+                                points={byBarangay}
+                                height={200}
+                                /* A count of farms is a whole number: 34, never 34.0. */
+                                format={(v) => v.toLocaleString('en-US')}
+                                summary={t('farm.rank.summary', { n: chartFarms.length, list: barangayList })}
+                            />
+                            <ShareBar
+                                title={t('farm.share.title')}
+                                unit=""
+                                items={byStatus}
+                                format={(v) => v.toLocaleString('en-US')}
+                                summary={t('farm.share.summary', {
+                                    n: chartFarms.length,
+                                    cluster: byStatus[2]?.value ?? 0,
+                                    verified: byStatus[1]?.value ?? 0,
+                                    registered: byStatus[0]?.value ?? 0
+                                })}
+                            />
+                        </div>
+                    </section>
                     <div className="glass-panel rounded-[1.5rem] p-4 flex flex-col gap-3">
                         <div className="flex items-baseline justify-between gap-2 flex-wrap">
-                            <h2 className="eyebrow">{t('farm.list')}</h2>
+                            <h2 className="text-[22px] leading-7 font-extrabold tracking-[-0.02em] text-[var(--ink)]">
+                                {t('farm.list')}
+                            </h2>
                             <div className="flex items-center gap-3 flex-wrap">
-                                <span className="text-[14px] font-bold tabular">
+                                <span className="text-[15px] font-bold tabular">
                                     {t('farm.summary', { n: totalFarms, ha: totalHa.toFixed(1) })}
                                 </span>
                                 <SecondaryButton icon="Plus" onClick={() => setAddOpen(true)}>
@@ -358,7 +468,7 @@ export function FarmListScreen({
                                 ))}
                             </ul>
                             <div className="cq-wide-only cq-split">
-                                <div className="glass-panel rounded-[1.5rem] p-4 min-w-0">
+                                <div className="panel-solid rounded-[1.75rem] p-4 md:p-5 min-w-0">
                                     <table className="w-full text-left tabular">
                                         <caption className="sr-only">{t('farm.list')}</caption>
                                         <thead>

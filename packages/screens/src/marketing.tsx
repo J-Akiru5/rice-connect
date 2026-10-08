@@ -15,7 +15,7 @@ import {
 import { resetDemoState } from '@rc/store/react';
 import overrides from '@rc/domain/overrides.json';
 import { FARMS, LOTS, TOTALS, WEEKS, commitmentOfLot, farmById } from '@rc/domain/seed';
-import { BARANGAYS, MUNICIPALITY } from '@rc/domain/params';
+import { BARANGAYS, MUNICIPALITY, PRICE } from '@rc/domain/params';
 
 /* Public marketing site (apps/main "/" and "/launch"; derived, not in canvas). Built only from the design system:
    glass for the chrome, opaque "panel-solid" cards for content, tokens, line icons + a word. Every claim carries a label:
@@ -81,6 +81,23 @@ const metaCls = 'm-0 text-[15px] leading-6 font-semibold text-[var(--text-second
     read as "insanely rounded" on a sheet, and this page is meant to look filed rather than friendly. */
 const cardCls = 'panel-solid rounded-2xl';
 
+/** The public site's only figures that are neither simulated nor computed: the impact the pitch commits
+    to. They live in overrides.json (assumed, listed in docs/NUMBERS.md) and are interpolated into the
+    strings, so no target is typed into a sentence by hand and every screen showing it can be re-checked
+    in one place. */
+const IMPACT = overrides.impact;
+const IMPACT_VARS = {
+    mc: overrides.forecastMcPct,
+    adv: PRICE.advancePct,
+    savingsMin: IMPACT.inputSavingsMinPct,
+    savingsMax: IMPACT.inputSavingsMaxPct,
+    lossMin: IMPACT.baselineLossMinPct,
+    lossMax: IMPACT.baselineLossMaxPct,
+    targetLoss: IMPACT.targetLossMaxPct,
+    gainMin: IMPACT.incomeGainMinPct,
+    gainMax: IMPACT.incomeGainMaxPct
+};
+
 /** A display heading rendered with its accent phrase marked up. The catalogue marks that phrase with
     [[...]] (strings.prototype.ts) in all three languages: the words carrying the argument get the display
     voice (the family's own italic plus the gold rule), and the rest of the string is rendered exactly as the
@@ -106,6 +123,7 @@ function AccentText({ text }: { text: string }) {
    #domains borrows the section's existing eyebrow as its label ("The Four Domains") — no new strings needed. */
 const NAV_LINKS = [
     ['#problem', 'mk.nav.problem'],
+    ['#value', 'mk.nav.value'],
     ['#how', 'mk.nav.how'],
     ['#who', 'mk.nav.who'],
     ['#domains', 'mk.domains.eyebrow'],
@@ -452,12 +470,18 @@ function HarvestTracker() {
     );
 }
 
-const STEPS = [
+/* Demand first: the chain opens with what buyers have already committed, then how the cluster answers
+   it. Bulk Inputs is the one step with no screen behind it (the prototype has no inputs module), so it
+   carries a Model chip where the others carry "See It": a link that goes nowhere is worse than a label.
+   Haul keeps its own step and its /haul link: logistics is part of the offer, and dropping the step would
+   leave a shipped screen with no door on this page. */
+const STEPS: { icon: string; k: string; href: string | null }[] = [
+    { icon: 'Market', k: 'demand', href: '/market' },
     { icon: 'Plan', k: 'plan', href: '/plan' },
-    { icon: 'Market', k: 'commit', href: '/market' },
-    { icon: 'Dry', k: 'dry', href: '/dry' },
+    { icon: 'Inventory', k: 'inputs', href: null },
+    { icon: 'Dry', k: 'harvest', href: '/dry' },
     { icon: 'Truck', k: 'haul', href: '/haul' },
-    { icon: 'Pay', k: 'pay', href: '/pay/L-03' }
+    { icon: 'Pay', k: 'settle', href: '/pay/L-03' }
 ];
 const DOMAINS = [
     { icon: 'Farm', k: 'supply' },
@@ -551,6 +575,39 @@ export function MarketingPage() {
                         </div>
                     </div>
                 </section>
+                {/* The pitch's own commitments, on their own slab. The strip above is the record of the
+                    prototype (simulated); these two are targets nothing here can measure yet, so they are
+                    never mixed into one band of numbers. Both carry the Assumed chip, and the label says
+                    out loud that they are not measured. */}
+                <section
+                    aria-label={t('mk.hero.impact')}
+                    className="band-inset rounded-2xl lg:col-span-2 px-6 py-5 md:px-8 md:py-6 flex flex-wrap items-center gap-x-10 gap-y-5 tabular"
+                >
+                    <div className="flex flex-wrap items-center gap-3">
+                        <span className="text-[13px] leading-4 font-extrabold uppercase tracking-[0.12em] text-[var(--white)]">
+                            {t('mk.hero.impact')}
+                        </span>
+                        <ClaimTag tag="assumed" />
+                    </div>
+                    <div className="flex flex-wrap gap-x-10 gap-y-4">
+                        <div>
+                            <div className="text-[13px] leading-4 font-extrabold uppercase tracking-[0.12em] text-[var(--white)]">
+                                {t('mk.hero.income')}
+                            </div>
+                            <div className="mt-1 text-[32px] leading-9 font-extrabold text-[var(--white)]">
+                                {t('mk.hero.income.val', IMPACT_VARS)}
+                            </div>
+                        </div>
+                        <div>
+                            <div className="text-[13px] leading-4 font-extrabold uppercase tracking-[0.12em] text-[var(--white)]">
+                                {t('mk.hero.loss')}
+                            </div>
+                            <div className="mt-1 text-[32px] leading-9 font-extrabold text-[var(--white)]">
+                                {t('mk.hero.loss.val', IMPACT_VARS)}
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </section>
 
             <a
@@ -577,6 +634,39 @@ export function MarketingPage() {
                 </div>
             </Section>
 
+            {/* Two audiences, two doors, straight after the problem: the page has already said what is
+                wrong, so the next thing a judge reads is who this is for and what each side gets. The
+                claims on the two cards are not the same kind, so each card is chipped: the buyer side is
+                the model, the farmer side is the model plus the assumed targets. Both actions are mailto:
+                there is no intake form, and a form that posts nowhere would be worse than an email. */}
+            <Section id="value" eyebrow={t('mk.value.eyebrow')} title={t('mk.value.title')}>
+                <div className="grid gap-5 md:grid-cols-2">
+                    {(['buyer', 'farmer'] as const).map((side) => (
+                        <div key={side} className={`${cardCls} p-6 md:p-7 flex flex-col gap-3`}>
+                            <span className="icon-box !h-14 !w-14">
+                                <Icon name={side === 'buyer' ? 'Store' : 'Farm'} size={26} />
+                            </span>
+                            <h3 className="m-0 text-[21px] leading-7 font-extrabold">{t(`mk.value.${side}.h`)}</h3>
+                            <div className="flex flex-wrap items-center gap-2">
+                                <ClaimTag tag="model" />
+                                {side === 'farmer' && <ClaimTag tag="assumed" />}
+                            </div>
+                            <p className={bodyCls}>{t(`mk.value.${side}.p`, IMPACT_VARS)}</p>
+                            <a
+                                href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(
+                                    t(`mk.value.${side}.subject`)
+                                )}`}
+                                className="mt-auto flex w-full items-center justify-center gap-2 min-h-[48px] px-5 rounded-[2rem] border-2 border-[color:var(--text-accent)] text-[14px] font-extrabold uppercase tracking-[0.05em] text-[var(--text-accent)]"
+                            >
+                                <Icon name="ArrowRight" size={20} />
+                                {t(`mk.value.${side}.cta`)}
+                            </a>
+                        </div>
+                    ))}
+                </div>
+                <p className={`${metaCls} mt-5`}>{t('mk.value.note')}</p>
+            </Section>
+
             <Section id="how" eyebrow={t('mk.how.eyebrow')} title={t('mk.how.title')}>
                 {/* Five steps as a numbered list rather than five narrow cards: at 200px each the copy wrapped
                     every few words, which is exactly the reading problem this pass is about. */}
@@ -597,15 +687,21 @@ export function MarketingPage() {
                                     <Icon name={s.icon} size={24} className="shrink-0 text-[var(--text-accent)]" />
                                     {t(`mk.step.${s.k}.h`)}
                                 </h3>
-                                <p className={`${bodyCls} mt-2`}>{t(`mk.step.${s.k}.p`)}</p>
+                                <p className={`${bodyCls} mt-2`}>{t(`mk.step.${s.k}.p`, IMPACT_VARS)}</p>
                             </div>
-                            <ZLink
-                                href={s.href}
-                                className="justify-self-start md:justify-self-end inline-flex items-center gap-1.5 min-h-[44px] px-4 rounded-full border-2 border-[color:var(--text-accent)] text-[14px] font-extrabold uppercase tracking-[0.05em] text-[var(--text-accent)] whitespace-nowrap"
-                            >
-                                {t('mk.see')}
-                                <Icon name="ArrowRight" size={20} />
-                            </ZLink>
+                            {s.href ? (
+                                <ZLink
+                                    href={s.href}
+                                    className="justify-self-start md:justify-self-end inline-flex items-center gap-1.5 min-h-[44px] px-4 rounded-full border-2 border-[color:var(--text-accent)] text-[14px] font-extrabold uppercase tracking-[0.05em] text-[var(--text-accent)] whitespace-nowrap"
+                                >
+                                    {t('mk.see')}
+                                    <Icon name="ArrowRight" size={20} />
+                                </ZLink>
+                            ) : (
+                                <span className="justify-self-start md:justify-self-end flex items-center min-h-[44px]">
+                                    <ClaimTag tag="model" />
+                                </span>
+                            )}
                         </li>
                     ))}
                 </ol>

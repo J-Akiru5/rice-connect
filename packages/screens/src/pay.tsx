@@ -10,7 +10,9 @@ import {
     Pagination,
     PrimaryButton,
     SecondaryButton,
+    SectionHead,
     SettlementSlip,
+    ShareBar,
     SmsThread,
     StatusChip,
     useI18n,
@@ -231,6 +233,26 @@ export function PayLotScreen({ state = 'default' }: { state?: 'default' | 'error
                         note="pay.note.balance"
                     />
                 </div>
+                <section
+                    aria-labelledby="pay-share"
+                    className="panel-solid rounded-[1.75rem] p-5 md:p-6 flex flex-col gap-6"
+                >
+                    <SectionHead id="pay-share" title={t('pay.share.title')} />
+                    <ShareBar
+                        title={t('pay.stat.net')}
+                        unit=""
+                        format={peso}
+                        items={[
+                            { key: 'advance', label: t('pay.stat.advance'), value: s.advance, tone: 'brand' },
+                            { key: 'balance', label: t('pay.stat.balance'), value: s.balance, tone: 'gold' }
+                        ]}
+                        summary={t('pay.share.summary', {
+                            net: peso(s.net),
+                            advance: peso(s.advance),
+                            balance: peso(s.balance)
+                        })}
+                    />
+                </section>
                 <div className="glass-panel rounded-[1.5rem] p-5 flex flex-col gap-3">
                     <div className="flex flex-wrap gap-2">
                         <StatusChip status="delivered" label={t('pay.badge.delivered', { haul: HAUL.id })} />

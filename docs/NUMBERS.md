@@ -23,6 +23,7 @@ All data is simulated. Money is integer centavos, shown as ₱ with 2 decimals (
 | Vehicles: motor 4 sacks ₱250.00/trip; tricycle 10 / ₱450.00; multicab/pickup 25 / ₱1,200.00; truck 100 / ₱3,500.00 | `vehicles` | assumed (the brief says price per trip is assumed). Values copied from the design's `lib/demo.ts`. |
 | Six drivers (DR-01 … DR-06), their vehicles and availability (DR-04 unavailable) | `drivers` | assumed roster. Distances are seeded (mulberry32, drawn after the farms). |
 | F-014 pinned: 1.5 ha, harvest W3, status Verified | `hero` | assumed. The seed gives F-014 1.3 ha in W1, which cannot yield lot L-03 (5,000 kg) or match C-01 (W3–W4). 1.5 ha × 3,429 = 5,144 kg forecast ≥ 5,000 kg weighed. Status Verified so "Add to cluster" has something to do (the design pins it the same way). |
+| Public-site impact targets: net income +15–20%; post-harvest loss <5%; bulk-input savings 10–14%; baseline loss without the cluster 10–30% | `impact` | **assumed**, team projections, shown on the marketing page under a "Target Impact, Not Yet Measured" label with an Assumed chip. Basis: the three effects the model is built on (no trader markup on an advance, bulk input buying, drying within a day of harvest). Baseline 10–30% loss is the published range for rice post-harvest losses across the value chain, mainly from improper drying (IRRI, *Rice Today*; see Sources). PhilRice measures 16.47% of rice lost at postproduction (PhilRice, "Handle rice with care", 2019), so the range is quoted rather than a single figure. The prototype measures none of these: they are targets, not results. |
 
 ## Brief inputs (`src/data/params.ts`)
 
@@ -85,6 +86,30 @@ Slip ID S-0303 is the design's ID (the brief names no slip ID).
 | Milled rice sold in 25 kg sacks | `milling.sackKg` | **assumed**. |
 | Buyer A (simulated) is the partner miller that mills for rice buyers | `milling.partnerMiller` | **assumed**: rice available = palay matched to C-01 × 62%. |
 | Millers buy palay; retailers, market sellers and restaurants buy milled rice | `buyerTypes` | **assumed** from the design's roles plus the team's decision to add restaurants and market sellers. |
+
+## Public site (marketing page)
+
+| Number shown | Value | Source |
+|---|---|---|
+| Hero strip: farms · area | 100 farms · 120.0 ha | computed: `FARMS.length`, `TOTALS.areaTenths` |
+| Hero strip: where | Dingle, Iloilo · San Matias, Licu-an, Ilajas | team decision (real places, simulated farms) |
+| Target impact: net income | +15–20% | assumed (`impact.incomeGainMinPct/MaxPct`), target only |
+| Target impact: post-harvest loss | <5% | assumed (`impact.targetLossMaxPct`), target only |
+| Value section: input savings | 10–14% below individual retail | assumed (`impact.inputSavingsMinPct/MaxPct`) |
+| Value section: baseline loss without the cluster | 10–30% | assumed (`impact.baselineLossMinPct/MaxPct`), IRRI range for rice post-harvest losses |
+| Value section / steps: moisture spec | 14% MC | assumed (`forecastMcPct`), the same value the seed's lots and C-01 use |
+| Value section / steps: advance | 80% within 24 hours | brief (`PRICE.advancePct`), the same value the settlement screens compute |
+| Harvest tracker card | the demo week's lots (W3), kg and buyer match | computed from the seed and `demoTodayDayIndex` |
+
+Every figure above reaches the page as a `{placeholder}` filled from `overrides.json` or `params.ts`: no target is typed into a sentence by hand, and `IMPACT_VARS` in `packages/screens/src/marketing.tsx` is the single wiring point.
+
+## Sources
+
+| Figure | Source |
+|---|---|
+| Rice post-harvest losses 10–30% across the value chain, mainly improper drying | IRRI, *Rice Today* ("Experts estimate that post-harvest losses in rice range from 10-30% across the entire value chain") |
+| 16.47% of rice lost at postproduction in the Philippines | PhilRice, "Handle rice with care" (2019) |
+| Bulk input savings 10–14% | **no source yet**: cooperative bulk-buying benchmark, to be validated with Dingle supplier quotes (open, see the pitch-alignment plan) |
 
 ## Places
 

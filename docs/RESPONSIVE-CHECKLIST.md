@@ -22,7 +22,7 @@ Run `npm run build && npm start`, open devtools → device toolbar → "Responsi
 | `/plan` | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | Narrow: barangay cards with week bars (F-014 gold outline in W3). Wide: HarvestCalendar. "Farms by Harvest Date" paginated, table ↔ cards. |
 | `/market` | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | Filter chips wrap; commitment cards stack; forecast table ↔ cards. |
 | `/dry` and `/dry?week=4` | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | Week switch W1–W4 updates the URL and resets the list to page 1. SlotTimeline: 1 column below 640px viewport, 7 columns above (check 768/1024 for cramped columns). Slot list paginated. |
-| `/haul` | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | Narrow: one column (stepper + route on top, Change Driver opens the list). Wide (content ≥840px): two columns, driver list always on the right. Hard style everywhere, no glass inside hard cards. |
+| `/haul` | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | Narrow: one column (stepper + route on top, Change Driver opens the list). Wide (content ≥840px): two columns, driver list always on the right. Soft surfaces everywhere (owner correction, 8 Oct 2026). |
 | `/haul?state=empty` → New Request → Send | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | Form, auto-assign, error state with more than 100 sacks. |
 | `/haul/driver` | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | Accept → Picked Up → Delivered; one column, max 720px. |
 | `/pay` | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | 13 lots: 1 page at 20, 2 pages at 10. Table ↔ cards; L-03 highlighted and linked. |

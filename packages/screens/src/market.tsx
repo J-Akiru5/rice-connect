@@ -2,14 +2,19 @@
 import { useMemo, useState } from 'react';
 import {
     AppShell,
+    BigStat,
     CommitmentCard,
     EmptyState,
     FilterChips,
     Icon,
     PrimaryButton,
+    RankedBars,
     SearchField,
+    SectionHead,
+    ShareBar,
     StatusChip,
-    useI18n
+    useI18n,
+    type Point
 } from '@rc/ui';
 import {
     COMMITMENTS,
@@ -21,9 +26,12 @@ import {
     type Commitment
 } from '@rc/domain/seed';
 import { peso } from '@rc/domain/money';
-import { SectionPill, Note, ResponsiveTable } from './ui';
+import { MUNICIPALITY } from '@rc/domain/params';
+import { Note, ResponsiveTable } from './ui';
 
 const t1 = (kg: number) => (Math.round(kg / 100) / 10).toFixed(1);
+/** Same rounding as the table, so the board and the chart never disagree. */
+const tonnes = (kg: number) => Number((kg / 1000).toFixed(1));
 type Group = 'grade' | 'volume' | 'window';
 const key = (g: Group, v: string) => `${g}:${v}`;
 const valuesOf = (c: Commitment): Record<Group, string[]> => ({
@@ -50,6 +58,21 @@ export function MarketScreen({ committed: forced }: { committed?: boolean }) {
     const committed = forced ?? own;
     const heroC = COMMITMENTS.find((c) => c.id === commitmentOfLot(HERO_LOT.id))!;
     const heroM = MATCHES.find((m) => m.commitment === heroC.id)!;
+    const unit = t('unit.t');
+    /* Two honest readings of the same board: who asked for how much, and how much of it can be filled. */
+    const requestedKg = MATCHES.reduce((s, m) => s + m.requestedKg, 0);
+    const matchedKg = MATCHES.reduce((s, m) => s + m.kg, 0);
+    const requested = tonnes(requestedKg);
+    /* A commitment can be filled by more than it asked for (the seed reports the lots that fit, not a cap),
+       so the split is capped at what was requested: the two slices must add up to the request, never past it. */
+    const matched = Math.min(tonnes(matchedKg), requested);
+    const stillOpen = Number((requested - matched).toFixed(1));
+    const ranking: Point[] = COMMITMENTS.map((c) => ({ key: c.id, label: c.buyer, value: c.tonnes }));
+    const rankList = ranking
+        .slice()
+        .sort((a, b) => b.value - a.value)
+        .map((p) => `${p.label} ${p.value.toFixed(1)} ${unit}`)
+        .join('; ');
 
     const groups = useMemo(
         () =>
@@ -78,138 +101,198 @@ export function MarketScreen({ committed: forced }: { committed?: boolean }) {
 
     return (
         <AppShell title="market.title" eyebrow="market.eyebrow" active="market">
-            <div className="flex flex-wrap gap-6 items-start max-w-[1600px]">
-                <div className="flex-[999_1_560px] min-w-0 flex flex-col gap-4">
-                    <div className="glass-panel rounded-[1.5rem] p-4 flex flex-col gap-3">
-                        <SearchField value={q} onChange={(e) => setQ(e.target.value)} />
-                        <div role="group" aria-label={t('market.filters')} className="flex flex-col gap-2">
-                            {groups.map(({ g, options }) => (
-                                <div key={g} className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                                    <span className="eyebrow min-w-[72px]">{t('market.group.' + g)}</span>
-                                    <FilterChips
-                                        label={t('market.group.' + g)}
-                                        options={options}
-                                        value={on.filter((k) => k.startsWith(g + ':'))}
-                                        onChange={(v) => setOn([...on.filter((k) => !k.startsWith(g + ':')), ...v])}
-                                    />
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                    {list.length === 0 ? (
-                        <EmptyState variant="empty" title="empty.results" />
-                    ) : (
-                        <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(300px,1fr))]">
-                            {list.map((c) => (
-                                <div key={c.id} className="flex flex-col gap-2 min-w-0">
-                                    <CommitmentCard c={c} highlight={c.id === heroC.id} />
-                                    {c.assumed.length > 0 && (
-                                        <Note className="px-2 flex items-center gap-1.5">
-                                            <Icon name="Info" size={18} />
-                                            {t('market.assumed', { id: c.id })}
-                                        </Note>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                    <section aria-labelledby="mk-fc" className="flex flex-col gap-3">
-                        <div>
-                            <SectionPill id="mk-fc">{t('market.forecast.title')}</SectionPill>
-                        </div>
-                        <ResponsiveTable
-                            caption={t('market.forecast.title')}
-                            rows={MATCHES}
-                            rowKey={(m) => m.commitment}
-                            cols={[
-                                {
-                                    key: 'c',
-                                    label: t('market.col.commitment'),
-                                    cell: (m) => {
-                                        const c = COMMITMENTS.find((x) => x.id === m.commitment)!;
-                                        return `${c.id} · ${c.week}`;
-                                    }
-                                },
-                                {
-                                    key: 'req',
-                                    label: t('market.col.requested'),
-                                    align: 'right',
-                                    nowrap: true,
-                                    cell: (m) => `${t1(m.requestedKg)} t`
-                                },
-                                {
-                                    key: 'fc',
-                                    label: t('market.col.forecast'),
-                                    align: 'right',
-                                    nowrap: true,
-                                    cell: (m) =>
-                                        `${t1(forecastInWindow(COMMITMENTS.find((x) => x.id === m.commitment)!.window))} t`
-                                },
-                                {
-                                    key: 'm',
-                                    label: t('market.col.matched'),
-                                    align: 'right',
-                                    nowrap: true,
-                                    cell: (m) => `${t1(m.kg)} t`
-                                },
-                                { key: 'n', label: t('market.col.lots'), align: 'right', cell: (m) => m.lots.length }
-                            ]}
+            <div className="flex flex-col gap-8 max-w-[1600px]">
+                <p className="rc-lede">{t('market.lead', { place: MUNICIPALITY })}</p>
+                <section
+                    aria-labelledby="mk-look"
+                    className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]"
+                >
+                    <h2 id="mk-look" className="sr-only">
+                        {t('market.look.title')}
+                    </h2>
+                    <BigStat
+                        size="xl"
+                        className="panel-solid"
+                        label="market.stat.open"
+                        value={COMMITMENTS.length}
+                        icon="Market"
+                        note={t('market.stat.open.note', { n: new Set(COMMITMENTS.map((c) => c.buyer)).size })}
+                    />
+                    <BigStat
+                        size="xl"
+                        className="panel-solid"
+                        label="market.stat.value"
+                        value={requested.toFixed(1)}
+                        unit={unit}
+                        icon="Scale"
+                        note={t('market.stat.value.note', { n: COMMITMENTS.length })}
+                    />
+                </section>
+                <section
+                    aria-labelledby="mk-charts"
+                    className="panel-solid rounded-[1.75rem] p-5 md:p-7 flex flex-col gap-7"
+                >
+                    <SectionHead id="mk-charts" title={t('market.look.title')} />
+                    <div className="grid gap-8 lg:grid-cols-[1.1fr_1fr]">
+                        <RankedBars
+                            title={t('market.trend.title')}
+                            unit={unit}
+                            items={ranking}
+                            tone="brand"
+                            summary={t('market.trend.summary', { n: ranking.length, list: rankList })}
                         />
-                    </section>
-                </div>
-                <aside className="flex-[1_1_340px] min-w-0" aria-labelledby="mk-match">
-                    <SectionPill id="mk-match">{t('market.section.matches', { lot: HERO_LOT.id })}</SectionPill>
-                    <div className="glass-panel rounded-[1.5rem] p-5 flex flex-col gap-3.5">
-                        <div className="flex justify-between gap-3 items-start">
-                            <div>
-                                <div className="eyebrow">
-                                    {t('pay.section.lot', { lot: HERO_LOT.id, farm: HERO_LOT.farm })}
-                                </div>
-                                <div className="mt-1 text-[24px] leading-7 font-extrabold tabular">
-                                    {t1(HERO_LOT.driedKg)} {t('unit.t')}
-                                </div>
-                                <div className="text-[15px] font-bold tabular">
-                                    {t('market.lotline', {
-                                        grade: HERO_LOT.grade,
-                                        mc: HERO_LOT.mc,
-                                        week: HERO_LOT.week
-                                    })}
-                                </div>
-                            </div>
-                            <StatusChip status="matched" />
-                        </div>
-                        <div className="flex items-center gap-2 text-[15px] font-bold tabular">
-                            <Icon name="ArrowRight" size={20} />
-                            <span>
-                                {heroC.id} · {heroC.buyer} · {peso(heroC.price)}
-                                {t('unit.perKg')}
-                            </span>
-                        </div>
-                        <Note>
-                            {t('market.match.reason')}.{' '}
-                            {t('market.fills', {
-                                id: heroC.id,
-                                filled: t1(heroM.kg),
-                                tonnes: heroC.tonnes.toFixed(1),
-                                n: heroM.lots.length,
-                                lot: HERO_LOT.id
+                        <ShareBar
+                            title={t('market.share.title')}
+                            unit={unit}
+                            items={[
+                                { key: 'matched', label: t('market.share.matched'), value: matched, tone: 'brand' },
+                                { key: 'open', label: t('market.share.open'), value: stillOpen, tone: 'warning' }
+                            ]}
+                            summary={t('market.share.summary', {
+                                matched: matched.toFixed(1),
+                                total: requested.toFixed(1),
+                                open: stillOpen.toFixed(1),
+                                unit
                             })}
-                        </Note>
-                        {committed ? (
-                            <p
-                                role="status"
-                                className="flex items-center gap-2 text-[20px] leading-7 font-extrabold text-[var(--success-ink)]"
-                            >
-                                <Icon name="CircleCheck" size={24} />
-                                {t('market.committed', { id: heroC.id })}
-                            </p>
-                        ) : (
-                            <PrimaryButton icon="Check" onClick={() => setCommitted(true)}>
-                                {t('market.commit')}
-                            </PrimaryButton>
-                        )}
+                        />
                     </div>
-                </aside>
+                </section>
+                <div className="flex flex-wrap gap-6 items-start">
+                    <div className="flex-[999_1_560px] min-w-0 flex flex-col gap-4">
+                        <div className="glass-panel rounded-[1.5rem] p-4 flex flex-col gap-3">
+                            <SearchField value={q} onChange={(e) => setQ(e.target.value)} />
+                            <div role="group" aria-label={t('market.filters')} className="flex flex-col gap-2">
+                                {groups.map(({ g, options }) => (
+                                    <div key={g} className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                                        <span className="eyebrow min-w-[72px]">{t('market.group.' + g)}</span>
+                                        <FilterChips
+                                            label={t('market.group.' + g)}
+                                            options={options}
+                                            value={on.filter((k) => k.startsWith(g + ':'))}
+                                            onChange={(v) => setOn([...on.filter((k) => !k.startsWith(g + ':')), ...v])}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        {list.length === 0 ? (
+                            <EmptyState variant="empty" title="empty.results" />
+                        ) : (
+                            <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(300px,1fr))]">
+                                {list.map((c) => (
+                                    <div key={c.id} className="flex flex-col gap-2 min-w-0">
+                                        <CommitmentCard c={c} highlight={c.id === heroC.id} />
+                                        {c.assumed.length > 0 && (
+                                            <Note className="px-2 flex items-center gap-1.5">
+                                                <Icon name="Info" size={18} />
+                                                {t('market.assumed', { id: c.id })}
+                                            </Note>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        <section aria-labelledby="mk-fc" className="flex flex-col gap-3">
+                            <SectionHead id="mk-fc" title={t('market.forecast.title')} />
+                            <ResponsiveTable
+                                caption={t('market.forecast.title')}
+                                rows={MATCHES}
+                                rowKey={(m) => m.commitment}
+                                cols={[
+                                    {
+                                        key: 'c',
+                                        label: t('market.col.commitment'),
+                                        cell: (m) => {
+                                            const c = COMMITMENTS.find((x) => x.id === m.commitment)!;
+                                            return `${c.id} · ${c.week}`;
+                                        }
+                                    },
+                                    {
+                                        key: 'req',
+                                        label: t('market.col.requested'),
+                                        align: 'right',
+                                        nowrap: true,
+                                        cell: (m) => `${t1(m.requestedKg)} t`
+                                    },
+                                    {
+                                        key: 'fc',
+                                        label: t('market.col.forecast'),
+                                        align: 'right',
+                                        nowrap: true,
+                                        cell: (m) =>
+                                            `${t1(forecastInWindow(COMMITMENTS.find((x) => x.id === m.commitment)!.window))} t`
+                                    },
+                                    {
+                                        key: 'm',
+                                        label: t('market.col.matched'),
+                                        align: 'right',
+                                        nowrap: true,
+                                        cell: (m) => `${t1(m.kg)} t`
+                                    },
+                                    {
+                                        key: 'n',
+                                        label: t('market.col.lots'),
+                                        align: 'right',
+                                        cell: (m) => m.lots.length
+                                    }
+                                ]}
+                            />
+                        </section>
+                    </div>
+                    <aside className="flex-[1_1_340px] min-w-0 flex flex-col gap-3" aria-labelledby="mk-match">
+                        <SectionHead id="mk-match" title={t('market.section.matches', { lot: HERO_LOT.id })} />
+                        <div className="panel-solid rounded-[1.75rem] p-5 md:p-6 flex flex-col gap-3.5">
+                            <div className="flex justify-between gap-3 items-start">
+                                <div>
+                                    <div className="eyebrow">
+                                        {t('pay.section.lot', { lot: HERO_LOT.id, farm: HERO_LOT.farm })}
+                                    </div>
+                                    <div className="mt-1 text-[24px] leading-7 font-extrabold tabular">
+                                        {t1(HERO_LOT.driedKg)} {t('unit.t')}
+                                    </div>
+                                    <div className="text-[15px] font-bold tabular">
+                                        {t('market.lotline', {
+                                            grade: HERO_LOT.grade,
+                                            mc: HERO_LOT.mc,
+                                            week: HERO_LOT.week
+                                        })}
+                                    </div>
+                                </div>
+                                <StatusChip status="matched" />
+                            </div>
+                            <div className="flex items-center gap-2 text-[15px] font-bold tabular">
+                                <Icon name="ArrowRight" size={20} />
+                                <span>
+                                    {heroC.id} · {heroC.buyer} · {peso(heroC.price)}
+                                    {t('unit.perKg')}
+                                </span>
+                            </div>
+                            <Note>
+                                {t('market.match.reason')}.{' '}
+                                {t('market.fills', {
+                                    id: heroC.id,
+                                    filled: t1(heroM.kg),
+                                    tonnes: heroC.tonnes.toFixed(1),
+                                    n: heroM.lots.length,
+                                    lot: HERO_LOT.id
+                                })}
+                            </Note>
+                            {committed ? (
+                                <p
+                                    role="status"
+                                    className="flex items-center gap-2 text-[20px] leading-7 font-extrabold text-[var(--success-ink)]"
+                                >
+                                    <Icon name="CircleCheck" size={24} />
+                                    {t('market.committed', { id: heroC.id })}
+                                </p>
+                            ) : (
+                                <PrimaryButton icon="Check" onClick={() => setCommitted(true)}>
+                                    {t('market.commit')}
+                                </PrimaryButton>
+                            )}
+                        </div>
+                    </aside>
+                </div>
             </div>
         </AppShell>
     );

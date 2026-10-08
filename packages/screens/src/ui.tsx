@@ -4,12 +4,16 @@ import type { PropsWithChildren } from 'react';
 
 /* Markup the canvas boards repeat (not a new design-system component):
    the glass pill that labels a section, and a small muted note line. */
+/* Section label. Kept as a pill because several screens sit it in a row beside that section's own
+   control (the week switch, the filters), but set larger than a chip and carrying an accent bar, so a
+   section announces itself at heading size instead of only through a colour change. */
 export function SectionPill({ children, id }: PropsWithChildren<{ id?: string }>) {
     return (
         <h2
             id={id}
-            className="glass-panel !shadow-none inline-flex mb-3 px-3.5 py-1.5 rounded-full text-[13px] leading-4 font-extrabold tracking-[0.1em] uppercase text-[var(--ink)]"
+            className="glass-panel !shadow-none inline-flex items-center gap-2.5 mb-3 px-4 py-2 rounded-full text-[15px] leading-5 font-extrabold tracking-[0.08em] uppercase text-[var(--ink)]"
         >
+            <span aria-hidden className="block w-1 h-5 rounded-full bg-[var(--text-accent)]" />
             {children}
         </h2>
     );
