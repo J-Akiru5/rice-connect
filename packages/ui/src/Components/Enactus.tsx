@@ -1,15 +1,18 @@
 'use client';
 import { ButtonHTMLAttributes, HTMLAttributes, InputHTMLAttributes, PropsWithChildren, ReactNode } from 'react';
 import Icon from './Icon';
+import { ChatMessage, smsParts } from './Chat';
 import { useI18n, LANGS, Lang, tx } from '@rc/i18n';
 import { peso, rate, PRICE, SMS } from '../lib/demo';
 import { isDemo } from '../lib/mode';
 import { Menu, MenuItem, MenuSeparator } from '../kit/Menu';
 
 /* ================================================================
-   Enactus 2026 additions. Glass for everything except Haul, which
-   uses Karl's hard logistics style (HaulRequestCard, DriverCard,
-   RouteLine, StatusChip hard).
+   Enactus 2026 additions. Glass for everything, Haul included: the
+   logistics cards (HaulRequestCard, DriverCard, RouteLine) are soft
+   panels on the app's tokens, so the page reads as one product
+   (owner correction, 8 Oct 2026: the hard black-border style read as
+   a separate, "game-like" UI next to the rest of the app).
    ================================================================ */
 
 /* ---------- DemoChip ---------- */
@@ -75,7 +78,7 @@ export function StatusChip({
 }) {
     const { t } = useI18n();
     const k = kind ?? STATUS_KIND[status] ?? 'neutral';
-    /* Prototype port: a hard (Haul) neutral chip is white, not glass, so no glass sits inside a hard card. */
+    /* The hard variant is kept only for the kit's hard style sample: a hard neutral chip is white, not glass. */
     const s = hard && k === 'neutral' ? { cls: 'bg-white text-black', icon: KIND.neutral.icon } : KIND[k];
     const shape = hard ? 'rounded-none border-2 border-black' : 'rounded-full';
     return (
@@ -88,7 +91,12 @@ export function StatusChip({
     );
 }
 
-/* ---------- BigStat ---------- */
+/* ---------- BigStat ----------
+   The figures band of the buyer portal and the coordinator console. `xl` is the hero step for a page
+   whose whole answer is one number (supply available, the week's harvest): 56px with tabular figures,
+   which measures across the room on a monitor and stays legible on a phone at arm's length.
+   The note is 15px rather than 13px because it carries the qualification ("assumed", "simulated"),
+   and a qualification that cannot be read is the same as no qualification. */
 export function BigStat({
     label,
     value,
@@ -103,29 +111,44 @@ export function BigStat({
     unit?: string;
     note?: ReactNode;
     icon?: string;
-    size?: 'lg' | 'md';
+    size?: 'lg' | 'md' | 'xl';
     className?: string;
 }) {
     const { t } = useI18n();
     label = tx(t, label);
     note = tx(t, note);
+    const figure =
+        size === 'xl'
+            ? 'text-[44px] leading-[48px] md:text-[56px] md:leading-[58px]'
+            : size === 'md'
+              ? 'text-[30px] leading-[36px]'
+              : 'text-[40px] leading-[44px]';
     return (
-        <div className={'glass-panel rounded-[1.5rem] p-5 min-w-0 ' + className}>
+        <div className={'glass-panel rounded-[1.75rem] p-5 md:p-6 min-w-0 ' + className}>
             <div className="flex items-center gap-2 eyebrow">
                 {icon && <Icon name={icon} size={18} />}
                 {label}
             </div>
             <div className="mt-2 flex flex-wrap items-baseline gap-x-1.5 tabular min-w-0">
-                <span
-                    className={`${size === 'md' ? 'text-[30px] leading-[36px]' : 'text-[40px] leading-[44px]'} font-extrabold tracking-[-0.02em] text-[var(--ink)] break-all`}
-                >
+                <span className={`${figure} font-extrabold tracking-[-0.02em] text-[var(--ink)] break-all`}>
                     {value}
                 </span>
                 {unit && <span className="text-lg font-bold text-[var(--text-muted)]">{unit}</span>}
             </div>
-            {note && <div className="mt-1 text-[13px] font-semibold text-[var(--text-secondary)]">{note}</div>}
+            {note && (
+                <div className="mt-1.5 text-[15px] leading-[23px] font-semibold text-[var(--text-secondary)]">
+                    {note}
+                </div>
+            )}
         </div>
     );
+}
+
+/* ---------- FigureNote ----------
+   A single sentence under a figures band that explains what the numbers are and are not.
+   Kept out of the cards so the qualification reads once, at full width, instead of five times at 13px. */
+export function FigureNote({ children, className = '' }: PropsWithChildren<{ className?: string }>) {
+    return <p className={'rc-lede ' + className}>{children}</p>;
 }
 
 /* ---------- Field row (internal) ---------- */
@@ -544,7 +567,7 @@ export function SlotTimeline({
     );
 }
 
-/* ---------- RouteLine (hard) ---------- */
+/* ---------- RouteLine (soft) ---------- */
 export function RouteLine({
     stops,
     km,
@@ -558,25 +581,32 @@ export function RouteLine({
 }) {
     const { t } = useI18n();
     return (
-        <div className={'hard-thin p-4 ' + className}>
+        <div className={'rc-subtle p-4 ' + className}>
             <ol className="relative flex flex-col gap-4">
-                <span aria-hidden className="absolute left-[19px] top-6 bottom-6 w-1 bg-black" />
+                <span
+                    aria-hidden
+                    className="absolute left-[19px] top-6 bottom-6 w-[2px] rounded-full bg-[color:color-mix(in_srgb,var(--ink)_16%,transparent)]"
+                />
                 {stops.map((s, i) => (
                     <li key={i} className="relative flex items-center gap-3 min-w-0">
                         <span
-                            className={`relative z-10 w-10 h-10 shrink-0 flex items-center justify-center border-[3px] border-black ${i < active ? 'bg-[var(--success)]' : i === active ? 'bg-[var(--warning)]' : 'bg-white'}`}
+                            className={`relative z-10 w-10 h-10 shrink-0 flex items-center justify-center rounded-full border transition-colors ${i < active ? 'bg-[var(--fill-strong)] text-[var(--on-fill-strong)] border-transparent' : i === active ? 'bg-[var(--warning)] text-black border-transparent' : 'bg-[var(--glass-fill-strong)] text-[var(--text-muted)] border-[color:var(--text-muted)]'}`}
                         >
-                            <Icon name={s.icon} size={22} />
+                            <Icon name={s.icon} size={20} />
                         </span>
                         <span className="min-w-0">
-                            <span className="block text-[15px] font-extrabold text-black break-words">{s.label}</span>
-                            <span className="block text-[13px] font-semibold text-[var(--gray-900)]">{s.place}</span>
+                            <span className="block text-[15px] font-extrabold text-[var(--ink)] break-words">
+                                {s.label}
+                            </span>
+                            <span className="block text-[13px] font-semibold text-[var(--text-secondary)]">
+                                {s.place}
+                            </span>
                         </span>
                     </li>
                 ))}
             </ol>
             {km !== undefined && (
-                <div className="mt-3 pt-3 border-t-2 border-black flex items-center gap-2 text-[14px] font-extrabold text-black tabular">
+                <div className="mt-3 pt-3 border-t rc-hairline flex items-center gap-2 text-[14px] font-bold text-[var(--text-secondary)] tabular">
                     <Icon name="Route" size={20} />
                     {km.toFixed(1)} {t('unit.km')} · {t('route.note')}
                 </div>
@@ -585,16 +615,20 @@ export function RouteLine({
     );
 }
 
-/* ---------- Vehicle option (hard) ---------- */
+/* ---------- Vehicle option (soft) ---------- */
 export function VehicleOption({
     v,
     sacks,
     selected,
+    best,
     onSelect
 }: {
     v: { id: string; icon: string; capacity: number; price: number };
     sacks?: number;
     selected?: boolean;
+    /* The cheapest option that still fits this load: the picker answers "which one?" where the
+       choice is made, rather than leaving it to a list further down the page. */
+    best?: boolean;
     onSelect?: () => void;
 }) {
     const { t } = useI18n();
@@ -607,32 +641,40 @@ export function VehicleOption({
             aria-checked={!!selected}
             disabled={tooSmall}
             onClick={onSelect}
-            className={`flex flex-col items-start gap-1 min-h-[44px] p-3 text-left border-[3px] border-black ${selected ? 'bg-[var(--warning)] shadow-[var(--shadow-hard)]' : 'bg-white'} ${tooSmall ? 'border-dashed cursor-not-allowed' : ''}`}
+            className={`flex flex-col items-start gap-1.5 min-h-[44px] p-4 text-left rounded-2xl border-2 transition-all duration-300 ${selected ? 'border-[color:var(--brand-gold)] bg-[color:color-mix(in_srgb,var(--brand-gold)_20%,transparent)] shadow-[var(--shadow-button)]' : 'border-transparent rc-bg-highlight hover:-translate-y-0.5'} ${tooSmall ? 'opacity-60 cursor-not-allowed hover:translate-y-0' : ''}`}
         >
-            <Icon name={v.icon} size={24} />
-            <span className="text-[14px] font-extrabold text-black">{t('veh.' + v.id)}</span>
-            <span className="text-[12px] font-bold text-black tabular">
-                {t('haul.capacity')} {v.capacity} {t('unit.sacks')}
+            <span className="w-full flex items-center gap-2">
+                <Icon
+                    name={v.icon}
+                    size={22}
+                    className={selected ? 'text-[var(--ink)]' : 'text-[var(--text-accent)]'}
+                />
+                <span className="text-[15px] font-extrabold text-[var(--ink)]">{t('veh.' + v.id)}</span>
+                {best && !tooSmall && (
+                    <span className="ml-auto shrink-0 rounded-full bg-[var(--brand-gold)] px-2 py-0.5 text-[11px] leading-4 font-extrabold uppercase tracking-[0.06em] text-black">
+                        {t('haul.best')}
+                    </span>
+                )}
             </span>
-            <span className="text-[12px] font-bold text-black tabular">
-                {peso(v.price)} {t('haul.pertrip')}
+            <span className="text-[13px] font-semibold text-[var(--text-secondary)] tabular">
+                {t('haul.capacity')} {v.capacity} {t('unit.sacks')} · {peso(v.price)} {t('haul.pertrip')}
             </span>
             {sacks && !tooSmall && trips > 1 && (
-                <span className="text-[12px] font-extrabold text-black tabular">
+                <span className="text-[13px] font-extrabold text-[var(--ink)] tabular">
                     {t('veh.trips').replace('{n}', String(trips))} · {peso(trips * v.price)}
                 </span>
             )}
             {tooSmall && (
-                <span className="text-[12px] font-extrabold text-black flex items-center gap-1">
+                <span className="text-[13px] font-bold text-[var(--text-muted)] flex items-center gap-1">
                     <Icon name="CircleX" size={14} />
-                    {t('veh.toosmall').replace('{n}', String(sacks))}
+                    {t('veh.toosmall')}
                 </span>
             )}
         </button>
     );
 }
 
-/* ---------- DriverCard (hard) ---------- */
+/* ---------- DriverCard (soft) ---------- */
 export function DriverCard({
     name,
     vehicle,
@@ -652,26 +694,30 @@ export function DriverCard({
 }) {
     const { t } = useI18n();
     return (
-        <div className={'hard p-4 ' + className}>
+        <div className={'rc-subtle p-4 ' + className}>
             <div className="flex items-start gap-3">
-                <span className="w-12 h-12 shrink-0 flex items-center justify-center border-[3px] border-black bg-[var(--info)]">
-                    <Icon name={vehicle} size={26} />
+                <span className="w-12 h-12 shrink-0 flex items-center justify-center rounded-full bg-[var(--info)] text-black">
+                    <Icon name={vehicle} size={24} />
                 </span>
                 <div className="min-w-0 flex-1">
                     {auto && (
-                        <div className="text-[12px] font-extrabold uppercase tracking-[0.06em] text-black flex items-center gap-1">
-                            <Icon name="CircleCheck" size={16} />
+                        <div className="text-[12px] font-extrabold uppercase tracking-[0.08em] text-[var(--text-muted)] flex items-center gap-1">
+                            <Icon name="CircleCheck" size={16} className="text-[var(--text-accent)]" />
                             {t('haul.autoassign')}
                         </div>
                     )}
-                    <div className="mt-0.5 text-[17px] font-extrabold text-black">{name}</div>
-                    <div className="text-[13px] font-semibold text-[var(--gray-900)] tabular">
+                    <div className="mt-0.5 text-[17px] font-extrabold text-[var(--ink)]">{name}</div>
+                    <div className="text-[13px] font-semibold text-[var(--text-secondary)] tabular">
                         {plate} · {t('driver.away', { km: distanceKm.toFixed(1) })}
                     </div>
                 </div>
             </div>
             {onOverride && (
-                <button type="button" onClick={onOverride} className="hard-btn bg-white text-black mt-3 w-full">
+                <button
+                    type="button"
+                    onClick={onOverride}
+                    className="mt-3 w-full inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-3 rounded-[2rem] font-extrabold uppercase text-[13px] leading-4 tracking-[0.08em] bg-[var(--glass-fill-strong)] text-[var(--ink)] border-2 border-[color:var(--text-muted)] hover:-translate-y-0.5 transition-all duration-500"
+                >
                     <Icon name="Users" size={20} />
                     <span>{t('haul.override')}</span>
                 </button>
@@ -680,7 +726,7 @@ export function DriverCard({
     );
 }
 
-/* ---------- HaulRequestCard (hard) ---------- */
+/* ---------- HaulRequestCard (soft) ---------- */
 export function HaulRequestCard({
     id,
     lot,
@@ -691,20 +737,22 @@ export function HaulRequestCard({
 }: PropsWithChildren<{ id: string; lot: string; sacks: number; status: string; className?: string }>) {
     const { t } = useI18n();
     return (
-        <article className={'hard p-4 ' + className}>
+        <article className={'panel-solid rounded-[1.75rem] p-5 md:p-6 ' + className}>
             <header className="flex items-start justify-between gap-3">
                 <div>
-                    <div className="text-[12px] font-extrabold uppercase tracking-[0.08em] text-black">
+                    <div className="text-[12px] font-extrabold uppercase tracking-[0.12em] text-[var(--text-muted)]">
                         {t('haul.title')}
                     </div>
-                    <h3 className="text-[24px] leading-7 font-extrabold text-black tabular">{id}</h3>
-                    <div className="text-[14px] font-bold text-[var(--gray-900)] tabular">
+                    <h3 className="text-[26px] leading-8 font-extrabold tracking-[-0.02em] text-[var(--ink)] tabular">
+                        {id}
+                    </h3>
+                    <div className="text-[14px] font-bold text-[var(--text-secondary)] tabular">
                         {t('unit.lot')} {lot} · {sacks} {t('unit.sacks')}
                     </div>
                 </div>
-                <StatusChip status={status} hard />
+                <StatusChip status={status} />
             </header>
-            {children && <div className="mt-3 space-y-3">{children}</div>}
+            {children && <div className="mt-4 space-y-3">{children}</div>}
         </article>
     );
 }
@@ -872,6 +920,8 @@ export function PhoneFrame({
 }
 
 /* ---------- SmsBubble ---------- */
+/** One message as a chat bubble (see Components/Chat.tsx): the sender, the length in characters and the
+    SMS parts it costs ride under the bubble as a caption, the way a carrier note would. */
 export function SmsBubble({
     text,
     time,
@@ -883,22 +933,14 @@ export function SmsBubble({
     from?: string;
     className?: string;
 }) {
-    const gsm = /^[\x0A\x0D\x20-\x7E]*$/.test(text);
-    const parts = gsm ? (text.length <= 160 ? '1 SMS' : `${Math.ceil(text.length / 153)} SMS`) : 'Unicode';
     const { t } = useI18n();
     return (
-        <figure
-            className={
-                'm-0 max-w-[320px] rounded-[1.25rem] rounded-bl-md glass-panel !shadow-[var(--shadow-card)] overflow-hidden ' +
-                className
-            }
-        >
-            <div className="px-4 pt-3 pb-2 text-[16px] leading-6 font-medium text-[var(--ink)]">{text}</div>
-            <figcaption className="px-4 py-2 border-t border-[color:var(--glass-border-strong)] text-[12px] leading-4 font-semibold text-[var(--text-muted)] tabular">
-                {from}
-                {time ? ' · ' + time : ''} · {text.length} {t('sms.chars')} · {parts}
-            </figcaption>
-        </figure>
+        <ChatMessage
+            text={text}
+            time={time}
+            caption={`${from} · ${text.length} ${t('sms.chars')} · ${t('chat.parts', { n: smsParts(text) })}`}
+            className={className}
+        />
     );
 }
 
@@ -916,11 +958,11 @@ export function SmsThread({
     const ctx = useI18n();
     const l = lang ?? ctx.lang;
     return (
-        <div className={'flex flex-col gap-4 ' + className} lang={l === 'hil' ? 'hil' : l}>
+        <ol className={'flex flex-col gap-3 list-none p-0 m-0 ' + className} lang={l === 'hil' ? 'hil' : l}>
             {SMS.filter((m) => !only || m.key === only).map((m) => (
                 <SmsBubble key={m.key} text={m.text[l]} time={m.time} />
             ))}
-        </div>
+        </ol>
     );
 }
 

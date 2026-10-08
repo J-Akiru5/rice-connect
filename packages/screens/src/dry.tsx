@@ -1,6 +1,17 @@
 'use client';
 import { useMemo } from 'react';
-import { AppShell, BigStat, ErrorState, LoadingState, Pagination, SlotTimeline, StatusChip, useI18n } from '@rc/ui';
+import {
+    AppShell,
+    BigStat,
+    ErrorState,
+    LoadingState,
+    Pagination,
+    SectionHead,
+    ShareBar,
+    SlotTimeline,
+    StatusChip,
+    useI18n
+} from '@rc/ui';
 import { isLive } from '@rc/ui/mode';
 import { useFarms, useLots, useSlots, useSlotStatus } from '@rc/data';
 import { paginate } from '@rc/domain/list';
@@ -150,6 +161,26 @@ export function DryScreen({ list, week: weekParam }: { list?: ListState; week?: 
                         )
                     ) : null}
                 </div>
+                <section
+                    aria-labelledby="dry-cap"
+                    className="panel-solid rounded-[1.75rem] p-5 md:p-7 flex flex-col gap-6"
+                >
+                    <SectionHead id="dry-cap" title={t('dry.share.title')} />
+                    <ShareBar
+                        title={`${t('dry.weeks')} ${WEEKS[week] ?? ''}`}
+                        unit={t('unit.sacks')}
+                        format={(v) => v.toLocaleString('en-US')}
+                        items={[
+                            { key: 'booked', label: t('dry.stat.booked'), value: booked, tone: 'brand' },
+                            { key: 'free', label: t('dry.share.free'), value: free, tone: 'gold' }
+                        ]}
+                        summary={t('dry.share.summary', {
+                            booked: booked.toLocaleString('en-US'),
+                            cap: cap.toLocaleString('en-US'),
+                            free: free.toLocaleString('en-US')
+                        })}
+                    />
+                </section>
                 <section aria-labelledby="dry-sec">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                         <SectionPill id="dry-sec">
@@ -167,7 +198,7 @@ export function DryScreen({ list, week: weekParam }: { list?: ListState; week?: 
                                     role="radio"
                                     aria-checked={week === i}
                                     onClick={() => setWeek(i)}
-                                    className={`min-w-[44px] min-h-[40px] px-3 rounded-full text-[13px] font-extrabold tracking-[0.06em] ${week === i ? 'bg-[var(--fill-strong)] text-[var(--on-fill-strong)]' : 'text-[var(--ink)]'}`}
+                                    className={`min-w-[52px] min-h-[44px] px-4 rounded-full text-[15px] font-extrabold tracking-[0.06em] ${week === i ? 'bg-[var(--fill-strong)] text-[var(--on-fill-strong)]' : 'text-[var(--ink)]'}`}
                                 >
                                     {w}
                                 </button>

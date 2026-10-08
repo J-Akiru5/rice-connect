@@ -1,131 +1,134 @@
 'use client';
+import { ReactNode, useState } from 'react';
 import { ZLink } from '@rc/ui';
 import {
     AppShell,
+    ChatComposer,
+    ChatDay,
+    ChatHeader,
+    ChatMessage,
+    ChatThread,
     DemoChip,
     ErrorState,
-    Field,
-    Form,
     Icon,
     LANGS,
     LoadingState,
     PhoneFrame,
     PhoneShell,
     PhoneStage,
-    SecondaryButton,
-    SmsBubble,
     SmsThread,
     StatusChip,
-    SubmitButton,
     T,
     TeamFooter,
+    chatClock,
+    smsParts,
     useI18n,
-    useToast
+    useToast,
+    type ChatState,
+    type Lang
 } from '@rc/ui';
-import { useForm } from '@rc/ui';
 import { useFramed } from './shell';
 import { useSmsReplies, useSmsReply, useSmsThread } from '@rc/data';
 import { isLive } from '@rc/ui/mode';
+import type { SmsMessage } from '@rc/domain/schemas';
 import { HERO_FARM, HERO_LOT, SLOT } from '@rc/domain/seed';
 
 /** /sms — the three messages the farmer gets for Lot L-03, in the header language.
     Always on a phone: inside the website shell the PhoneFrame is the farmer's phone; in /demo or ?frame=phone the whole
     screen is the coordinator's phone shell (as in the canvas board). */
-/** Farmer replies typed in the farmer app, as chat bubbles. `mine` = seen from the farmer's own phone (right side). */
-function Replies({ mine }: { mine: boolean }) {
-    const { t } = useI18n();
-    const { data: replies = [] } = useSmsReplies();
-    /* Demo messages are the hero conversation; live rows are already scoped by RLS to this reader. */
-    const shown = isLive ? replies : replies.filter((r) => r.farm === HERO_FARM.id);
-    const label = (action: string | null) =>
-        isLive
-            ? t(action === 'ok' ? 'sms.reply.accepted' : action === 'move' ? 'sms.reply.moved' : 'sms.reply.unclear')
-            : t(action === 'ok' ? 'sms.reply.ok' : action === 'move' ? 'sms.reply.move' : 'sms.reply.unknown', {
-                  slot: SLOT.id
-              });
-    return (
-        <>
-            {shown.map((r) => (
-                <li key={r.id} className={`flex flex-col gap-1 ${mine ? 'items-end' : 'items-start'}`}>
-                    <div
-                        className={`max-w-[min(420px,85%)] rounded-[1.25rem] px-4 py-3 text-[16px] leading-6 font-medium ${mine ? 'bg-[var(--fill-strong)] text-[var(--on-fill-strong)] rounded-br-md' : 'glass-panel rounded-bl-md'}`}
-                    >
-                        {r.text}
-                    </div>
-                    <StatusChip
-                        status={r.action === 'ok' ? 'paid' : r.action === 'move' ? 'pending' : 'failed'}
-                        label={label(r.action)}
-                    />
-                </li>
-            ))}
-        </>
+/** The sender the farmer sees: the cooperative, over SMS. */
+const FROM = 'RiceConnect';
+/** What the thread is about: one lot, one channel. */
+const META = (t: ReturnType<typeof useI18n>['t']) => `${t('unit.lot')} ${HERO_LOT.id} · ${t('nav.sms')}`;
+/** What the system says about a reply: live reports the outcome, demo echoes the slot SMS it parsed. */
+const replyOutcome = (t: ReturnType<typeof useI18n>['t'], action: 'ok' | 'move' | null) =>
+    isLive
+        ? t(action === 'ok' ? 'sms.reply.accepted' : action === 'move' ? 'sms.reply.moved' : 'sms.reply.unclear')
+        : t(action === 'ok' ? 'sms.reply.ok' : action === 'move' ? 'sms.reply.move' : 'sms.reply.unknown', {
+              slot: SLOT.id
+          });
+
+type Entry =
+    | { kind: 'day'; id: string; label: string }
+    | {
+          kind: 'msg';
+          id: string;
+          mine: boolean;
+          text: string;
+          time?: string;
+          caption?: ReactNode;
+          extra?: ReactNode;
+          state?: ChatState;
+      };
+
+/** One conversation, built from the thread's system SMS (the repository thread, in the header language)
+    and the replies typed in this app (the store), split by day the way a phone splits a thread.
+    `sending` is the message in flight, shown as its own bubble until the store takes it over. */
+function threadEntries({
+    t,
+    lang,
+    messages,
+    replies,
+    sending
+}: {
+    t: ReturnType<typeof useI18n>['t'];
+    lang: Lang;
+    messages: SmsMessage[];
+    replies: { id: string; farm: string; text: string; action: 'ok' | 'move' | null; at?: string }[];
+    sending: string | null;
+}): Entry[] {
+    const entries: Entry[] = [];
+    let day = '';
+    messages.forEach((m) => {
+        if (m.time !== day) {
+            day = m.time;
+            entries.push({ kind: 'day', id: 'day-' + m.key, label: m.time });
+        }
+        const text = m.text[lang];
+        entries.push({
+            kind: 'msg',
+            id: m.key,
+            mine: false,
+            text,
+            caption: `${FROM} · ${text.length} ${t('sms.chars')} · ${t('chat.parts', { n: smsParts(text) })}`
+        });
+    });
+    /* Demo replies are the hero conversation; live rows are already scoped by RLS to this reader. */
+    const mine = isLive ? replies : replies.filter((r) => r.farm === HERO_FARM.id);
+    if (mine.length > 0) entries.push({ kind: 'day', id: 'day-now', label: t('chat.today') });
+    mine.forEach((r) =>
+        entries.push({
+            kind: 'msg',
+            id: r.id,
+            mine: true,
+            text: r.text,
+            time: chatClock(r.at),
+            /* A reply the system understood was read and acted on; anything else only arrived. */
+            state: r.action ? 'read' : 'delivered',
+            extra: (
+                <StatusChip
+                    status={r.action === 'ok' ? 'paid' : r.action === 'move' ? 'pending' : 'failed'}
+                    label={replyOutcome(t, r.action)}
+                />
+            )
+        })
     );
+    if (sending) entries.push({ kind: 'msg', id: 'sending', mine: true, text: sending, state: 'sending' });
+    return entries;
 }
 
-/** The farmer answers the slot SMS (farmer app only): quick replies or free text, parsed by parseSmsReply.
-    Built on the form kit; the confirmation is echoed as a toast and as a chip on the reply bubble. */
-function ReplyBox() {
-    const { t } = useI18n();
-    const toast = useToast();
-    const reply = useSmsReply();
-    const form = useForm<{ text: string }>({ defaultValues: { text: '' }, mode: 'onSubmit' });
-    const send = async (raw: string) => {
-        const text = raw.trim();
-        if (!text || reply.isPending) return;
-        const stored = await reply.mutateAsync({ text });
-        const key =
-            stored.action === 'ok' ? 'sms.reply.ok' : stored.action === 'move' ? 'sms.reply.move' : 'sms.reply.unknown';
-        toast.show(
-            isLive
-                ? t(
-                      stored.action === 'ok'
-                          ? 'sms.reply.accepted'
-                          : stored.action === 'move'
-                            ? 'sms.reply.moved'
-                            : 'sms.reply.unclear'
-                  )
-                : t(key, { slot: SLOT.id })
-        );
-        form.reset();
-    };
+function renderEntry(e: Entry) {
+    if (e.kind === 'day') return <ChatDay key={e.id} label={e.label} />;
     return (
-        <Form
-            form={form}
-            onSubmit={async ({ text }) => send(text)}
-            busy={reply.isPending}
-            className="flex flex-col gap-2"
-        >
-            <div className="flex flex-wrap gap-2" role="group" aria-label={t('sms.reply.quick')}>
-                <SecondaryButton icon="Check" disabled={reply.isPending} onClick={() => void send('1 OK')}>
-                    {t('sms.reply.quickOk')}
-                </SecondaryButton>
-                <SecondaryButton icon="Clock" disabled={reply.isPending} onClick={() => void send('2 Move')}>
-                    {t('sms.reply.quickMove')}
-                </SecondaryButton>
-            </div>
-            <div className="flex gap-2 items-stretch flex-wrap">
-                <Field name="text" label={t('sms.reply.label')} className="flex-1 min-w-[180px]">
-                    {({ value, onChange, onBlur, name, describedBy, invalid }) => (
-                        <input
-                            name={name}
-                            value={value}
-                            onChange={(e) => onChange(e.target.value)}
-                            onBlur={onBlur}
-                            aria-invalid={invalid}
-                            aria-describedby={describedBy}
-                            placeholder={t('sms.reply.placeholder')}
-                            className="input-2026 !text-base"
-                        />
-                    )}
-                </Field>
-                <SubmitButton
-                    icon="Send"
-                    className="self-start"
-                    label={t('sms.reply.send')}
-                    pendingLabel={t('sms.reply.sending')}
-                />
-            </div>
-        </Form>
+        <ChatMessage
+            key={e.id}
+            mine={e.mine}
+            text={e.text}
+            time={e.time}
+            caption={e.caption}
+            extra={e.extra}
+            state={e.state}
+        />
     );
 }
 
@@ -134,6 +137,9 @@ export function SmsScreen({ reply = false }: { reply?: boolean }) {
     const framed = useFramed();
     const thread = useSmsThread();
     const replies = useSmsReplies();
+    const mutation = useSmsReply();
+    const toast = useToast();
+    const [sending, setSending] = useState<string | null>(null);
     const loading = thread.isPending || replies.isPending;
     const failed = thread.isError || replies.isError;
     const retry = () => {
@@ -143,14 +149,26 @@ export function SmsScreen({ reply = false }: { reply?: boolean }) {
     const states = loading ? <LoadingState rows={3} /> : failed ? <ErrorState onRetry={retry} /> : null;
     /* Gate 3: the messages come from the repository thread (mock in demo, Supabase in live). */
     const messages = thread.data ?? [];
-    const last = messages[messages.length - 1];
-    const messagesView = (
-        <div className="flex flex-col gap-4" lang={lang === 'hil' ? 'hil' : lang}>
-            {messages.map((m, i) => (
-                <SmsBubble key={`${m.key}-${i}`} text={m.text[lang]} time={m.time} />
-            ))}
-        </div>
-    );
+
+    const send = async (raw: string) => {
+        const text = raw.trim();
+        if (!text || mutation.isPending) return;
+        setSending(text);
+        try {
+            const stored = await mutation.mutateAsync({ text });
+            toast.show(replyOutcome(t, stored.action));
+        } catch {
+            /* The store surfaces the error through the thread state; the bubble stops being "sending". */
+        } finally {
+            setSending(null);
+        }
+    };
+
+    const entries = threadEntries({ t, lang, messages, replies: replies.data ?? [], sending });
+    const quick = [
+        { label: t('sms.reply.quickOk'), text: '1 OK', icon: 'Check' },
+        { label: t('sms.reply.quickMove'), text: '2 Move', icon: 'Clock' }
+    ];
     const allLink = (
         <ZLink
             href="/sms?all=1"
@@ -160,100 +178,116 @@ export function SmsScreen({ reply = false }: { reply?: boolean }) {
             <span>{t('sms.all.link')}</span>
         </ZLink>
     );
+    const note = (
+        <p className="glass-panel !shadow-none m-0 px-4 py-3 rounded-2xl text-[16px] leading-6 font-semibold">
+            <T k="sms.note" />
+        </p>
+    );
+    /* Pay opens the hero lot — a demo lot, so a live thread never shows it. */
+    const payLink = (
+        <ZLink
+            href={`/pay/${HERO_LOT.id}`}
+            className="inline-flex items-center gap-2 min-h-[40px] px-4 rounded-[2rem] border-2 border-[color:var(--text-accent)] text-[var(--text-accent)] text-[13px] font-extrabold uppercase tracking-[0.08em]"
+        >
+            <Icon name="Pay" size={20} />
+            <span>{t('pay.open', { lot: HERO_LOT.id })}</span>
+        </ZLink>
+    );
+
     if (framed)
         return (
             <PhoneStage>
                 <PhoneShell role="farmer" title="sms.title" active="sms">
                     <div className="flex flex-col gap-4">
-                        <p className="glass-panel !shadow-none m-0 px-4 py-3 rounded-2xl text-[16px] leading-6 font-semibold">
-                            <T k="sms.note" />
-                        </p>
-                        <div className="glass-panel rounded-[1.5rem] p-4">{states ?? messagesView}</div>
+                        {note}
+                        <div className="panel-solid rounded-[1.75rem] overflow-hidden">
+                            {states ?? (
+                                <>
+                                    <ChatHeader name={FROM} meta={META(t)} />
+                                    <ChatThread ariaLabel={t('sms.title')} className="p-3">
+                                        {entries.map(renderEntry)}
+                                    </ChatThread>
+                                    {reply && (
+                                        <ChatComposer
+                                            onSend={(text) => void send(text)}
+                                            pending={mutation.isPending}
+                                            quickReplies={quick}
+                                            placeholder={t('sms.reply.placeholder')}
+                                        />
+                                    )}
+                                </>
+                            )}
+                        </div>
                         {allLink}
                     </div>
                 </PhoneShell>
             </PhoneStage>
         );
+
+    /* The last thing said, for the conversation list: the reply if the farmer has sent one. */
+    const said = entries.filter((e): e is Extract<Entry, { kind: 'msg' }> => e.kind === 'msg');
+    const last = said[said.length - 1];
     return (
         <AppShell role="farmer" title="sms.title" active="sms">
             {/* Wide content: a desktop chat (derived, not in canvas). Conversation list left, the thread right. */}
-            <div className="cq-wide-only glass-panel rounded-[1.5rem] overflow-hidden grid grid-cols-[minmax(240px,300px)_minmax(0,1fr)] min-h-[620px]">
+            <div className="cq-wide-only panel-solid rounded-[1.75rem] overflow-hidden grid grid-cols-[minmax(260px,320px)_minmax(0,1fr)] min-h-[660px]">
                 <nav
                     aria-label={t('sms.conversations')}
                     className="border-r border-[color:var(--glass-border-strong)] flex flex-col"
                 >
-                    <h2 className="eyebrow px-4 pt-4 pb-2">{t('sms.conversations')}</h2>
-                    <ul>
+                    <h2 className="px-4 pt-4 pb-2 text-[19px] leading-6 font-extrabold tracking-[-0.02em] text-[var(--ink)]">
+                        {t('sms.conversations')}
+                    </h2>
+                    <ul className="list-none m-0 p-0">
                         <li>
                             <a
                                 href="#sms-thread"
                                 aria-current="true"
-                                className="flex items-start gap-3 px-4 py-3 min-h-[64px] rc-bg-highlight border-l-4 border-[color:var(--fill-strong)]"
+                                className="flex items-start gap-3 px-4 py-3.5 min-h-[72px] rc-bg-highlight border-l-4 border-[color:var(--fill-strong)]"
                             >
-                                <span className="shrink-0 w-11 h-11 rounded-full flex items-center justify-center bg-[var(--fill-strong)] text-[var(--on-fill-strong)]">
-                                    <Icon name="User" size={20} />
+                                <span className="shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-[var(--fill-strong)] text-[var(--on-fill-strong)]">
+                                    <Icon name="Sms" size={22} />
                                 </span>
                                 <span className="min-w-0 flex-1">
                                     <span className="flex items-baseline justify-between gap-2 flex-wrap">
-                                        <span className="text-[15px] font-extrabold break-words">
-                                            {isLive ? t('sms.title') : HERO_FARM.name}
-                                        </span>
-                                        <span className="text-[12px] font-semibold text-[var(--text-secondary)] tabular">
-                                            {last?.time}
+                                        <span className="text-[17px] font-extrabold break-words">{FROM}</span>
+                                        <span className="text-[13px] font-semibold text-[var(--text-secondary)] tabular">
+                                            {last?.time ?? messages[messages.length - 1]?.time}
                                         </span>
                                     </span>
-                                    <span className="block text-[14px] leading-5 font-medium text-[var(--text-secondary)] break-words">
-                                        {last?.text[lang]}
+                                    <span className="block text-[15px] leading-6 font-medium text-[var(--text-secondary)] break-words">
+                                        {last?.text}
                                     </span>
                                 </span>
                             </a>
                         </li>
                     </ul>
-                    <p className="mt-auto m-0 p-4 text-[14px] leading-5 font-semibold text-[var(--text-secondary)]">
+                    <p className="mt-auto m-0 p-4 text-[15px] leading-6 font-semibold text-[var(--text-secondary)]">
                         <T k="sms.note" />
                     </p>
                 </nav>
                 <section id="sms-thread" aria-labelledby="sms-thread-h" className="flex flex-col min-w-0" lang={lang}>
-                    <header className="flex items-center gap-3 flex-wrap px-5 py-4 border-b border-[color:var(--glass-border-strong)]">
-                        <div className="min-w-0 flex-1">
-                            <h2 id="sms-thread-h" className="text-[18px] leading-6 font-extrabold break-words">
-                                {isLive ? t('sms.title') : HERO_FARM.name}
-                            </h2>
-                            {!isLive && (
-                                <p className="m-0 text-[14px] font-semibold text-[var(--text-secondary)] tabular break-words">
-                                    {HERO_FARM.mobile} · {HERO_FARM.barangay}
-                                </p>
-                            )}
-                        </div>
-                        {!isLive && (
-                            <ZLink
-                                href={`/pay/${HERO_LOT.id}`}
-                                className="inline-flex items-center gap-2 min-h-[40px] px-4 rounded-[2rem] border-2 border-[color:var(--text-accent)] text-[var(--text-accent)] text-[13px] font-extrabold uppercase tracking-[0.08em]"
-                            >
-                                <Icon name="Pay" size={20} />
-                                <span>{t('pay.open', { lot: HERO_LOT.id })}</span>
-                            </ZLink>
+                    <div className="flex flex-col min-w-0">
+                        <ChatHeader
+                            name={<span id="sms-thread-h">{FROM}</span>}
+                            meta={isLive ? META(t) : `${META(t)} · ${HERO_FARM.mobile}`}
+                            action={isLive ? undefined : payLink}
+                        />
+                        {states ?? (
+                            <ChatThread ariaLabel={t('sms.title')} className="flex-1 p-5">
+                                {entries.map(renderEntry)}
+                            </ChatThread>
                         )}
-                    </header>
-                    {states ?? (
-                        <ol className="flex-1 flex flex-col gap-5 px-5 py-6" aria-label={t('sms.title')}>
-                            {messages.map((m, i) => (
-                                <li key={`${m.key}-${i}`} className="flex flex-col items-end gap-2">
-                                    <span className="self-center glass-panel !shadow-none px-3 py-1 rounded-full text-[12px] font-extrabold uppercase tracking-[0.08em] text-[var(--text-muted)] tabular">
-                                        {m.time}
-                                    </span>
-                                    <SmsBubble text={m.text[lang]} time={m.time} className="max-w-[min(520px,85%)]" />
-                                </li>
-                            ))}
-                            <Replies mine={false} />
-                        </ol>
-                    )}
-                    {reply && (
-                        <div className="px-5 pb-4">
-                            <ReplyBox />
-                        </div>
-                    )}
-                    <footer className="flex items-center justify-between gap-3 flex-wrap px-5 py-3 border-t border-[color:var(--glass-border-strong)]">
+                        {reply && (
+                            <ChatComposer
+                                onSend={(text) => void send(text)}
+                                pending={mutation.isPending}
+                                quickReplies={quick}
+                                placeholder={t('sms.reply.placeholder')}
+                            />
+                        )}
+                    </div>
+                    <footer className="mt-auto flex items-center justify-between gap-3 flex-wrap px-5 py-3 pr-16 border-t border-[color:var(--glass-border-strong)]">
                         <span className="text-[14px] font-semibold text-[var(--text-secondary)] flex items-center gap-2">
                             <Icon name="Info" size={20} />
                             {t('sms.readonly')}
@@ -269,25 +303,28 @@ export function SmsScreen({ reply = false }: { reply?: boolean }) {
                     </footer>
                 </section>
             </div>
-            {/* Narrow content: the farmer's phone. */}
+            {/* Narrow content: the farmer's phone, which is where this conversation actually happens. */}
             <div className="cq-narrow-only flex flex-col gap-4 items-center">
-                <p className="glass-panel !shadow-none m-0 px-4 py-3 rounded-2xl text-[16px] leading-6 font-semibold max-w-[640px] w-full">
-                    <T k="sms.note" />
-                </p>
+                {note}
+                <div className="eyebrow w-full max-w-[640px]">{t('sms.inbox', { farm: HERO_FARM.id })}</div>
                 <PhoneFrame className="max-w-full shadow-[var(--shadow-popover)]">
-                    <div className="rc-ground min-h-full p-4 flex flex-col gap-3">
-                        <div className="eyebrow">
-                            {isLive ? t('sms.title') : t('sms.inbox', { farm: HERO_FARM.id })}
-                        </div>
+                    <div className="rc-ground min-h-full flex flex-col">
                         {states ?? (
                             <>
-                                {messagesView}
-                                <ul className="flex flex-col gap-3">
-                                    <Replies mine />
-                                </ul>
+                                <ChatHeader name={FROM} meta={META(t)} />
+                                <ChatThread ariaLabel={t('sms.title')} autoScroll className="flex-1 p-3">
+                                    {entries.map(renderEntry)}
+                                </ChatThread>
+                                {reply && (
+                                    <ChatComposer
+                                        onSend={(text) => void send(text)}
+                                        pending={mutation.isPending}
+                                        quickReplies={quick}
+                                        placeholder={t('sms.reply.placeholder')}
+                                    />
+                                )}
                             </>
                         )}
-                        {reply && <ReplyBox />}
                     </div>
                 </PhoneFrame>
                 {allLink}
@@ -303,7 +340,7 @@ export function SmsAllScreen() {
         <div className="rc-ground min-h-screen flex flex-col">
             <div className="flex-1 p-[clamp(16px,4vw,48px)]">
                 <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
-                    <h1 className="m-0 text-[32px] leading-9 font-extrabold tracking-[-0.03em] uppercase">
+                    <h1 className="m-0 text-[38px] leading-[44px] font-extrabold tracking-[-0.03em] uppercase">
                         {t('sms.all.title', { lot: HERO_LOT.id })}
                     </h1>
                     <div className="flex items-center gap-3 flex-wrap">
@@ -322,9 +359,9 @@ export function SmsAllScreen() {
                         <section
                             key={l.id}
                             aria-labelledby={`sms-${l.id}`}
-                            className="glass-panel rounded-[1.5rem] p-5"
+                            className="panel-solid rounded-[1.75rem] p-5 md:p-6"
                         >
-                            <h2 id={`sms-${l.id}`} className="m-0 text-[20px] font-extrabold">
+                            <h2 id={`sms-${l.id}`} className="m-0 text-[22px] font-extrabold tracking-[-0.02em]">
                                 {l.name}
                             </h2>
                             {l.draft && (
@@ -336,8 +373,8 @@ export function SmsAllScreen() {
                             <SmsThread lang={l.id} className="mt-3" />
                         </section>
                     ))}
-                </div>
-                <p className="mt-8 text-[15px] leading-[22px] font-semibold text-[var(--text-secondary)]">
+                </div>{' '}
+                <p className="mt-8 text-[16px] leading-7 font-semibold text-[var(--text-secondary)]">
                     {t('sms.ascii')}
                 </p>
             </div>
